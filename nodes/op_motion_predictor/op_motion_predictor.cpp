@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, Nagoya University
+ *  Copyright (c) 2017, Nagoya University
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -27,23 +27,14 @@
  *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
 #include <ros/ros.h>
-#include "op_utility/DataRW.h"
+#include "../include/op_motion_predictor_core.h"
+
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_common_params");
-
-	UtilityHNS::DataRW::CreateLoggingFolder();
-
-	ros::NodeHandle nh;
-	ros::Rate loop_rate(1);
-	while (ros::ok())
-	{
-		ros::spinOnce();
-		loop_rate.sleep();
-	}
+	ros::init(argc, argv, "op_motion_predictor");
+	MotionPredictorNS::MotionPrediction  predict_traj;
+	predict_traj.MainLoop();
 	return 0;
 }

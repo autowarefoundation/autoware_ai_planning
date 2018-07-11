@@ -28,10 +28,11 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef OP_TRAJECTORY_GENERATOR_CORE
-#define OP_TRAJECTORY_GENERATOR_CORE
+#ifndef OP_MOTION_PREDICTION
+#define OP_MOTION_PREDICTION
 
 #include <ros/ros.h>
+
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
@@ -40,72 +41,96 @@
 #include <nav_msgs/Odometry.h>
 #include <autoware_msgs/LaneArray.h>
 #include <autoware_msgs/CanInfo.h>
+#include <autoware_msgs/DetectedObjectArray.h>
+#include <visualization_msgs/MarkerArray.h>
 
-#include "op_planner/PlannerH.h"
 #include "op_planner/PlannerCommonDef.h"
+#include "op_planner/BehaviorPrediction.h"
 
-namespace TrajectoryGeneratorNS
+namespace MotionPredictorNS
 {
 
-class TrajectoryGen
+class MotionPrediction
 {
 protected:
-	PlannerHNS::PlannerH m_Planner;
-	geometry_msgs::Pose m_OriginPos;
-	PlannerHNS::WayPoint m_InitPos;
-	bool bInitPos;
-
 	PlannerHNS::WayPoint m_CurrentPos;
 	bool bNewCurrentPos;
 
 	PlannerHNS::VehicleState m_VehicleStatus;
 	bool bVehicleStatus;
+	bool m_bGoNextStep;
 
-	std::vector<PlannerHNS::WayPoint> m_temp_path;
-	std::vector<std::vector<PlannerHNS::WayPoint> > m_GlobalPaths;
-	std::vector<std::vector<PlannerHNS::WayPoint> > m_GlobalPathSections;
-	std::vector<PlannerHNS::WayPoint> t_centerTrajectorySmoothed;
-	std::vector<std::vector<std::vector<PlannerHNS::WayPoint> > > m_RollOuts;
-	bool bWayGlobalPath;
-	struct timespec m_PlanningTimer;
-  	std::vector<std::string>    m_LogData;
-  	PlannerHNS::PlanningParams m_PlanningParams;
-  	PlannerHNS::CAR_BASIC_INFO m_CarInfo;
+	geometry_msgs::Pose m_OriginPos;
+	PlannerHNS::CAR_BASIC_INFO m_CarInfo;
+	PlannerHNS::ControllerParams m_ControlParams;
+	PlannerHNS::PlanningParams m_PlanningParams;
+	PlannerHNS::MAP_SOURCE_TYPE m_MapType;
+	std::string m_MapPath;
+
+	std::vector<PlannerHNS::DetectedObject> m_TrackedObjects;
+	bool bTrackedObjects;
+
+	PlannerHNS::RoadNetwork m_Map;
+	bool bMap;
+
+	bool m_bEnableCurbObstacles;
+	std::vector<PlannerHNS::DetectedObject> curr_curbs_obstacles;
+
+	PlannerHNS::BehaviorPrediction m_PredictBeh;
+	autoware_msgs::DetectedObjectArray m_PredictedResultsResults;
+
+	timespec m_VisualizationTimer;
+	std::vector<std::vector<PlannerHNS::WayPoint> > m_all_pred_paths;
+	std::vector<PlannerHNS::WayPoint> m_particles_points;
+
+	visualization_msgs::MarkerArray m_PredictedTrajectoriesDummy;
+	visualization_msgs::MarkerArray m_PredictedTrajectoriesActual;
+
+	visualization_msgs::MarkerArray m_PredictedParticlesDummy;
+	visualization_msgs::MarkerArray m_PredictedParticlesActual;
+
+	visualization_msgs::MarkerArray m_CurbsDummy;
+	visualization_msgs::MarkerArray m_CurbsActual;
+
+	double m_DistanceBetweenCurbs;
+	double m_VisualizationTime;
+
+	timespec m_SensingTimer;
 
 
-  	//ROS messages (topics)
 	ros::NodeHandle nh;
-
-	//define publishers
-	ros::Publisher pub_LocalTrajectories;
-	ros::Publisher pub_LocalTrajectoriesRviz;
+	ros::Publisher  pub_predicted_objects_trajectories;
+	ros::Publisher  pub_PredictedTrajectoriesRviz ;
+	ros::Publisher  pub_CurbsRviz ;
+	ros::Publisher pub_ParticlesRviz;
 
 	// define subscribers.
-	ros::Subscriber sub_initialpose;
-	ros::Subscriber sub_current_pose;
-	ros::Subscriber sub_current_velocity;
-	ros::Subscriber sub_robot_odom;
-	ros::Subscriber sub_can_info;
-	ros::Subscriber sub_GlobalPlannerPaths;
-
+	ros::Subscriber sub_tracked_objects		;
+	ros::Subscriber sub_current_pose 		;
+	ros::Subscriber sub_current_velocity	;
+	ros::Subscriber sub_robot_odom			;
+	ros::Subscriber sub_can_info			;
+	ros::Subscriber sub_StepSignal;
 
 	// Callback function for subscriber.
-	void callbackGetInitPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr &input);
+	void callbackGetTrackedObjects(const autoware_msgs::DetectedObjectArrayConstPtr& msg);
 	void callbackGetCurrentPose(const geometry_msgs::PoseStampedConstPtr& msg);
 	void callbackGetVehicleStatus(const geometry_msgs::TwistStampedConstPtr& msg);
 	void callbackGetCanInfo(const autoware_msgs::CanInfoConstPtr &msg);
 	void callbackGetRobotOdom(const nav_msgs::OdometryConstPtr& msg);
-	void callbackGetGlobalPlannerPath(const autoware_msgs::LaneArrayConstPtr& msg);
+	void callbackGetStepForwardSignals(const geometry_msgs::TwistStampedConstPtr& msg);
 
-	//Helper Functions
-  void UpdatePlanningParams(ros::NodeHandle& _nh);
+	//Helper functions
+	void VisualizePrediction();
+	void UpdatePlanningParams(ros::NodeHandle& _nh);
+	void GenerateCurbsObstacles(std::vector<PlannerHNS::DetectedObject>& curb_obstacles);
 
 public:
-	TrajectoryGen();
-  ~TrajectoryGen();
-  void MainLoop();
+	MotionPrediction();
+	virtual ~MotionPrediction();
+	void MainLoop();
 };
 
 }
 
-#endif  // OP_TRAJECTORY_GENERATOR_CORE
+#endif  // OP_MOTION_PREDICTION

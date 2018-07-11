@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, Nagoya University
+ *  Copyright (c) 2016, Nagoya University
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -30,20 +30,15 @@
 
 
 #include <ros/ros.h>
-#include "op_utility/DataRW.h"
+#include <iostream>
+#include "op_trajectory_evaluator_core.h"
+
+using namespace std;
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_common_params");
-
-	UtilityHNS::DataRW::CreateLoggingFolder();
-
-	ros::NodeHandle nh;
-	ros::Rate loop_rate(1);
-	while (ros::ok())
-	{
-		ros::spinOnce();
-		loop_rate.sleep();
-	}
+	ros::init(argc, argv, "op_trajectory_evaluator");
+	TrajectoryEvaluatorNS::TrajectoryEval trajectory_eval;
+	trajectory_eval.MainLoop();
 	return 0;
 }

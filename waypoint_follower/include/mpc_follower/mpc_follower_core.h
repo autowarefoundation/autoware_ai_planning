@@ -99,7 +99,6 @@ private:
   double admisible_yaw_error_deg_;  //!< @brief stop MPC calculation when heading error is large than this value [deg]
   double steer_lim_deg_;            //!< @brief steering command limit [rad]
   double wheelbase_;                //!< @brief vehicle wheelbase length [m] to convert steering angle to angular velocity
-  double steering_gear_ratio_;      //!< @brief steering gear ratio to convert steering to steering_wheel
 
   /* parameters for path smoothing */
   bool enable_path_smoothing_;     //< @brief flag for path smoothing

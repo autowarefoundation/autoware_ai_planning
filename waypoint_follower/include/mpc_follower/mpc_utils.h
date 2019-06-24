@@ -21,7 +21,6 @@
 #include <ros/ros.h>
 #include <eigen3/Eigen/Core>
 #include "autoware_msgs/Lane.h"
-#include <autoware_msgs/VehicleStatus.h>
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <std_msgs/Float64MultiArray.h>

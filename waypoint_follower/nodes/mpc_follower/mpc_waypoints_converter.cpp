@@ -18,7 +18,6 @@
 #include <ros/ros.h>
 #include <std_msgs/Int32.h>
 #include <autoware_msgs/Lane.h>
-#include <autoware_msgs/VehicleStatus.h>
 
 class MPCWaypointsConverter
 {

@@ -73,7 +73,6 @@ The default parameters are adjusted to the Autonomoustuff Lexus RX 450h for unde
 |Name|Type|Description|Default value|
 |:---|:---|:---|:---|
 |wheelbase|double|wheel base length for vehicle model [m] |2.9|
-|steering_gear_ratio|double| gear ratio between steering and steering wheel. If a steering wheel angle is set in `/vehicle_status`, set this value to 1|20.0|
 |steering_tau|double|steering dynamics time constant (1d approximation) for vehicle model [s]|0.3|
 |steer_lim_deg|double|steering angle limit for vehicle model [deg]. This is also used for QP constraint.|35.0|
 
@@ -94,7 +93,7 @@ The `kinematics` model are being used as default. Please see the reference[1] fo
 
 # how to tune MPC parameters
 
-1. Set appropriate vehicle kinematics parameters `wheelbase`, `steering_gear_ratio`, and `steer_lim_deg`. These values give a vehicle information to the controller for path following. Errors in these values cause fundamental tracking error. Whether these values are correct can be confirmed by comparing the angular velocity obtained from the model (`/mpc_follower/debug/angvel_from_steer`) and the actual angular velocity (such as `/estimate_twist/angular/z`).
+1. Set appropriate vehicle kinematics parameters `wheelbase`, `steering_gear_ratio`, and `steer_lim_deg`. Also check the `/vehicle_status` topic has appropriate values (speed: vehicle rear-wheels-center velocity [km/h], angle: steering (tire) angle [rad]). These values give a vehicle information to the controller for path following. Errors in these values cause fundamental tracking error. Whether these values are correct can be confirmed by comparing the angular velocity obtained from the model (`/mpc_follower/debug/angvel_from_steer`) and the actual angular velocity (such as `/estimate_twist/angular/z`).
 
 2. Set appropriate vehicle dynamics parameters of `steering_tau`, which is approximated delay from steering angle command to actual steering angle.
 

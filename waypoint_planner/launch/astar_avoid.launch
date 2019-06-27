@@ -12,6 +12,7 @@
   <arg name="replan_interval" default="2.0" />
   <arg name="search_waypoints_size" default="50" />
   <arg name="search_waypoints_delta" default="2" />
+  <arg name="closest_search_size" default="30" />
 
   <!-- A* search configurations -->
   <arg name="use_back" default="false" />
@@ -40,6 +41,7 @@
     <param name="enable_avoidance" value="$(arg enable_avoidance)" />
     <param name="search_waypoints_size" value="$(arg search_waypoints_size)" />
     <param name="search_waypoints_delta" value="$(arg search_waypoints_delta)" />
+    <param name="closest_search_size" value="$(arg closest_search_size)" />
     <param name="avoid_waypoints_velocity" value="$(arg avoid_waypoints_velocity)" />
     <param name="avoid_start_velocity" value="$(arg avoid_start_velocity)" />
     <param name="replan_interval" value="$(arg replan_interval)" />

@@ -73,6 +73,7 @@ private:
   double replan_interval_;          // replan interval for avoidance planning [Hz]
   int search_waypoints_size_;       // range of waypoints for incremental search [-]
   int search_waypoints_delta_;      // skipped waypoints for incremental search [-]
+  int closest_search_size_;         // search closest waypoint around your car [-]
 
   // classes
   AstarSearch astar_;
@@ -116,6 +117,7 @@ private:
   void mergeAvoidWaypoints(const nav_msgs::Path& path, const int& end_of_avoid_index);
   void publishWaypoints();
   tf::Transform getTransform(const std::string& from, const std::string& to);
+  int getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose, const int& search_size);
 };
 
 #endif

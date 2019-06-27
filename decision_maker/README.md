@@ -144,7 +144,7 @@ Go|-|Vehicle is moving|Throws found_stopline if stopline is nearby. Throws compl
 Wait|-|Vehilce is waiting (e.g. due to safety reason)|Publishes /state/stopline_wpidx with the index = closest_waypoint + 1.
 Stop|-|Vehicle stops in the middle of the waypoints|Throws found_stopline, found_reserved_stop, received_stop_order, clear key depending on waypoint state and /state/stop_order_wpidx topic.
 StopLine|/vector_map_info/stop_line|Vehicle is stopping due to stop line|Throws clear key after vehicle stops for 0.5 seconds.
-OrderedStop|/state/stop_order_wpidx|Vehicle is stopping at the index of required topic|Throws clear key if the topic was updated with an invalid index. The index from the vehicle position to the end of the waypoint is valid.
+OrderedStop|/state/stop_order_wpidx|Vehicle is stopping at the index of required topic|Throws clear key if the topic was updated with an invalid index. The index from the vehicle position to the end of the waypoint is valid. This topic is valid after passing the MissionCheck state.
 ReservedStop|-|Vehicle is stopping at the waypoint which includs stop_flag is 2|Wait for clear key after the vehicle stops.
 
 ## Basic Usage in Autoware

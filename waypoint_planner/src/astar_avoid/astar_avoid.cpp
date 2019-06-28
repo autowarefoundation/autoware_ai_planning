@@ -37,6 +37,7 @@ AstarAvoid::AstarAvoid()
   private_nh_.param<double>("replan_interval", replan_interval_, 2.0);
   private_nh_.param<int>("search_waypoints_size", search_waypoints_size_, 50);
   private_nh_.param<int>("search_waypoints_delta", search_waypoints_delta_, 2);
+  private_nh_.param<int>("closest_search_size", closest_search_size_, 30);
 
   safety_waypoints_pub_ = nh_.advertise<autoware_msgs::Lane>("safety_waypoints", 1, true);
   costmap_sub_ = nh_.subscribe("costmap", 1, &AstarAvoid::costmapCallback, this);
@@ -191,7 +192,7 @@ void AstarAvoid::run()
     }
     else if (state_ == AstarAvoid::STATE::AVOIDING)
     {
-      bool reached = (getClosestWaypoint(avoid_waypoints_, current_pose_global_.pose) > end_of_avoid_index);
+      bool reached = (getLocalClosestWaypoint(avoid_waypoints_, current_pose_global_.pose, closest_search_size_) > end_of_avoid_index);
       if (reached)
       {
         ROS_INFO("AVOIDING -> RELAYING, Reached goal");
@@ -234,7 +235,7 @@ bool AstarAvoid::checkInitialized()
 bool AstarAvoid::planAvoidWaypoints(int& end_of_avoid_index)
 {
   bool found_path = false;
-  int closest_waypoint_index = getClosestWaypoint(avoid_waypoints_, current_pose_global_.pose);
+  int closest_waypoint_index = getLocalClosestWaypoint(avoid_waypoints_, current_pose_global_.pose, closest_search_size_);
 
   // update goal pose incrementally and execute A* search
   for (int i = search_waypoints_delta_; i < static_cast<int>(search_waypoints_size_); i += search_waypoints_delta_)
@@ -296,7 +297,7 @@ void AstarAvoid::mergeAvoidWaypoints(const nav_msgs::Path& path, const int& end_
   avoid_waypoints_.waypoints.clear();
 
   // add waypoints before start index
-  int closest_waypoint_index = getClosestWaypoint(current_waypoints, current_pose_global_.pose);
+  int closest_waypoint_index = getLocalClosestWaypoint(current_waypoints, current_pose_global_.pose, closest_search_size_);
   for (int i = 0; i < closest_waypoint_index; ++i)
   {
     avoid_waypoints_.waypoints.push_back(current_waypoints.waypoints.at(i));
@@ -353,7 +354,7 @@ void AstarAvoid::publishWaypoints()
     // push waypoints from closest index
     for (int i = 0; i < safety_waypoints_size_; ++i)
     {
-      int index = getClosestWaypoint(current_waypoints, current_pose_global_.pose) + i;
+      int index = getLocalClosestWaypoint(current_waypoints, current_pose_global_.pose, closest_search_size_) + i;
       if (index < 0 || static_cast<int>(current_waypoints.waypoints.size()) <= index)
       {
         break;
@@ -383,4 +384,38 @@ tf::Transform AstarAvoid::getTransform(const std::string& from, const std::strin
     ROS_ERROR("%s", ex.what());
   }
   return stf;
+}
+
+int AstarAvoid::getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose, const int& search_size)
+{
+  static int prev_index = -1;
+  static autoware_msgs::Lane local_waypoints;  // around self-vehicle
+
+  // search in all waypoints if lane_select judges you're not on waypoints
+  if (closest_waypoint_index_ == -1)
+  {
+    prev_index = -1;
+    return getClosestWaypoint(waypoints, pose);
+  }
+  // search in limited area based on prev_index
+  else
+  {
+    if (prev_index == -1)
+    {
+      prev_index = closest_waypoint_index_;
+    }
+
+    // get neighborhood waypoints around prev_index
+    int start_index = std::max(0, prev_index - search_size / 2);
+    int end_index = std::min(prev_index + search_size / 2, (int)waypoints.waypoints.size());
+    auto start_itr = waypoints.waypoints.begin() + start_index;
+    auto end_itr = waypoints.waypoints.begin() + end_index;
+    local_waypoints.waypoints = std::vector<autoware_msgs::Waypoint>(start_itr, end_itr);
+
+    // get closest waypoint in neighborhood waypoints
+    int closest_local_index = start_index + getClosestWaypoint(local_waypoints, pose);
+    prev_index = closest_local_index;
+
+    return closest_local_index;
+  }
 }

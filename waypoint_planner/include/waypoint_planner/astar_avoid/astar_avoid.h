@@ -114,7 +114,7 @@ private:
   // functions
   bool checkInitialized();
   bool planAvoidWaypoints(int& end_of_avoid_index);
-  void mergeAvoidWaypoints(const nav_msgs::Path& path, const int& end_of_avoid_index);
+  void mergeAvoidWaypoints(const nav_msgs::Path& path, int& end_of_avoid_index);
   void publishWaypoints();
   tf::Transform getTransform(const std::string& from, const std::string& to);
   int getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose, const int& search_size);

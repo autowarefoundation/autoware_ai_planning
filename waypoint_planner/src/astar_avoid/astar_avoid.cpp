@@ -288,7 +288,7 @@ bool AstarAvoid::planAvoidWaypoints(int& end_of_avoid_index)
   return false;
 }
 
-void AstarAvoid::mergeAvoidWaypoints(const nav_msgs::Path& path, const int& end_of_avoid_index)
+void AstarAvoid::mergeAvoidWaypoints(const nav_msgs::Path& path, int& end_of_avoid_index)
 {
   autoware_msgs::Lane current_waypoints = avoid_waypoints_;
 
@@ -319,6 +319,9 @@ void AstarAvoid::mergeAvoidWaypoints(const nav_msgs::Path& path, const int& end_
   {
     avoid_waypoints_.waypoints.push_back(current_waypoints.waypoints.at(i));
   }
+
+  // update index for merged waypoints
+  end_of_avoid_index = closest_waypoint_index + path.poses.size();
 }
 
 void AstarAvoid::publishWaypoints()

@@ -316,6 +316,11 @@ void DecisionMakerNode::callbackFromObstacleWaypoint(const std_msgs::Int32& msg)
   current_status_.obstacle_waypoint = msg.data;
 }
 
+void DecisionMakerNode::callbackFromStoplineWaypoint(const std_msgs::Int32& msg)
+{
+  current_status_.stopline_waypoint = msg.data;
+}
+
 void DecisionMakerNode::callbackFromStopOrder(const std_msgs::Int32& msg)
 {
   autoware_msgs::VehicleLocation pub_msg;

@@ -566,6 +566,7 @@ int main(int argc, char** argv)
   ros::Publisher detection_range_pub = nh.advertise<visualization_msgs::MarkerArray>("detection_range", 1);
   ros::Publisher obstacle_pub = nh.advertise<visualization_msgs::Marker>("obstacle", 1);
   ros::Publisher obstacle_waypoint_pub = nh.advertise<std_msgs::Int32>("obstacle_waypoint", 1, true);
+  ros::Publisher stopline_waypoint_pub = nh.advertise<std_msgs::Int32>("stopline_waypoint", 1, true);
 
   ros::Publisher final_waypoints_pub;
 	final_waypoints_pub = nh.advertise<autoware_msgs::Lane>("final_waypoints", 1, true);
@@ -603,8 +604,24 @@ int main(int argc, char** argv)
 
     // publish obstacle waypoint index
     std_msgs::Int32 obstacle_waypoint_index;
-    obstacle_waypoint_index.data = obstacle_waypoint;
+    std_msgs::Int32 stopline_waypoint_index;
+    if (detection_result == EControl::STOP)
+    {
+      obstacle_waypoint_index.data = obstacle_waypoint;
+      stopline_waypoint_index.data = -1;
+    }
+    else if (detection_result == EControl::STOPLINE)
+    {
+      obstacle_waypoint_index.data = -1;
+      stopline_waypoint_index.data = obstacle_waypoint;
+    }
+    else
+    {
+      obstacle_waypoint_index.data = -1;
+      stopline_waypoint_index.data = -1;
+    }
     obstacle_waypoint_pub.publish(obstacle_waypoint_index);
+    stopline_waypoint_pub.publish(stopline_waypoint_index);
 
     vs_path.resetFlag();
 

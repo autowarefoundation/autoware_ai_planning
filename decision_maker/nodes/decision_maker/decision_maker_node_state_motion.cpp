@@ -152,10 +152,18 @@ void DecisionMakerNode::updateWaitState(cstring_t& state_name, int status)
 
 void DecisionMakerNode::updateStopState(cstring_t& state_name, int status)
 {
+  int obstacle_waypoint_gid = current_status_.obstacle_waypoint + current_status_.closest_waypoint;
   std::pair<uint8_t, int> get_stopsign = getStopSignStateFromWaypoint();
   if (get_stopsign.first != 0)
   {
     current_status_.found_stopsign_idx = get_stopsign.second;
+  }
+
+  if (current_status_.obstacle_waypoint != -1)
+  {
+    if ((current_status_.found_stopsign_idx != -1 && current_status_.found_stopsign_idx >= obstacle_waypoint_gid)
+        || (current_status_.ordered_stop_idx != -1 && current_status_.ordered_stop_idx >= obstacle_waypoint_gid))
+      tryNextState("clear");
   }
 
   if (get_stopsign.first != 0 && current_status_.found_stopsign_idx != -1)
@@ -195,7 +203,7 @@ void DecisionMakerNode::updateStoplineState(cstring_t& state_name, int status)
   static bool timerflag = false;
   static ros::Timer stopping_timer;
 
-  if (fabs(current_status_.velocity) <= stopped_vel_ && !timerflag && (current_status_.obstacle_waypoint + current_status_.closest_waypoint) == current_status_.found_stopsign_idx)
+  if (fabs(current_status_.velocity) <= stopped_vel_ && !timerflag && current_status_.stopline_waypoint != -1 && (current_status_.stopline_waypoint + current_status_.closest_waypoint) == current_status_.found_stopsign_idx)
   {
     stopping_timer = nh_.createTimer(ros::Duration(0.5),
                                      [&](const ros::TimerEvent&) {

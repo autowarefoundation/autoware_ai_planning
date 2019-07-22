@@ -50,7 +50,6 @@ catkin_package(
         sensor_msgs
         tablet_socket_msgs
         autoware_health_checker
-        gazebo_msgs
 )
 
 ###########

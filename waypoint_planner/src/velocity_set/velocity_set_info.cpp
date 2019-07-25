@@ -41,7 +41,23 @@ VelocitySetInfo::VelocitySetInfo()
 {
   ros::NodeHandle private_nh_("~");
   ros::NodeHandle nh;
+
+  double vel_change_limit_kph = 9.972;
   private_nh_.param<double>("remove_points_upto", remove_points_upto_, 2.3);
+  private_nh_.param<double>("stop_distance_obstacle", stop_distance_obstacle_, 10.0);
+  private_nh_.param<double>("stop_distance_stopline", stop_distance_stopline_, 5.0);
+  private_nh_.param<double>("detection_range", stop_range_, 1.3);
+  private_nh_.param<int>("points_threshold", points_threshold_, 10);
+  private_nh_.param<double>("detection_height_top", detection_height_top_, 0.2);
+  private_nh_.param<double>("detection_height_bottom", detection_height_bottom_, -1.7);
+  private_nh_.param<double>("deceleration_obstacle", deceleration_obstacle_, 0.8);
+  private_nh_.param<double>("deceleration_stopline", deceleration_stopline_, 0.6);
+  private_nh_.param<double>("velocity_change_limit", vel_change_limit_kph, 9.972);
+  private_nh_.param<double>("deceleration_range", deceleration_range_, 0);
+  private_nh_.param<double>("temporal_waypoints_size", temporal_waypoints_size_, 100.0);
+  
+  velocity_change_limit_ = vel_change_limit_kph / 3.6;  // kph -> mps
+
   node_status_publisher_ptr_ = std::make_shared<autoware_health_checker::NodeStatusPublisher>(nh,private_nh_);
   node_status_publisher_ptr_->ENABLE();
 }

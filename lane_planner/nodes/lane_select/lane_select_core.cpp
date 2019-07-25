@@ -72,6 +72,9 @@ void LaneSelectNode::initForROS()
   private_nh_.param<double>("lane_change_interval", lane_change_interval_, double(2));
   private_nh_.param<double>("distance_threshold", distance_threshold_, double(3.0));
   private_nh_.param<int>("search_closest_waypoint_minimum_dt", search_closest_waypoint_minimum_dt_, int(5));
+  private_nh_.param<double>("lane_change_target_ratio", lane_change_target_ratio_, double(2.0));
+  private_nh_.param<double>("lane_change_target_minimum", lane_change_target_minimum_, double(5.0));
+  private_nh_.param<double>("vector_length_hermite_curve", vlength_hermite_curve_, double(10.0));
 }
 
 bool LaneSelectNode::isAllTopicsSubscribed()

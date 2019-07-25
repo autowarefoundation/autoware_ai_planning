@@ -586,30 +586,36 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "lane_rule");
 
   ros::NodeHandle n;
+  ros::NodeHandle pnh("~");
 
   int sub_vmap_queue_size;
-  n.param<int>("/lane_rule/sub_vmap_queue_size", sub_vmap_queue_size, 1);
+  pnh.param<int>("sub_vmap_queue_size", sub_vmap_queue_size, 1);
   int sub_waypoint_queue_size;
-  n.param<int>("/lane_rule/sub_waypoint_queue_size", sub_waypoint_queue_size, 1);
+  pnh.param<int>("sub_waypoint_queue_size", sub_waypoint_queue_size, 1);
   int sub_config_queue_size;
-  n.param<int>("/lane_rule/sub_config_queue_size", sub_config_queue_size, 1);
+  pnh.param<int>("sub_config_queue_size", sub_config_queue_size, 1);
   int pub_waypoint_queue_size;
-  n.param<int>("/lane_rule/pub_waypoint_queue_size", pub_waypoint_queue_size, 1);
+  pnh.param<int>("pub_waypoint_queue_size", pub_waypoint_queue_size, 1);
   bool pub_waypoint_latch;
-  n.param<bool>("/lane_rule/pub_waypoint_latch", pub_waypoint_latch, true);
+  pnh.param<bool>("pub_waypoint_latch", pub_waypoint_latch, true);
 #ifdef DEBUG
   int pub_marker_queue_size;
-  n.param<int>("/lane_rule/pub_marker_queue_size", pub_marker_queue_size, 10);
+  pnh.param<int>("pub_marker_queue_size", pub_marker_queue_size, 10);
   bool pub_marker_latch;
-  n.param<bool>("/lane_rule/pub_marker_latch", pub_marker_latch, true);
+  pnh.param<bool>("pub_marker_latch", pub_marker_latch, true);
 #endif  // DEBUG
 
-  n.param<int>("/lane_rule/waypoint_max", waypoint_max, 10000);
-  n.param<double>("/lane_rule/search_radius", search_radius, 10);
-  n.param<double>("/lane_rule/curve_weight", curve_weight, 0.6);
-  n.param<double>("/lane_rule/crossroad_weight", crossroad_weight, 0.9);
-  n.param<double>("/lane_rule/clothoid_weight", clothoid_weight, 0.215);
-  n.param<std::string>("/lane_rule/frame_id", frame_id, "map");
+  pnh.param<int>("waypoint_max", waypoint_max, 10000);
+  pnh.param<double>("search_radius", search_radius, 10);
+  pnh.param<double>("curve_weight", curve_weight, 0.6);
+  pnh.param<double>("crossroad_weight", crossroad_weight, 0.9);
+  pnh.param<double>("clothoid_weight", clothoid_weight, 0.215);
+  pnh.param<std::string>("frame_id", frame_id, "map");
+  pnh.param<double>("acceleration", config_acceleration, 1);
+  pnh.param<int>("number_of_smoothing_count", config_number_of_smoothing_count, 0);
+  pnh.param<int>("number_of_zeros_ahead", config_number_of_zeros_ahead, 0);
+  pnh.param<int>("number_of_zeros_behind", config_number_of_zeros_behind, 0);
+  pnh.param<double>("stopline_search_radius", config_stopline_search_radius, 1);
 
   traffic_pub =
       n.advertise<autoware_msgs::LaneArray>("/traffic_waypoints_array", pub_waypoint_queue_size, pub_waypoint_latch);

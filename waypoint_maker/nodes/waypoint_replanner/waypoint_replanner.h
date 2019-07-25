@@ -31,22 +31,36 @@ namespace waypoint_maker
 typedef std::unordered_map<unsigned long, std::pair<unsigned long, double>> KeyVal;
 typedef boost::circular_buffer<geometry_msgs::Point> CbufGPoint;
 
+struct WaypointReplannerConfig
+{
+  double velocity_max = 0.0;
+  double velocity_min = 0.0;
+  double velocity_param = 0.0;
+  double accel_limit = 0.0;
+  double decel_limit = 0.0;
+  double radius_thresh = 0.0;
+  double radius_min = 0.0;
+  double radius_inf = 0.0;
+  bool resample_mode = false;
+  double resample_interval = 0.0;
+  bool replan_curve_mode = false;
+  bool replan_endpoint_mode = false;
+  bool overwrite_vmax_mode = false;
+  double velocity_offset = 0.0;
+  double end_point_offset =  0.0;
+  double braking_distance = 0.0;
+  int lookup_crv_width = 5;
+};
+
 class WaypointReplanner
 {
 private:
-  double r_th_, r_min_, r_inf_;
-  int lookup_crv_width_;
-  double velocity_max_, velocity_min_;
-  double accel_limit_, decel_limit_, resample_interval_;
-  int velocity_offset_;
-  bool resample_mode_, replan_curve_mode_, replan_endpoint_mode_;
-  int end_point_offset_, braking_distance_;
-  double vel_param_;
-  bool overwrite_vmax_mode_;
+  WaypointReplannerConfig config_;
 
 public:
   WaypointReplanner();
   ~WaypointReplanner();
+  void updateConfig(const WaypointReplannerConfig& config);
   void initParameter(const autoware_config_msgs::ConfigWaypointReplanner::ConstPtr& conf);
   void replanLaneWaypointVel(autoware_msgs::Lane& lane);
 

@@ -26,10 +26,9 @@ PurePursuitNode::PurePursuitNode()
   , is_waypoint_set_(false)
   , is_pose_set_(false)
   , is_velocity_set_(false)
-  , is_config_set_(false)
   , current_linear_velocity_(0)
   , command_linear_velocity_(0)
-  , param_flag_(-1)
+  , velocity_source_(-1)
   , const_lookahead_distance_(4.0)
   , const_velocity_(5.0)
   , lookahead_distance_ratio_(2.0)
@@ -50,9 +49,13 @@ PurePursuitNode::~PurePursuitNode()
 void PurePursuitNode::initForROS()
 {
   // ros parameter settings
-  private_nh_.param("is_linear_interpolation", is_linear_interpolation_, bool(true));
-  // ROS_INFO_STREAM("is_linear_interpolation : " << is_linear_interpolation_);
-  private_nh_.param("publishes_for_steering_robot", publishes_for_steering_robot_, bool(false));
+  private_nh_.param<int>("velocity_source", velocity_source_, 0);
+  private_nh_.param<bool>("is_linear_interpolation", is_linear_interpolation_, true);
+  private_nh_.param<bool>("publishes_for_steering_robot", publishes_for_steering_robot_, false);
+  private_nh_.param<double>("const_lookahead_distance", const_lookahead_distance_, 4.0);
+  private_nh_.param<double>("const_velocity", const_velocity_, 5.0);
+  private_nh_.param<double>("lookahead_ratio", lookahead_distance_ratio_, 2.0);
+  private_nh_.param<double>("minimum_lookahead_distance", minimum_lookahead_distance_, 6.0);
   nh_.param("vehicle_info/wheel_base", wheel_base_, double(2.7));
 
   // setup subscriber
@@ -81,7 +84,7 @@ void PurePursuitNode::run()
   while (ros::ok())
   {
     ros::spinOnce();
-    if (!is_pose_set_ || !is_waypoint_set_ || !is_velocity_set_ || !is_config_set_)
+    if (!is_pose_set_ || !is_waypoint_set_ || !is_velocity_set_)
     {
       ROS_WARN("Necessary topics are not subscribed yet ... ");
       loop_rate.sleep();
@@ -144,7 +147,7 @@ void PurePursuitNode::publishControlCommandStamped(const bool &can_get_curvature
 
 double PurePursuitNode::computeLookaheadDistance() const
 {
-  if (param_flag_ == enumToInteger(Mode::dialog))
+  if (velocity_source_ == enumToInteger(Mode::dialog))
     return const_lookahead_distance_;
 
   double maximum_lookahead_distance = current_linear_velocity_ * 10;
@@ -156,7 +159,7 @@ double PurePursuitNode::computeLookaheadDistance() const
 
 double PurePursuitNode::computeCommandVelocity() const
 {
-  if (param_flag_ == enumToInteger(Mode::dialog))
+  if (velocity_source_ == enumToInteger(Mode::dialog))
     return kmph2mps(const_velocity_);
 
   return command_linear_velocity_;
@@ -184,12 +187,11 @@ double PurePursuitNode::computeAngularGravity(double velocity, double kappa) con
 
 void PurePursuitNode::callbackFromConfig(const autoware_config_msgs::ConfigWaypointFollowerConstPtr &config)
 {
-  param_flag_ = config->param_flag;
+  velocity_source_ = config->param_flag;
   const_lookahead_distance_ = config->lookahead_distance;
   const_velocity_ = config->velocity;
   lookahead_distance_ratio_ = config->lookahead_ratio;
   minimum_lookahead_distance_ = config->minimum_lookahead_distance;
-  is_config_set_ = true;
 }
 
 void PurePursuitNode::publishDeviationCurrentPosition(const geometry_msgs::Point &point,

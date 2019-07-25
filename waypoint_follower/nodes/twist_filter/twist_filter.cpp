@@ -86,6 +86,10 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ros::NodeHandle private_nh("~");
 
+    private_nh.param<double>("lateral_accel_limit", g_lateral_accel_limit, 5.0);
+    private_nh.param<double>("lowpass_gain_linear_x", g_lowpass_gain_linear_x, 0.0);
+    private_nh.param<double>("lowpass_gain_angular_z", g_lowpass_gain_angular_z, 0.0);
+
     ros::Subscriber twist_sub = nh.subscribe("twist_raw", 1, TwistCmdCallback);
     ros::Subscriber config_sub = nh.subscribe("config/twist_filter", 10, configCallback);
     g_twist_pub = nh.advertise<geometry_msgs::TwistStamped>("twist_cmd", 1000);

@@ -80,11 +80,11 @@ private:
 
   // variables
   bool is_linear_interpolation_, publishes_for_steering_robot_;
-  bool is_waypoint_set_, is_pose_set_, is_velocity_set_, is_config_set_;
+  bool is_waypoint_set_, is_pose_set_, is_velocity_set_;
   double current_linear_velocity_, command_linear_velocity_;
   double wheel_base_;
 
-  int32_t param_flag_;               // 0 = waypoint, 1 = Dialog
+  int32_t velocity_source_;               // 0 = waypoint, 1 = Dialog
   double const_lookahead_distance_;  // meter
   double const_velocity_;            // km/h
   double lookahead_distance_ratio_;

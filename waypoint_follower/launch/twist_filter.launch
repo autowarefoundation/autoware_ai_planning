@@ -1,10 +1,16 @@
-<!-- -->
+<?xml version="1.0"?>
 <launch>
+  <arg name="lateral_accel_limit" default="5.0" />
+  <arg name="lowpass_gain_linear_x" default="0.0" />
+  <arg name="lowpass_gain_angular_z" default="0.0" />
 
-	<!-- rosrun waypoint_follower twist_filter -->
-	<node pkg="waypoint_follower" type="twist_filter" name="twist_filter" output="log">
-	</node>
-	<node pkg="waypoint_follower" type="twist_gate" name="twist_gate" output="log">
-	</node>
+  <!-- rosrun waypoint_follower twist_filter -->
+  <node pkg="waypoint_follower" type="twist_filter" name="twist_filter" output="log">
+    <param name="lateral_accel_limit" value="$(arg lateral_accel_limit)" />
+    <param name="lowpass_gain_linear_x" value="$(arg lowpass_gain_linear_x)" />
+    <param name="lowpass_gain_angular_z" value="$(arg lowpass_gain_angular_z)" />
+  </node>
 
+  <node pkg="waypoint_follower" type="twist_gate" name="twist_gate" output="log">
+  </node>
 </launch>

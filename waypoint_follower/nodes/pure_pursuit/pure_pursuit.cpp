@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "pure_pursuit.h"
+#include <pure_pursuit/pure_pursuit.h>
 
 namespace waypoint_follower
 {
@@ -25,10 +25,9 @@ PurePursuit::PurePursuit()
   , is_linear_interpolation_(false)
   , next_waypoint_number_(-1)
   , lookahead_distance_(0)
-  , current_linear_velocity_(0)
   , minimum_lookahead_distance_(6)
+  , current_linear_velocity_(0)
 {
-  
 }
 
 // Destructor
@@ -56,7 +55,7 @@ double PurePursuit::calcCurvature(geometry_msgs::Point target) const
 }
 
 // linear interpolation of next target
-bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point *next_target) const
+bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point* next_target) const
 {
   constexpr double ERROR = pow(10, -5);  // 0.00001
 
@@ -218,7 +217,7 @@ void PurePursuit::getNextWaypoint()
   return;
 }
 
-bool PurePursuit::canGetCurvature(double *output_kappa)
+bool PurePursuit::canGetCurvature(double* output_kappa)
 {
   // search next waypoint
   getNextWaypoint();
@@ -229,7 +228,7 @@ bool PurePursuit::canGetCurvature(double *output_kappa)
   }
   // check whether curvature is valid or not
   bool is_valid_curve = false;
-  for (const auto &el : current_waypoints_)
+  for (const auto& el : current_waypoints_)
   {
     if (getPlaneDistance(el.pose.pose.position, current_pose_.position) > minimum_lookahead_distance_)
     {

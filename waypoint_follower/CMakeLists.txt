@@ -137,6 +137,10 @@ if (CATKIN_ENABLE_TESTING)
     add_rostest_gtest(test-twist_gate test/test_twist_gate.test test/src/test_twist_gate.cpp  nodes/twist_gate/twist_gate.cpp)
     add_dependencies(test-twist_gate ${catkin_EXPORTED_TARGETS})
     target_link_libraries(test-twist_gate ${catkin_LIBRARIES})
+    
+    add_rostest_gtest(test-pure_pursuit test/test_pure_pursuit.test test/src/test_pure_pursuit.cpp  nodes/pure_pursuit/pure_pursuit_core.cpp nodes/pure_pursuit/pure_pursuit.cpp nodes/pure_pursuit/pure_pursuit_viz.cpp lib/libwaypoint_follower.cpp)
+    add_dependencies(test-pure_pursuit ${catkin_EXPORTED_TARGETS})
+    target_link_libraries(test-pure_pursuit ${catkin_LIBRARIES})
 
     add_rostest_gtest(test-mpc_utils test/test_mpc_utils.test test/src/test_mpc_utils.cpp ${MPC_FOLLOWER_SRC})
     add_dependencies(test-mpc_utils ${catkin_EXPORTED_TARGETS})

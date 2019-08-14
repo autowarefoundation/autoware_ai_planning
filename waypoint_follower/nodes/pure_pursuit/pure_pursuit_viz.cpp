@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "pure_pursuit_viz.h"
+#include <pure_pursuit/pure_pursuit_viz.h>
 
 namespace waypoint_follower
 {
@@ -61,6 +61,38 @@ visualization_msgs::Marker displayNextTarget(geometry_msgs::Point target)
   marker.scale.x = 1.0;
   marker.scale.y = 1.0;
   marker.scale.z = 1.0;
+  marker.frame_locked = true;
+  return marker;
+}
+
+visualization_msgs::Marker displayExpandWaypoints(const std::vector<autoware_msgs::Waypoint>& waypoints, int size)
+{
+  visualization_msgs::Marker marker;
+  if (size <= 0 || waypoints.size() == 0)
+  {
+    return marker;
+  }
+  marker.header.frame_id = MAP_FRAME;
+  marker.header.stamp = ros::Time();
+  marker.ns = "expand_waypoints_marker";
+  marker.id = 0;
+  marker.type = visualization_msgs::Marker::POINTS;
+  marker.action = visualization_msgs::Marker::ADD;
+  marker.points.resize(size);
+  for (auto& el : marker.points)
+  {
+    const int idx = &el - &marker.points[0];
+    el = waypoints[waypoints.size() - idx - 1].pose.pose.position;
+  }
+  std_msgs::ColorRGBA blue;
+  blue.a = 1.0;
+  blue.b = 1.0;
+  blue.r = 0.0;
+  blue.g = 0.0;
+  marker.color = blue;
+  marker.scale.x = 0.2;
+  marker.scale.y = 0.2;
+  marker.scale.z = 0.2;
   marker.frame_locked = true;
   return marker;
 }

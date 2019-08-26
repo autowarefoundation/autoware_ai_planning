@@ -33,8 +33,6 @@ DynamicsBicycleModel::DynamicsBicycleModel(double &wheelbase, double &mass_fl, d
     cr_ = cr;
 };
 
-DynamicsBicycleModel::~DynamicsBicycleModel(){};
-
 void DynamicsBicycleModel::calculateDiscreteMatrix(Eigen::MatrixXd &Ad,
                                                    Eigen::MatrixXd &Bd,
                                                    Eigen::MatrixXd &Cd,

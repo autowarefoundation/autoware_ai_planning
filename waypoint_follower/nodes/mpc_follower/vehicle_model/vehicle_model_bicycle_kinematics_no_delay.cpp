@@ -23,7 +23,6 @@ KinematicsBicycleModelNoDelay::KinematicsBicycleModelNoDelay(const double &wheel
     wheelbase_ = wheelbase;
     steer_lim_ = steer_lim;
 };
-KinematicsBicycleModelNoDelay::~KinematicsBicycleModelNoDelay(){};
 void KinematicsBicycleModelNoDelay::calculateDiscreteMatrix(Eigen::MatrixXd &Ad, Eigen::MatrixXd &Bd,
                                                      Eigen::MatrixXd &Cd, Eigen::MatrixXd &Wd, const double &dt)
 {

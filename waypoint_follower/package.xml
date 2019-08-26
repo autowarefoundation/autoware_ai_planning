@@ -24,4 +24,5 @@
   <depend>tablet_socket_msgs</depend>
   <depend>tf2</depend>
   <depend>tf</depend>
+  <depend>qpoases_vendor</depend>
 </package>

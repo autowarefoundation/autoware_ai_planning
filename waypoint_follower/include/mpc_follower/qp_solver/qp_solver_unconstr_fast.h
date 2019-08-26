@@ -40,7 +40,7 @@ public:
   /**
    * @brief destructor
    */
-  ~QPSolverEigenLeastSquareLLT();
+  ~QPSolverEigenLeastSquareLLT() = default;
 
   /**
    * @brief solve QP problem : minimize J = U' * Hmat * U + fvec' * U without constraint

@@ -290,7 +290,7 @@ TEST_F(TestSuite, TestMPCFollower)
     /* == TestMPCFollowerAlgorithmOptions == */
     {
         std::string vehicle_mode_type_array[] = {"kinematics", "kinematics_no_delay", "dynamics"};
-        std::string qp_solver_type_array[] = {"unconstraint", "unconstraint_fast"};
+        std::string qp_solver_type_array[] = {"unconstraint", "unconstraint_fast", "qpoases_hotstart"};
 
         for (const auto vehicle_model_type : vehicle_mode_type_array)
         {

@@ -54,6 +54,7 @@
 #include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.h"
 #include "mpc_follower/qp_solver/qp_solver_unconstr.h"
 #include "mpc_follower/qp_solver/qp_solver_unconstr_fast.h"
+#include "mpc_follower/qp_solver/qp_solver_qpoases.h"
 
 /** 
  * @class MPC-based waypoints follower class

@@ -14,6 +14,7 @@
 	<arg name="curvature_smoothing_num" default="35" doc="point-to-point index distance used in curvature calculation : curvature is calculated from three points p(i-num), p(i), p(i+num)"/>
 	<arg name="steering_lpf_cutoff_hz" default="3.0" doc="cutoff frequency of lowpass filter for steering command [Hz]"/>
 	<arg name="qp_solver_type" default="unconstraint_fast" doc="optimization solver type. option is unconstraint_fast, unconstraint, and qpoases_hotstart"/>
+	<arg name="qpoases_max_iter" default="500" doc="max iteration number for quadratic programming"/>
 	<arg name="vehicle_model_type" default="kinematics" doc="vehicle model type for mpc prediction. option is kinematics, kinematics_no_delay, and dynamics"/>
 
 	<!-- MPC design parameters -->
@@ -33,10 +34,6 @@
 	<arg name="vehicle_model_wheelbase" default="2.9" doc="wheel base length [m]"/>
 	<arg name="steer_lim_deg" default="40.0" doc="steering angle limit [deg]"/>
 	<arg name="steering_gear_ratio" default="20.0" doc="steering gear ratio"/>
-
-
-
-
 
 	<group ns="$(arg ns)">
 
@@ -66,6 +63,7 @@
 			<param name="curvature_smoothing_num" value="$(arg curvature_smoothing_num)"/>
 			<param name="steering_lpf_cutoff_hz" value="$(arg steering_lpf_cutoff_hz)"/>
 			<param name="qp_solver_type" value="$(arg qp_solver_type)"/>
+			<param name="qpoases_max_iter" value="$(arg qpoases_max_iter)"/>
 			<param name="vehicle_model_type" value="$(arg vehicle_model_type)"/>
 			<param name="mpc_prediction_horizon" value="$(arg mpc_prediction_horizon)"/>
 			<param name="mpc_prediction_sampling_time" value="$(arg mpc_prediction_sampling_time)"/>

@@ -96,12 +96,13 @@ MPCFollower::MPCFollower()
     qpsolver_ptr_ = std::make_shared<QPSolverEigenLeastSquareLLT>();
     ROS_INFO("[MPC] set qp solver = unconstraint_fast");
   }
-  // else if (qp_solver_type_ == "qpoases_hotstart")
-  // {
-  //   int max_iter = 200;
-  //   qpsolver_ptr_ = std::make_shared<QPSolverQpoasesHotstart>(max_iter);
-  //   ROS_INFO("[MPC] set qp solver = qpoases_hotstart");
-  // }
+  else if (qp_solver_type_ == "qpoases_hotstart")
+  {
+    int max_iter;
+    pnh_.param("qpoases_max_iter", max_iter, int(500));
+    qpsolver_ptr_ = std::make_shared<QPSolverQpoasesHotstart>(max_iter);
+    ROS_INFO("[MPC] set qp solver = qpoases_hotstart");
+  }
   else
   {
     ROS_ERROR("[MPC] qp_solver_type is undefined");

@@ -17,7 +17,7 @@
 /**
  * @file vehicle_model_bicycle_dynamics.h
  * @brief vehicle model class of bicycle dynamics
- * @author Takamasa Horibe
+ * @author Takamasa Horibe, Yutaka Shimizu
  * @date 2019.05.01
  */
 
@@ -78,7 +78,7 @@ public:
   /**
    * @brief destructor
    */
-  ~DynamicsBicycleModel();
+  ~DynamicsBicycleModel() = default;
 
   /**
    * @brief calculate discrete model matrix of x_k+1 = Ad * xk + Bd * uk + Wd, yk = Cd * xk 

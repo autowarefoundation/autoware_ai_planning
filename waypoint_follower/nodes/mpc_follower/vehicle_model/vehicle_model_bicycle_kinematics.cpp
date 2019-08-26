@@ -23,7 +23,6 @@ KinematicsBicycleModel::KinematicsBicycleModel(const double &wheelbase, const do
     steer_lim_ = steer_lim;
     steer_tau_ = steer_tau;
 };
-KinematicsBicycleModel::~KinematicsBicycleModel(){};
 
 void KinematicsBicycleModel::calculateDiscreteMatrix(Eigen::MatrixXd &Ad, Eigen::MatrixXd &Bd,
                                                      Eigen::MatrixXd &Cd, Eigen::MatrixXd &Wd, const double &dt)

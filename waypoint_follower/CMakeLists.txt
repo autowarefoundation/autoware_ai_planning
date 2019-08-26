@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(waypoint_follower)
 
-
-find_package(autoware_build_flags REQUIRED)
-
-find_package(autoware_msgs REQUIRED)
-
-find_package(autoware_config_msgs REQUIRED)
-
-find_package(tablet_socket_msgs REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
@@ -23,9 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
         amathutils_lib
         tablet_socket_msgs
         autoware_health_checker
+        autoware_build_flags
         rostest
         rosunit
-        )
+        qpoases_vendor
+)
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -50,6 +44,7 @@ catkin_package(
         sensor_msgs
         tablet_socket_msgs
         autoware_health_checker
+        qpoases_vendor
 )
 
 ###########
@@ -65,6 +60,7 @@ include_directories(
         ${autoware_msgs_INCLUDE_DIRS}
         ${tablet_socket_msgs_INCLUDE_DIRS}
         ${catkin_INCLUDE_DIRS}
+        ${qpoases_vendor_INCLUDE_DIRS}/qpoases_vendor
 )
 
 add_library(libwaypoint_follower lib/libwaypoint_follower.cpp)
@@ -108,6 +104,7 @@ set(MPC_FOLLOWER_SRC
         nodes/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.cpp
         nodes/mpc_follower/qp_solver/qp_solver_unconstr.cpp
         nodes/mpc_follower/qp_solver/qp_solver_unconstr_fast.cpp
+        nodes/mpc_follower/qp_solver/qp_solver_qpoases.cpp
 )
 
 add_executable(mpc_follower nodes/mpc_follower/mpc_follower_node.cpp nodes/mpc_follower/mpc_follower_core.cpp ${MPC_FOLLOWER_SRC})

@@ -54,6 +54,7 @@ The default parameters are adjusted to the Autonomoustuff Lexus RX 450h for unde
 |Name|Type|Description|Default value|
 |:---|:---|:---|:---|
 |qp_solver_type|string|QP solver option. described below in detail.|unconstraint_fast|
+|qpoases_max_iter|int|maximum iteration number for convex optimiaztion with qpoases.|500|
 |vehicle_model_type|string|vehicle model option. described below in detail.|kinematics|
 |prediction_horizon|int|total prediction step for MPC|70|
 |prediction_sampling_time|double|prediction period for one step [s]|0.1|
@@ -80,8 +81,8 @@ The default parameters are adjusted to the Autonomoustuff Lexus RX 450h for unde
 
 currently, the options are
 - unconstraint : use least square method to solve unconstraint QP with eigen.
-- unconstraint_fast : same as above. Faster, but lower accuracy for optimization.
-
+- unconstraint_fast : similar to unconstraint. This is faster, but lower accuracy for optimization.
+- qpoases_hotstart : use QPOASES with hotstart for constrainted QP.
 
 ## vehicle model type
 

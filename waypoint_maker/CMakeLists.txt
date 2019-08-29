@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
         lane_planner
         autoware_msgs
         vector_map
+        amathutils_lib
         )
 
 find_package(Boost REQUIRED)
@@ -33,11 +34,13 @@ catkin_package(
         vector_map
         lane_planner
         autoware_msgs
+        amathutils_lib
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 include_directories(
+        include
         ${catkin_INCLUDE_DIRS}
         ${vector_map_INCLUDE_DIRS}
         ${autoware_msgs_INCLUDE_DIRS}
@@ -77,6 +80,11 @@ target_link_libraries(waypoint_velocity_visualizer ${catkin_LIBRARIES} ${Boost_L
 add_dependencies(waypoint_velocity_visualizer
         ${catkin_EXPORTED_TARGETS})
 
+add_executable(waypoint_creator nodes/waypoint_creator/waypoint_creator_node.cpp nodes/waypoint_creator/waypoint_creator_core.cpp nodes/waypoint_creator/interpolate.cpp)
+target_link_libraries(waypoint_creator ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_dependencies(waypoint_creator
+        ${catkin_EXPORTED_TARGETS})
+
 install(TARGETS
         waypoint_loader
         waypoint_replanner
@@ -85,6 +93,7 @@ install(TARGETS
         waypoint_marker_publisher
         waypoint_velocity_visualizer
         waypoint_extractor
+        waypoint_creator
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

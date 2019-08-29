@@ -1,0 +1,29 @@
+<launch>
+	<arg name="lane_topic" default="/waypoint_creator/lane_array" />
+	<arg name="remove_pose_thr" default="2.0" />
+	<arg name="interpolation_interval" default="1.0" />
+	<arg name="interpolation_method" default="spline"/>
+	<arg name="waypoint_velocity" default="5.0" />
+	<arg name="waypoint_frame_id" default="map" />
+	<arg name="source_point_topic" default="/clicked_point" />
+	<arg name="delete_pose_topic" default="/move_base_simple/goal" />
+
+	<!-- waypoint creator to generate waypoints -->
+	<node pkg="waypoint_maker" type="waypoint_creator" name="waypoint_creator" output="screen">
+		<param name="out_lane_array_topic" value="$(arg lane_topic)" />
+		<param name="remove_pose_thr" value="$(arg remove_pose_thr)" />
+		<param name="interpolation_interval" value="$(arg interpolation_interval)" />
+		<param name="interpolation_method" value="$(arg interpolation_method)" />
+		<param name="waypoint_velocity" value="$(arg waypoint_velocity)" />
+		<param name="waypoint_frame_id" value="$(arg waypoint_frame_id)" />
+		<param name="source_point_topic" value="$(arg source_point_topic)" />
+		<param name="delete_pose_topic" value="$(arg delete_pose_topic)" />
+	</node>
+
+	<!-- waypoint extractor to save waypoints -->
+	<node pkg="waypoint_maker" type="waypoint_extractor" name="waypoint_extractor" output="screen">
+		<param name="lane_csv" command="bash -c &quot;echo -n $HOME`date '+/waypoint_creator_%Y%m%d-%H%M%S.csv'`&quot;" />
+		<param name="lane_topic" value="$(arg lane_topic)" />
+	</node>
+
+</launch>

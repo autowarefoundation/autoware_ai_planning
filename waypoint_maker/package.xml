@@ -19,4 +19,5 @@
   <depend>tf</depend>
   <depend>vector_map</depend>
   <depend>waypoint_follower</depend>
+  <depend>amathutils_lib</depend>
 </package>

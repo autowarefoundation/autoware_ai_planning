@@ -64,10 +64,7 @@ include_directories(
 )
 
 add_library(libwaypoint_follower lib/libwaypoint_follower.cpp)
-add_dependencies(libwaypoint_follower
-        ${catkin_EXPORTED_TARGETS}
-        autoware_msgs_generate_messages_cpp
-        )
+add_dependencies(libwaypoint_follower ${catkin_EXPORTED_TARGETS})
 target_link_libraries(libwaypoint_follower ${catkin_LIBRARIES})
 
 add_executable(pure_pursuit
@@ -77,22 +74,25 @@ add_executable(pure_pursuit
         nodes/pure_pursuit/pure_pursuit_viz.cpp
         )
 target_link_libraries(pure_pursuit libwaypoint_follower ${catkin_LIBRARIES})
-add_dependencies(pure_pursuit
-        ${catkin_EXPORTED_TARGETS})
+add_dependencies(pure_pursuit ${catkin_EXPORTED_TARGETS})
 
-add_executable(wf_simulator nodes/wf_simulator/wf_simulator.cpp)
+set(wf_simulator_SRC
+        nodes/wf_simulator/wf_simulator_core.cpp
+        nodes/wf_simulator/vehicle_model/wfsim_model_interface.cpp
+        nodes/wf_simulator/vehicle_model/wfsim_model_ideal.cpp
+        nodes/wf_simulator/vehicle_model/wfsim_model_constant_acceleration.cpp
+        nodes/wf_simulator/vehicle_model/wfsim_model_time_delay.cpp
+)
+add_executable(wf_simulator nodes/wf_simulator/wf_simulator_node.cpp ${wf_simulator_SRC})
 target_link_libraries(wf_simulator libwaypoint_follower ${catkin_LIBRARIES})
 
 add_executable(twist_filter nodes/twist_filter/twist_filter.cpp)
 target_link_libraries(twist_filter ${catkin_LIBRARIES})
-add_dependencies(twist_filter
-        ${catkin_EXPORTED_TARGETS})
+add_dependencies(twist_filter ${catkin_EXPORTED_TARGETS})
 
 add_executable(twist_gate nodes/twist_gate/twist_gate_node.cpp nodes/twist_gate/twist_gate.cpp)
 target_link_libraries(twist_gate ${catkin_LIBRARIES})
-add_dependencies(twist_gate
-        ${catkin_EXPORTED_TARGETS}
-        autoware_msgs_generate_messages_cpp)
+add_dependencies(twist_gate ${catkin_EXPORTED_TARGETS})
 
 set(MPC_FOLLOWER_SRC
         nodes/mpc_follower/mpc_utils.cpp
@@ -129,6 +129,8 @@ install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
         PATTERN ".svn" EXCLUDE)
 
+catkin_install_python(PROGRAMS nodes/wf_simulator/scripts/fitParamDelayInputModel.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
     add_rostest_gtest(test-twist_gate test/test_twist_gate.test test/src/test_twist_gate.cpp  nodes/twist_gate/twist_gate.cpp)
@@ -151,4 +153,7 @@ if (CATKIN_ENABLE_TESTING)
     add_dependencies(test-mpc_lowpass_filter ${catkin_EXPORTED_TARGETS})
     target_link_libraries(test-mpc_lowpass_filter ${catkin_LIBRARIES})
 
+    add_rostest_gtest(test-wf_simulator test/test_wf_simulator.test test/src/test_wf_simulator.cpp nodes/wf_simulator/wf_simulator_core.cpp ${wf_simulator_SRC})
+    add_dependencies(test-wf_simulator ${catkin_EXPORTED_TARGETS})
+    target_link_libraries(test-wf_simulator ${catkin_LIBRARIES})
 endif ()

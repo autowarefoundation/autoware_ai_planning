@@ -33,7 +33,7 @@ protected:
   autoware_msgs::Lane current_waypoints_;
 
 public:
-  void setPath(const autoware_msgs::Lane &waypoints)
+  void setPath(const autoware_msgs::Lane& waypoints)
   {
     current_waypoints_ = waypoints;
   }
@@ -68,9 +68,9 @@ inline double deg2rad(double deg)
   return deg * M_PI / 180;
 }  // convert degree to radian
 
-tf::Vector3 point2vector(geometry_msgs::Point point);  // convert point to vector
-geometry_msgs::Point vector2point(tf::Vector3 vector);  // convert vector to point
-tf::Vector3 rotateUnitVector(tf::Vector3 unit_vector, double degree);  // rotate unit vector by degree
+tf::Vector3 point2vector(geometry_msgs::Point point);                         // convert point to vector
+geometry_msgs::Point vector2point(tf::Vector3 vector);                        // convert vector to point
+tf::Vector3 rotateUnitVector(tf::Vector3 unit_vector, double degree);         // rotate unit vector by degree
 geometry_msgs::Point rotatePoint(geometry_msgs::Point point, double degree);  // rotate point vector by degree
 
 double DecelerateVelocity(double distance, double prev_velocity);
@@ -82,8 +82,8 @@ geometry_msgs::Point calcAbsoluteCoordinate(geometry_msgs::Point point,
                                                                                 // coordinate
 double getPlaneDistance(geometry_msgs::Point target1,
                         geometry_msgs::Point target2);  // get 2 dimentional distance between target 1 and target 2
-int getClosestWaypoint(const autoware_msgs::Lane &current_path, geometry_msgs::Pose current_pose);
-bool getLinearEquation(geometry_msgs::Point start, geometry_msgs::Point end, double *a, double *b, double *c);
+int getClosestWaypoint(const autoware_msgs::Lane& current_path, geometry_msgs::Pose current_pose);
+bool getLinearEquation(geometry_msgs::Point start, geometry_msgs::Point end, double* a, double* b, double* c);
 double getDistanceBetweenLineAndPoint(geometry_msgs::Point point, double sa, double b, double c);
 double getRelativeAngle(geometry_msgs::Pose waypoint_pose, geometry_msgs::Pose vehicle_pose);
 #endif

@@ -1,0 +1,5 @@
+<launch>
+
+  <test test-name="test-wf_simulator" pkg="waypoint_follower" type="test-wf_simulator" name="test" time-limit="300.0"/>
+
+</launch>

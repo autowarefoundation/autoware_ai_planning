@@ -84,12 +84,13 @@ void WaypointReplanner::replanLaneWaypointVel(autoware_msgs::Lane& lane)
     return;
   }
   const int dir = getDirection(lane);
-  const unsigned long last = lane.waypoints.size() - 1;
+  unsigned long last = lane.waypoints.size() - 1;
   changeVelSign(lane, true);
   limitVelocityByRange(0, last, 0, config_.velocity_max, lane);
   if (config_.resample_mode)
   {
     resampleLaneWaypoint(config_.resample_interval, lane, dir);
+    last = lane.waypoints.size() - 1;
   }
   if (config_.replan_curve_mode)
   {

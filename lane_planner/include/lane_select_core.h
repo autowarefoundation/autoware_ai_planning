@@ -35,7 +35,7 @@
 #include "autoware_msgs/State.h"
 #include "autoware_msgs/VehicleLocation.h"
 #include "hermite_curve.h"
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 
 namespace lane_planner
 {

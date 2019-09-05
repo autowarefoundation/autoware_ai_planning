@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
         sensor_msgs
         tf
         gnss
-        waypoint_follower
+        libwaypoint_follower
         vector_map
         waypoint_planner
         autoware_can_msgs
@@ -41,7 +41,7 @@ catkin_package(
         sensor_msgs
         tf
         gnss
-        waypoint_follower
+        libwaypoint_follower
         vector_map
         waypoint_planner
         autoware_can_msgs

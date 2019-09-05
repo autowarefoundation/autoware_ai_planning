@@ -26,7 +26,7 @@
 
 #include <fstream>
 
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 
 static const int SYNC_FRAMES = 50;
 

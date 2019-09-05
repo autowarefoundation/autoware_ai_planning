@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
         geometry_msgs
         nav_msgs
         tf
-        waypoint_follower
+        libwaypoint_follower
         lane_planner
         autoware_msgs
         vector_map
@@ -30,7 +30,7 @@ catkin_package(
         geometry_msgs
         nav_msgs
         tf
-        waypoint_follower
+        libwaypoint_follower
         vector_map
         lane_planner
         autoware_msgs

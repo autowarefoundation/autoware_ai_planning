@@ -11,7 +11,7 @@
 #include <ros/ros.h>
 #include <vector_map/vector_map.h>
 
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 
 enum class EControl
 {

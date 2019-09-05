@@ -50,7 +50,7 @@
 #include <std_msgs/Float32.h>
 #include <std_msgs/Float64MultiArray.h>
 #include "autoware_config_msgs/ConfigWaypointFollower.h"
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 #include "libtraj_gen.h"
 #include "autoware_can_msgs/CANInfo.h"
 //#include <dbw_mkz_msgs/SteeringReport.h>

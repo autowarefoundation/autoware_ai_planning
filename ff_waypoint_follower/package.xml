@@ -17,5 +17,5 @@
   <depend>op_simu</depend>
   <depend>op_utility</depend>
   <depend>roscpp</depend>
-  <depend>waypoint_follower</depend>
+  <depend>libwaypoint_follower</depend>
 </package>

@@ -32,7 +32,7 @@
 #include <tf/tf.h>
 #include <std_msgs/Int8.h>
 #include <std_msgs/Int32.h>
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 #include "autoware_msgs/LaneArray.h"
 #include "autoware_can_msgs/CANInfo.h"
 

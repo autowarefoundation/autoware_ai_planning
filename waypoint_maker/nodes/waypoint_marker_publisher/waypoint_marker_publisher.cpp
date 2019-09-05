@@ -24,7 +24,7 @@
 #include <vector>
 #include <string>
 
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 #include "autoware_msgs/LaneArray.h"
 #include "autoware_config_msgs/ConfigLaneStop.h"
 #include "autoware_msgs/TrafficLight.h"

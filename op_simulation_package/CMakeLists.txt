@@ -27,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
   op_planner
   op_simu
   op_ros_helpers
-  waypoint_follower
+  libwaypoint_follower
 )
 
 ## System dependencies are found with CMake's conventions
@@ -39,7 +39,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
         INCLUDE_DIRS include
         LIBRARIES
-        CATKIN_DEPENDS roscpp geometry_msgs autoware_msgs map_file op_utility op_planner op_simu op_ros_helpers waypoint_follower
+        CATKIN_DEPENDS roscpp geometry_msgs autoware_msgs map_file op_utility op_planner op_simu op_ros_helpers libwaypoint_follower
 #  DEPENDS system_lib
 )
 

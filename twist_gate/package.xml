@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>twist_gate</name>
+  <version>1.12.0</version>
+  <description>The twist_gate package</description>
+  <maintainer email="h_ohta@ertl.jp">h_ohta</maintainer>
+  <license>Apache 2</license>
+
+  <buildtool_depend>autoware_build_flags</buildtool_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>autoware_config_msgs</depend>
+  <depend>autoware_health_checker</depend>
+  <depend>autoware_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>rostest</depend>
+  <depend>rosunit</depend>
+  <depend>std_msgs</depend>
+  <depend>tablet_socket_msgs</depend>
+</package>

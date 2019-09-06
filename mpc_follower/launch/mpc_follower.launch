@@ -37,9 +37,9 @@
 
 	<group ns="$(arg ns)">
 
-		<node pkg="waypoint_follower" type="mpc_waypoints_converter" name="mpc_waypoints_converter" output="screen"/>
+		<node pkg="mpc_follower" type="mpc_waypoints_converter" name="mpc_waypoints_converter" output="screen"/>
 
-		<node pkg="waypoint_follower" type="mpc_follower" name="mpc_follower" output="screen">
+		<node pkg="mpc_follower" type="mpc_follower" name="mpc_follower" output="screen">
 
 			<!-- system -->
 			<param name="publish_debug_values" value="$(arg publish_debug_values)"/>

@@ -18,7 +18,7 @@
 #include <ros/ros.h>
 
 // User defined includes
-#include "twist_gate.h"
+#include "twist_gate/twist_gate.h"
 
 int main(int argc, char** argv)
 {

@@ -29,7 +29,7 @@
 #include <memory>
 
 // User defined includes
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 
 namespace waypoint_follower
 {

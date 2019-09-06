@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 
-#include "twist_gate.h"
+#include "twist_gate/twist_gate.h"
 
 class TwistGateTestClass {
 public:

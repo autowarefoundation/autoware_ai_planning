@@ -25,7 +25,7 @@
 
 // User defined includes
 #include "autoware_msgs/Lane.h"
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 
 namespace waypoint_follower
 {

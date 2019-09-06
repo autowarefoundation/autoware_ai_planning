@@ -28,7 +28,7 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "twist_gate.h"
+#include "twist_gate/twist_gate.h"
 
 #include <chrono>
 

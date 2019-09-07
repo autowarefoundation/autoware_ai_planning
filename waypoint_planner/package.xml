@@ -18,5 +18,7 @@
   <depend>std_msgs</depend>
   <depend>tf</depend>
   <depend>vector_map</depend>
-  <depend>waypoint_follower</depend>
+  <depend>libwaypoint_follower</depend>
+  <depend>autoware_config_msgs</depend>
+
 </package>

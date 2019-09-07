@@ -30,7 +30,7 @@
 #include <tf/transform_listener.h>
 #include <tf/tf.h>
 #include <std_msgs/Int8.h>
-#include "waypoint_follower/libwaypoint_follower.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 #include "autoware_msgs/LaneArray.h"
 #include "op_simu/TrajectoryFollower.h"
 //#include "CarState.h"

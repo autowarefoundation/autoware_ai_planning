@@ -10,8 +10,10 @@ find_package(vector_map REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
-        waypoint_follower
+        libwaypoint_follower
         gnss
+        tablet_socket_msgs
+        autoware_config_msgs
         autoware_msgs
         rostest
         rosunit
@@ -24,9 +26,11 @@ catkin_package(
         LIBRARIES lane_planner
         CATKIN_DEPENDS roscpp
         std_msgs
-        waypoint_follower
+        libwaypoint_follower
         vector_map
         gnss
+        tablet_socket_msgs
+        autoware_config_msgs
         autoware_msgs
 )
 

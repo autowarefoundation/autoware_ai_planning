@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  waypoint_follower
+  libwaypoint_follower
   message_generation
   tf
   jsk_recognition_msgs
@@ -30,7 +30,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES way_planner
-  CATKIN_DEPENDS geometry_msgs vector_map_msgs roscpp rospy std_msgs waypoint_follower op_utility op_planner op_simu
+  CATKIN_DEPENDS geometry_msgs vector_map_msgs roscpp rospy std_msgs libwaypoint_follower op_utility op_planner op_simu
 )
 
 ###########

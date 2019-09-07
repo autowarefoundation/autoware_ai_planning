@@ -10,7 +10,9 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   pcl_conversions
   tf
-  waypoint_follower
+  libwaypoint_follower
+  autoware_config_msgs
+  autoware_health_checker
   autoware_msgs
   vector_map
   astar_search
@@ -21,7 +23,9 @@ catkin_package(
   roscpp
   std_msgs
   tf
-  waypoint_follower
+  libwaypoint_follower
+  autoware_config_msgs
+  autoware_health_checker
   autoware_msgs
   vector_map
   astar_search

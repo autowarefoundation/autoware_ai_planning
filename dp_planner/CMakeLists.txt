@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
         op_utility
         op_planner
         op_simu
-        waypoint_follower
+        libwaypoint_follower
         )
 
 ## System dependencies are found with CMake's conventions
@@ -43,7 +43,7 @@ catkin_package(
         op_utility
         op_planner
         op_simu
-        waypoint_follower
+        libwaypoint_follower
         vector_map_msgs
         #  DEPENDS system_lib
 )

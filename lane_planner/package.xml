@@ -14,7 +14,10 @@
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
   <depend>vector_map</depend>
-  <depend>waypoint_follower</depend>
+  <depend>tablet_socket_msgs</depend>
+  <depend>libwaypoint_follower</depend>
+  <depend>autoware_config_msgs</depend>
+
 
   <test_depend>rostest</test_depend>
   <test_depend>rosunit</test_depend>

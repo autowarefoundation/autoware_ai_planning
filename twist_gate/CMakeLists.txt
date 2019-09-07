@@ -23,7 +23,6 @@ find_package(catkin REQUIRED COMPONENTS
 ###################################
 catkin_package(
         INCLUDE_DIRS include
-        LIBRARIES libwaypoint_follower
         CATKIN_DEPENDS roscpp
         std_msgs
         geometry_msgs

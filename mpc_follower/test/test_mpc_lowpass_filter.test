@@ -1,5 +1,5 @@
 <launch>
 
-  <test test-name="test-mpc_lowpass_filter" pkg="waypoint_follower" type="test-mpc_lowpass_filter" name="test"/>
+  <test test-name="test-mpc_lowpass_filter" pkg="mpc_follower" type="test-mpc_lowpass_filter" name="test"/>
 
 </launch>

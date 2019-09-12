@@ -24,7 +24,7 @@
 
 #include "autoware_config_msgs/ConfigVelocitySet.h"
 
-#include <autoware_health_checker/node_status_publisher.h>
+#include <autoware_health_checker/health_checker/health_checker.h>
 #include <memory>
 
 class VelocitySetInfo
@@ -52,7 +52,7 @@ class VelocitySetInfo
   geometry_msgs::PoseStamped control_pose_;    // pose of base_link
   bool set_pose_;
 
-  std::shared_ptr<autoware_health_checker::NodeStatusPublisher> node_status_publisher_ptr_;
+  std::shared_ptr<autoware_health_checker::HealthChecker> health_checker_ptr_;
 
  public:
   VelocitySetInfo();

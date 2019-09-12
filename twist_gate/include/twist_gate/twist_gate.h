@@ -37,7 +37,7 @@
 #include "tablet_socket_msgs/mode_cmd.h"
 
 //headers in Autowae Health Checker
-#include <autoware_health_checker/node_status_publisher.h>
+#include <autoware_health_checker/health_checker/health_checker.h>
 
 #define CMD_GEAR_D 1
 #define CMD_GEAR_R 2
@@ -78,7 +78,7 @@ private:
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
-  std::shared_ptr<autoware_health_checker::NodeStatusPublisher> node_status_pub_ptr_;
+  std::shared_ptr<autoware_health_checker::HealthChecker> health_checker_ptr_;
   ros::Publisher emergency_stop_pub_;
   ros::Publisher control_command_pub_;
   ros::Publisher vehicle_cmd_pub_;

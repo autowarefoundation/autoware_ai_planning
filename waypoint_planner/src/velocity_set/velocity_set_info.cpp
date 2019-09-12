@@ -126,6 +126,6 @@ void VelocitySetInfo::controlPoseCallback(const geometry_msgs::PoseStampedConstP
 void VelocitySetInfo::localizerPoseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
 {
   health_checker_ptr_->NODE_ACTIVATE();
-  health_checker_ptr_->CHECK_RATE("topic_rate_current_pose_slow", 8, 5, 1, "topic current_pose subscribe rate slow.");
+  health_checker_ptr_->CHECK_RATE("topic_rate_localizer_pose_slow", 8, 5, 1, "topic localizer_pose subscribe rate slow.");
   localizer_pose_ = *msg;
 }

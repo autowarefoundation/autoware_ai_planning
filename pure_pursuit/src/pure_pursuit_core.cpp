@@ -103,7 +103,7 @@ void PurePursuitNode::run()
     publishTwistStamped(can_get_curvature, kappa);
     publishControlCommandStamped(can_get_curvature, kappa);
     health_checker_ptr_->NODE_ACTIVATE();
-    health_checker_ptr_->CHECK_RATE("/topic/rate/vehicle/slow", 8, 5, 1, "topic vehicle_cmd publish rate low.");
+    health_checker_ptr_->CHECK_RATE("topic_rate_vehicle_cmd_slow", 8, 5, 1, "topic vehicle_cmd publish rate slow.");
     // for visualization with Rviz
     pub11_.publish(displayNextWaypoint(pp_.getPoseOfNextWaypoint()));
     pub13_.publish(displaySearchRadius(pp_.getCurrentPose().position, pp_.getLookaheadDistance()));
@@ -131,7 +131,7 @@ void PurePursuitNode::publishTwistStamped(const bool& can_get_curvature, const d
   ts.header.stamp = ros::Time::now();
   ts.twist.linear.x = can_get_curvature ? computeCommandVelocity() : 0;
   ts.twist.angular.z = can_get_curvature ? kappa * ts.twist.linear.x : 0;
-  health_checker_ptr_->CHECK_MAX_VALUE("/value/twist", ts.twist.linear.x, 2.2, 3.3, 4.4, "linear twist_cmd is "
+  health_checker_ptr_->CHECK_MAX_VALUE("twist_cmd_linear_high", ts.twist.linear.x, 2.2, 3.3, 4.4, "linear twist_cmd is "
                                                                                                 "too high");
   pub1_.publish(ts);
 }

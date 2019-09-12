@@ -88,7 +88,7 @@ void VelocitySetInfo::configCallback(const autoware_config_msgs::ConfigVelocityS
 
 void VelocitySetInfo::pointsCallback(const sensor_msgs::PointCloud2ConstPtr &msg)
 {
-  health_checker_ptr_->CHECK_RATE("/topic/rate/points_no_ground/slow",8,5,1,"topic points_no_ground subscribe rate low.");
+  health_checker_ptr_->CHECK_RATE("topic_rate_points_no_ground_slow", 8, 5, 1, "topic points_no_ground subscribe rate slow.");
   pcl::PointCloud<pcl::PointXYZ> sub_points;
   pcl::fromROSMsg(*msg, sub_points);
 
@@ -126,6 +126,6 @@ void VelocitySetInfo::controlPoseCallback(const geometry_msgs::PoseStampedConstP
 void VelocitySetInfo::localizerPoseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
 {
   health_checker_ptr_->NODE_ACTIVATE();
-  health_checker_ptr_->CHECK_RATE("/topic/rate/current_pose/slow",8,5,1,"topic current_pose subscribe rate low.");
+  health_checker_ptr_->CHECK_RATE("topic_rate_current_pose_slow", 8, 5, 1, "topic current_pose subscribe rate slow.");
   localizer_pose_ = *msg;
 }

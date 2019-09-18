@@ -55,11 +55,11 @@ VelocitySetInfo::VelocitySetInfo()
   private_nh_.param<double>("velocity_change_limit", vel_change_limit_kph, 9.972);
   private_nh_.param<double>("deceleration_range", deceleration_range_, 0);
   private_nh_.param<double>("temporal_waypoints_size", temporal_waypoints_size_, 100.0);
-  
+
   velocity_change_limit_ = vel_change_limit_kph / 3.6;  // kph -> mps
 
-  node_status_publisher_ptr_ = std::make_shared<autoware_health_checker::NodeStatusPublisher>(nh,private_nh_);
-  node_status_publisher_ptr_->ENABLE();
+  health_checker_ptr_ = std::make_shared<autoware_health_checker::HealthChecker>(nh,private_nh_);
+  health_checker_ptr_->ENABLE();
 }
 
 VelocitySetInfo::~VelocitySetInfo()
@@ -88,7 +88,7 @@ void VelocitySetInfo::configCallback(const autoware_config_msgs::ConfigVelocityS
 
 void VelocitySetInfo::pointsCallback(const sensor_msgs::PointCloud2ConstPtr &msg)
 {
-  node_status_publisher_ptr_->CHECK_RATE("/topic/rate/points_no_ground/slow",8,5,1,"topic points_no_ground subscribe rate low.");
+  health_checker_ptr_->CHECK_RATE("topic_rate_points_no_ground_slow", 8, 5, 1, "topic points_no_ground subscribe rate slow.");
   pcl::PointCloud<pcl::PointXYZ> sub_points;
   pcl::fromROSMsg(*msg, sub_points);
 
@@ -125,7 +125,7 @@ void VelocitySetInfo::controlPoseCallback(const geometry_msgs::PoseStampedConstP
 
 void VelocitySetInfo::localizerPoseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
 {
-  node_status_publisher_ptr_->NODE_ACTIVATE();
-  node_status_publisher_ptr_->CHECK_RATE("/topic/rate/current_pose/slow",8,5,1,"topic current_pose subscribe rate low.");
+  health_checker_ptr_->NODE_ACTIVATE();
+  health_checker_ptr_->CHECK_RATE("topic_rate_localizer_pose_slow", 8, 5, 1, "topic localizer_pose subscribe rate slow.");
   localizer_pose_ = *msg;
 }

@@ -19,13 +19,6 @@ autoware_states_vehicle:
     Transition:
       -
         Key: sensor_is_ready
-        Target: MapInit
-    Parent: Init
-  -
-    StateName: MapInit
-    Transition:
-      -
-        Key: map_is_ready
         Target: LocalizationInit
     Parent: Init
   -

@@ -19,10 +19,6 @@ void DecisionMakerNode::setupStateCallback(void)
                            std::bind(&DecisionMakerNode::entrySensorInitState, this, std::placeholders::_1, 0));
   ctx_vehicle->setCallback(state_machine::CallbackType::UPDATE, "SensorInit",
                            std::bind(&DecisionMakerNode::updateSensorInitState, this, std::placeholders::_1, 0));
-  ctx_vehicle->setCallback(state_machine::CallbackType::ENTRY, "MapInit",
-                           std::bind(&DecisionMakerNode::entryMapInitState, this, std::placeholders::_1, 0));
-  ctx_vehicle->setCallback(state_machine::CallbackType::UPDATE, "MapInit",
-                           std::bind(&DecisionMakerNode::updateMapInitState, this, std::placeholders::_1, 0));
   ctx_vehicle->setCallback(state_machine::CallbackType::ENTRY, "LocalizationInit",
                            std::bind(&DecisionMakerNode::entryLocalizationInitState, this, std::placeholders::_1, 0));
   ctx_vehicle->setCallback(state_machine::CallbackType::UPDATE, "LocalizationInit",
@@ -236,6 +232,15 @@ void DecisionMakerNode::initROS()
   createSubscriber();
   createPublisher();
 
+  if (disuse_vector_map_)
+  {
+    ROS_WARN("Disuse vectormap mode.");
+  }
+  else
+  {
+    initVectorMap();
+  }
+
   spinners = std::shared_ptr<ros::AsyncSpinner>(new ros::AsyncSpinner(3));
   spinners->start();
 
@@ -245,6 +250,28 @@ void DecisionMakerNode::initROS()
 void DecisionMakerNode::initVectorMap(void)
 {
   int _index = 0;
+  bool vmap_loaded = false;
+
+  while (!vmap_loaded)
+  {
+    // Map must be populated before setupStateCallback() is called
+    // in DecisionMakerNode constructor
+    ROS_INFO("Subscribing to vector map topics.");
+
+    g_vmap.subscribe( nh_, Category::POINT | Category::LINE | Category::VECTOR |
+      Category::AREA | Category::STOP_LINE | Category::ROAD_SIGN | Category::CROSS_ROAD,
+      ros::Duration(5.0));
+
+    vmap_loaded =
+        g_vmap.hasSubscribed(Category::POINT | Category::LINE | Category::AREA |
+                              Category::STOP_LINE | Category::ROAD_SIGN);
+
+    if (!vmap_loaded)
+    {
+      ROS_WARN("Necessary vectormap topics have not been published.");
+      ROS_WARN("DecisionMaker will wait until the vectormap has been loaded.");
+    }
+  }
 
   const std::vector<CrossRoad> crossroads = g_vmap.findByFilter([](const CrossRoad& crossroad) { return true; });
   if (crossroads.empty())

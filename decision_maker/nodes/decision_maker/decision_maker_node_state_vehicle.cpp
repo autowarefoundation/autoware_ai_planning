@@ -33,18 +33,7 @@ void DecisionMakerNode::updateSensorInitState(cstring_t& state_name, int status)
 {
   const double timeout = 1;
 
-  std::vector<std::string> node_list;
-
-  ros::master::getNodes(node_list);
-  for (const auto& i : node_list)
-  {
-    if ("/wf_simulator" == i)
-    {
-      setEventFlag("on_mode_sim", true);
-    }
-  }
-
-  if (isEventFlagTrue("on_mode_sim"))
+  if (sim_mode_)
   {
     ROS_INFO("DecisionMaker is in simulation mode");
     tryNextState("sensor_is_ready");
@@ -55,40 +44,6 @@ void DecisionMakerNode::updateSensorInitState(cstring_t& state_name, int status)
     tryNextState("sensor_is_ready");
   }
   ROS_INFO("DecisionMaker is waiting filtered_point for NDT");
-}
-
-void DecisionMakerNode::entryMapInitState(cstring_t& state_name, int status)
-{
-  publishOperatorHelpMessage("Please load map");
-}
-
-void DecisionMakerNode::updateMapInitState(cstring_t& state_name, int status)
-{
-  bool vmap_loaded = false;
-
-  g_vmap.subscribe(nh_, Category::POINT | Category::LINE | Category::VECTOR | Category::AREA |
-                            Category::STOP_LINE | Category::ROAD_SIGN | Category::CROSS_ROAD,
-                   ros::Duration(5.0));
-
-  vmap_loaded =
-      g_vmap.hasSubscribed(Category::POINT | Category::LINE | Category::AREA |
-                            Category::STOP_LINE | Category::ROAD_SIGN);
-
-  if (!vmap_loaded)
-  {
-    ROS_WARN("Necessary vectormap have not been loaded");
-    ROS_WARN("DecisionMaker keeps on waiting until it loads");
-    if (disuse_vector_map_)
-    {
-      ROS_WARN("Disuse vectormap mode.");
-      tryNextState("map_is_ready");
-    }
-  }
-  else
-  {
-    initVectorMap();
-    tryNextState("map_is_ready");
-  }
 }
 
 void DecisionMakerNode::entryLocalizationInitState(cstring_t& state_name, int status)

@@ -24,7 +24,7 @@ auto_mission_reload|Bool|(default: *false*)<br>If this is set true, decision mak
 auto_engage|Bool|(default: *false*)<br>If this is set true, decision maker automatically engage immediately after ready to drive.
 auto_mission_change|Bool|(default: *false*)<br>If this is set true, decision maker automatically change the mission(waypoint) without state_cmd when new mission is loaded while driving.
 use_fms|Bool|(default: *false*)<br>This must be true in order to incoorporate with [Autoware Management System](https://github.com/CPFL/AMS)
-disuse_vector_map|Bool|(default: *false*)<br> If set *true*, decision_maker will exit "MapInitState" even if vector map is not successfully loaded.
+disuse_vector_map|Bool|(default: *false*)<br> If set *true*, decision_maker will bypass loading a vector map on startup.
 num_of_steer_behind|Int|(default: *20*)<br> lookup distance along waypoints to determine steering state(straight, turning right, or turning left)
 change_threshold_dist|Double|(default: *1*)<br> This is relevent only if *use_fms* is *true*.<br> If the distance from vehicle to closest waypoint in the new mission is further than *change_threshold_dist* [m], mission change fails.
 change_threshold_angle|Double|(default:*15*)<br>This is relevent only if *use_fms* is *true*.<br> If the angle from vehicle to closest waypoint in the new mission is further than this *change_threshold_dist* [deg], mission change fails.
@@ -87,7 +87,6 @@ State name|Required topic|Description|Implementation
 --|--|---|--
 Init|-|The parent state of the following states.|-
 SensorInit|/filtered_points|Waits until all sensors are ready.|Waits until /filtered_points is received unless wf_simulator node is launched.  
-MapInit||Waits until vector map is ready|Waits until vector_map is subscribed if disuse_vector_map is set false.
 LocalizationInit|/current_pose|Waits until localizer is ready | Waits until current_pose is converged. (i.e. ndt_matching is stable.)
 PlanningInit|/closest_waypoint|Waits unil planners are ready | Subscriber is set for /closest_waypoint.
 VehicleInit|-|Waits until vehicle is ready for departure.|No implementation goes directly to vehilce ready state.
@@ -160,22 +159,16 @@ ReservedStop|-|Vehicle is stopping at the waypoint which includs stop_flag is 2|
 
 ### Start Driving with simulation
 1. Open run time manager and rviz
-2. In Computing tab, launch `Decision -> decision_maker(experimental)` and check the state.  
+2. In Map tab, load Vector Map and TF files you use(Point Cloud is optional).  
+3. In Computing tab, launch `Decision -> decision_maker(experimental)` and check the state.  
 The state at that time:
 > Init  
 > SensorInit  
 > WaitVehicleReady  
 > Stopping  
 > WaitDriveReady  
-3. In Computing tab, click [app] next to `Motion Planning -> waypoint_follower -> wf_simulator` and set the value of accele_rate to `5`, and launch `Motion Planning -> waypoint_follower -> wf_simulator`.  
+4. In Computing tab, click [app] next to `Motion Planning -> waypoint_follower -> wf_simulator` and set the value of accele_rate to `5`, and launch `Motion Planning -> waypoint_follower -> wf_simulator`.  
 Then the state changes:
-> Init  
-> **MapInit**  
-> WaitVehicleReady  
-> Stopping  
-> WaitDriveReady  
-4. In Map tab, load Vector Map and TF files you use(Point Cloud is optional).  
-Then the state changes:  
 > Init  
 > **LocalizationInit**  
 > WaitVehicleReady  

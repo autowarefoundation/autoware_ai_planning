@@ -66,11 +66,10 @@ public:
 
 protected:
   void changeVelSign(autoware_msgs::Lane& lane, bool positive) const;
-  int getDirection(const autoware_msgs::Lane& lane) const;
-  void resampleLaneWaypoint(const double resample_interval, autoware_msgs::Lane& lane, int dir);
-  void resampleOnStraight(const CbufGPoint& curve_point, autoware_msgs::Lane& lane);
+  void resampleLaneWaypoint(const double resample_interval, autoware_msgs::Lane& lane, LaneDirection dir);
+  void resampleOnStraight(const CbufGPoint& curve_point, autoware_msgs::Lane& lane, LaneDirection dir);
   void resampleOnCurve(const geometry_msgs::Point& target_point,
-    const std::vector<double>& param,autoware_msgs::Lane& lane, int dir);
+    const std::vector<double>& param,autoware_msgs::Lane& lane, LaneDirection dir);
 
   const CbufGPoint getCrvPointsOnResample(const autoware_msgs::Lane& lane,
     const autoware_msgs::Lane& original_lane, unsigned long original_index) const;

@@ -65,25 +65,13 @@ void WaypointReplanner::changeVelSign(autoware_msgs::Lane& lane, bool positive) 
   }
 }
 
-int WaypointReplanner::getDirection(const autoware_msgs::Lane& lane) const
-{
-  if (lane.waypoints.size() < 2)
-  {
-    return 1;
-  }
-  const geometry_msgs::Pose& pose = lane.waypoints[0].pose.pose;
-  const geometry_msgs::Point& point = lane.waypoints[1].pose.pose.position;
-  const geometry_msgs::Point rlt_point(calcRelativeCoordinate(point, pose));
-  return rlt_point.x < 0 ? -1 : 1;
-}
-
 void WaypointReplanner::replanLaneWaypointVel(autoware_msgs::Lane& lane)
 {
   if (lane.waypoints.empty())
   {
     return;
   }
-  const int dir = getDirection(lane);
+  const LaneDirection dir = getLaneDirection(lane);
   unsigned long last = lane.waypoints.size() - 1;
   changeVelSign(lane, true);
   limitVelocityByRange(0, last, 0, config_.velocity_max, lane);
@@ -121,13 +109,13 @@ void WaypointReplanner::replanLaneWaypointVel(autoware_msgs::Lane& lane)
     limitVelocityByRange(lowspeed_start, last, 0, config_.velocity_min, lane);
     setVelocityByRange(zerospeed_start, last, 0, 0.0, lane);
   }
-  if (dir < 0)
+  if (dir == LaneDirection::Backward)
   {
     changeVelSign(lane, false);
   }
 }
 
-void WaypointReplanner::resampleLaneWaypoint(const double resample_interval, autoware_msgs::Lane& lane, int dir)
+void WaypointReplanner::resampleLaneWaypoint(const double resample_interval, autoware_msgs::Lane& lane, LaneDirection dir)
 {
   if (lane.waypoints.size() < 2)
   {
@@ -148,7 +136,7 @@ void WaypointReplanner::resampleLaneWaypoint(const double resample_interval, aut
     // if going straight
     if (curve_param.empty())
     {
-      resampleOnStraight(curve_point, lane);
+      resampleOnStraight(curve_point, lane, dir);
     }
     // else if turnning curve
     else
@@ -162,7 +150,7 @@ void WaypointReplanner::resampleLaneWaypoint(const double resample_interval, aut
   lane.waypoints.back().change_flag = original_lane.waypoints.back().change_flag;
 }
 
-void WaypointReplanner::resampleOnStraight(const CbufGPoint& curve_point, autoware_msgs::Lane& lane)
+void WaypointReplanner::resampleOnStraight(const CbufGPoint& curve_point, autoware_msgs::Lane& lane, LaneDirection dir)
 {
   if (curve_point.size() != 3)
   {
@@ -170,7 +158,8 @@ void WaypointReplanner::resampleOnStraight(const CbufGPoint& curve_point, autowa
   }
   autoware_msgs::Waypoint wp(lane.waypoints.back());
   const geometry_msgs::Point& pt = wp.pose.pose.position;
-  const double yaw = atan2(curve_point[2].y - curve_point[0].y, curve_point[2].x - curve_point[0].x);
+  const int sgn = (dir == LaneDirection::Forward) ? 0 : 1;
+  const double yaw = atan2(curve_point[2].y - curve_point[0].y, curve_point[2].x - curve_point[0].x) + sgn * M_PI;
   wp.pose.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
 
   const std::vector<double> nvec = { curve_point[1].x - pt.x, curve_point[1].y - pt.y, curve_point[1].z - pt.z };
@@ -191,7 +180,7 @@ void WaypointReplanner::resampleOnStraight(const CbufGPoint& curve_point, autowa
 }
 
 void WaypointReplanner::resampleOnCurve(const geometry_msgs::Point& target_point,
-                                        const std::vector<double>& curve_param, autoware_msgs::Lane& lane, int dir)
+                                        const std::vector<double>& curve_param, autoware_msgs::Lane& lane, LaneDirection dir)
 {
   if (curve_param.size() != 3)
   {
@@ -201,7 +190,7 @@ void WaypointReplanner::resampleOnCurve(const geometry_msgs::Point& target_point
   const double& cx = curve_param[0];
   const double& cy = curve_param[1];
   const double& radius = curve_param[2];
-  const double reverse_angle = (dir < 0) ? M_PI : 0.0;
+  const double reverse_angle = (dir == LaneDirection::Backward) ? M_PI : 0.0;
 
   const geometry_msgs::Point& p0 = wp.pose.pose.position;
   const geometry_msgs::Point& p1 = target_point;

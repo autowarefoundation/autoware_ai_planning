@@ -39,6 +39,8 @@ TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_n
   , command_mode_(CommandMode::AUTO)
   , previous_command_mode_(CommandMode::AUTO)
 {
+  private_nh_.param<bool>("use_decision_maker", use_decision_maker_, false);
+
   health_checker_ptr_ = std::make_shared<autoware_health_checker::HealthChecker>(nh_,private_nh_);
   emergency_stop_pub_ = nh_.advertise<std_msgs::Bool>("/emergency_stop", 1, true);
   control_command_pub_ = nh_.advertise<std_msgs::String>("/ctrl_mode", 1);
@@ -88,26 +90,9 @@ void TwistGate::reset_vehicle_cmd_msg()
   twist_gate_msg_.ctrl_cmd.steering_angle = 0;
 }
 
-bool TwistGate::is_using_decisionmaker()
-{
-  bool using_decision_maker_flag = false;
-  std::vector<std::string> node_list;
-  ros::master::getNodes(node_list);
-
-  for (const auto& i : node_list)
-  {
-    if (i == "/decision_maker")
-    {
-      using_decision_maker_flag = true;
-      break;
-    }
-  }
-  return using_decision_maker_flag;
-}
-
 void TwistGate::check_state()
 {
-  if (is_using_decisionmaker() && !is_state_drive_)
+  if (use_decision_maker_ && !is_state_drive_)
   {
     twist_gate_msg_.twist_cmd.twist = geometry_msgs::Twist();
     twist_gate_msg_.ctrl_cmd = autoware_msgs::ControlCommand();

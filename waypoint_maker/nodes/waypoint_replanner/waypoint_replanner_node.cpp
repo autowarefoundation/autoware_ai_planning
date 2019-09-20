@@ -23,31 +23,25 @@ class WaypointReplannerNode
 {
 public:
   WaypointReplannerNode();
-  ~WaypointReplannerNode();
 private:
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
-  std::map<std::string, ros::Publisher> lane_pub_;
+  ros::Publisher lane_pub_;
   ros::Subscriber lane_sub_, config_sub_;
   bool replanning_mode_, realtime_tuning_mode_;
   bool is_first_publish_;
   WaypointReplanner replanner_;
   autoware_msgs::LaneArray lane_array_;
-  bool withoutDecisionMaker();
   void replan(autoware_msgs::LaneArray &lane_array);
   void publishLaneArray();
   void laneCallback(const autoware_msgs::LaneArray::ConstPtr& lane_array);
   void configCallback(const autoware_config_msgs::ConfigWaypointReplanner::ConstPtr& conf);
   autoware_config_msgs::ConfigWaypointReplanner startup_config;
+  bool use_decision_maker_;
 };
 
 WaypointReplannerNode::WaypointReplannerNode() : pnh_("~"), is_first_publish_(true)
 {
-  lane_pub_["with_decision"] = nh_.advertise<autoware_msgs::LaneArray>("/based/lane_waypoints_array", 10, true);
-  lane_pub_["without_decision"] = nh_.advertise<autoware_msgs::LaneArray>("/lane_waypoints_array", 10, true);
-  lane_sub_ = nh_.subscribe("/based/lane_waypoints_raw", 1, &WaypointReplannerNode::laneCallback, this);
-  config_sub_ = nh_.subscribe("/config/waypoint_replanner", 1, &WaypointReplannerNode::configCallback, this);
-
   WaypointReplannerConfig temp_config;
 
   double velocity_max_kph, velocity_min_kph;
@@ -68,15 +62,24 @@ WaypointReplannerNode::WaypointReplannerNode() : pnh_("~"), is_first_publish_(tr
   pnh_.param<double>("velocity_offset", temp_config.velocity_offset, 0.0);
   pnh_.param<double>("end_point_offset", temp_config.end_point_offset, 0.0);
   pnh_.param<double>("braking_distance", temp_config.braking_distance, 0.0);
+  pnh_.param<bool>("use_decision_maker", use_decision_maker_, false);
 
   temp_config.velocity_max = kmph2mps(velocity_max_kph);
   temp_config.velocity_min = kmph2mps(velocity_min_kph);
 
   replanner_.updateConfig(temp_config);
-}
 
-WaypointReplannerNode::~WaypointReplannerNode()
-{
+  if (use_decision_maker_)
+  {
+    lane_pub_ = nh_.advertise<autoware_msgs::LaneArray>("/based/lane_waypoints_array", 10, true);
+  }
+  else
+  {
+    lane_pub_ = nh_.advertise<autoware_msgs::LaneArray>("/lane_waypoints_array", 10, true);
+  }
+
+  lane_sub_ = nh_.subscribe("/based/lane_waypoints_raw", 1, &WaypointReplannerNode::laneCallback, this);
+  config_sub_ = nh_.subscribe("/config/waypoint_replanner", 1, &WaypointReplannerNode::configCallback, this);
 }
 
 void WaypointReplannerNode::replan(autoware_msgs::LaneArray& lane_array)
@@ -87,25 +90,16 @@ void WaypointReplannerNode::replan(autoware_msgs::LaneArray& lane_array)
   }
 }
 
-bool WaypointReplannerNode::withoutDecisionMaker()
-{
-  std::vector<std::string> node_list;
-  ros::master::getNodes(node_list);
-  return (std::find(node_list.begin(), node_list.end(), "/decision_maker") == node_list.end());
-}
-
 void WaypointReplannerNode::publishLaneArray()
 {
   autoware_msgs::LaneArray array(lane_array_);
+
   if (replanning_mode_)
   {
     replan(array);
   }
-  lane_pub_["with_decision"].publish(array);
-  if (withoutDecisionMaker())
-  {
-    lane_pub_["without_decision"].publish(array);
-  }
+
+  lane_pub_.publish(array);
   is_first_publish_ = false;
 }
 

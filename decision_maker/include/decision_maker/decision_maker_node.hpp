@@ -160,6 +160,7 @@ private:
   double goal_threshold_vel_;
   double stopped_vel_;
   int stopline_reset_count_;
+  bool sim_mode_;
 
   // initialization method
   void initROS();
@@ -217,7 +218,6 @@ private:
   // entry callback
   void entryInitState(cstring_t& state_name, int status);
   void entrySensorInitState(cstring_t& state_name, int status);
-  void entryMapInitState(cstring_t& state_name, int status);
   void entryLocalizationInitState(cstring_t& state_name, int status);
   void entryPlanningInitState(cstring_t& state_name, int status);
   void entryVehicleInitState(cstring_t& state_name, int status);
@@ -226,7 +226,6 @@ private:
   // update callback
   void updateInitState(cstring_t& state_name, int status);
   void updateSensorInitState(cstring_t& state_name, int status);
-  void updateMapInitState(cstring_t& state_name, int status);
   void updateLocalizationInitState(cstring_t& state_name, int status);
   void updatePlanningInitState(cstring_t& state_name, int status);
   void updateVehicleInitState(cstring_t& state_name, int status);
@@ -362,6 +361,7 @@ public:
     , goal_threshold_vel_(0.1)
     , stopped_vel_(0.1)
     , stopline_reset_count_(20)
+    , sim_mode_(false)
   {
     std::string file_name_mission;
     std::string file_name_vehicle;
@@ -371,14 +371,6 @@ public:
     private_nh_.getParam("state_mission_file_name", file_name_mission);
     private_nh_.getParam("state_behavior_file_name", file_name_behavior);
     private_nh_.getParam("state_motion_file_name", file_name_motion);
-
-    ctx_vehicle = new state_machine::StateContext(file_name_vehicle, "autoware_states_vehicle");
-    ctx_mission = new state_machine::StateContext(file_name_mission, "autoware_states_mission");
-    ctx_behavior = new state_machine::StateContext(file_name_behavior, "autoware_states_behavior");
-    ctx_motion = new state_machine::StateContext(file_name_motion, "autoware_states_motion");
-    init();
-    setupStateCallback();
-
     private_nh_.getParam("auto_mission_reload", auto_mission_reload_);
     private_nh_.getParam("auto_engage", auto_engage_);
     private_nh_.getParam("auto_mission_change", auto_mission_change_);
@@ -391,7 +383,15 @@ public:
     private_nh_.getParam("goal_threshold_vel", goal_threshold_vel_);
     private_nh_.getParam("stopped_vel", stopped_vel_);
     private_nh_.getParam("stopline_reset_count", stopline_reset_count_);
+    private_nh_.getParam("sim_mode", sim_mode_);
     current_status_.prev_stopped_wpidx = -1;
+
+    ctx_vehicle = new state_machine::StateContext(file_name_vehicle, "autoware_states_vehicle");
+    ctx_mission = new state_machine::StateContext(file_name_mission, "autoware_states_mission");
+    ctx_behavior = new state_machine::StateContext(file_name_behavior, "autoware_states_behavior");
+    ctx_motion = new state_machine::StateContext(file_name_motion, "autoware_states_motion");
+    init();
+    setupStateCallback();
   }
 
   void init(void);

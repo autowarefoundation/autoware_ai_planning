@@ -70,7 +70,6 @@ private:
   void ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg);
   void state_callback(const std_msgs::StringConstPtr& input_msg);
 
-  bool is_using_decisionmaker();
   void reset_vehicle_cmd_msg();
 
   // spinOnce for test
@@ -103,6 +102,7 @@ private:
   std_msgs::String command_mode_topic_;
 
   bool is_state_drive_ = true;
+  bool use_decision_maker_ = false;
   // still send is true
   bool send_emergency_cmd = false;
 };

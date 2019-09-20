@@ -8,7 +8,7 @@
   <arg name="auto_engage" default="false" />
   <arg name="auto_mission_change" default="false" />
   <arg name="use_fms" default="false" />
-  <arg name="disuse_vector_map" default="false" />
+  <arg name="disuse_vector_map" default="true" />
   <arg name="param_num_of_steer_behind" default="30" />
   <arg name="change_threshold_dist" default="1.0" />
   <arg name="change_threshold_angle" default="15" />

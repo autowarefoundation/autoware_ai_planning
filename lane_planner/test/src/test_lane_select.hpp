@@ -46,17 +46,17 @@ public:
     lsn->publishVehicleLocation(clst_wp, larray_id);
   }
 
-  void publishTrafficWaypointsArray() {
+  void publishTrafficWaypointsArray(int driving_direction) {
     autoware_msgs::LaneArray pub_msg;
     autoware_msgs::Lane pub_lane;
     for (int idx = 0; idx < 100; idx++) {
       static autoware_msgs::Waypoint wp;
       wp.gid = idx;
       wp.lid = idx;
-      wp.pose.pose.position.x = 0.0 + (double)idx;
+      wp.pose.pose.position.x = 0.0 + driving_direction * (double)idx;
       wp.pose.pose.position.y = 0.0;
       wp.pose.pose.position.z = 0.0;
-      wp.twist.twist.linear.x = 5.0;
+      wp.twist.twist.linear.x = 5.0 * driving_direction;
       wp.twist.twist.angular.z = 0.0;
 
       tf::Quaternion quaternion = tf::createQuaternionFromRPY(0, 0, 0);

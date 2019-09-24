@@ -237,9 +237,7 @@ void LaneSelectNode::createLaneForChange()
 
   double dt = getTwoDimensionalDistance(cur_lane.waypoints.at(num_lane_change).pose.pose.position,
                                         cur_lane.waypoints.at(clst_wp).pose.pose.position);
-  double dt_by_vel = current_velocity_.twist.linear.x * lane_change_target_ratio_ > lane_change_target_minimum_ ?
-                         current_velocity_.twist.linear.x * lane_change_target_ratio_ :
-                         lane_change_target_minimum_;
+  double dt_by_vel = std::max(fabs(current_velocity_.twist.linear.x * lane_change_target_ratio_), lane_change_target_minimum_);
   ROS_INFO("dt : %lf, dt_by_vel : %lf", dt, dt_by_vel);
   autoware_msgs::Lane &nghbr_lane =
       static_cast<ChangeFlag>(cur_lane.waypoints.at(num_lane_change).change_flag) == ChangeFlag::right ?
@@ -781,22 +779,16 @@ int32_t getClosestWaypointNumber(const autoware_msgs::Lane &current_lane, const 
                                  const geometry_msgs::Twist &current_velocity, const int32_t previous_number,
                                  const double distance_threshold, const int search_closest_waypoint_minimum_dt)
 {
-  if (current_lane.waypoints.empty())
+  if (current_lane.waypoints.size() < 2)
     return -1;
 
   std::vector<uint32_t> idx_vec;
   // if previous number is -1, search closest waypoint from waypoints in front of current pose
+  uint32_t range_min = 0;
+  uint32_t range_max = current_lane.waypoints.size();
   if (previous_number == -1)
   {
     idx_vec.reserve(current_lane.waypoints.size());
-    for (uint32_t i = 0; i < current_lane.waypoints.size(); i++)
-    {
-      geometry_msgs::Point converted_p =
-          convertPointIntoRelativeCoordinate(current_lane.waypoints.at(i).pose.pose.position, current_pose);
-      double angle = getRelativeAngle(current_lane.waypoints.at(i).pose.pose, current_pose);
-      if (converted_p.x > 0 && angle < 90)
-        idx_vec.push_back(i);
-    }
   }
   else
   {
@@ -806,20 +798,24 @@ int32_t getClosestWaypointNumber(const autoware_msgs::Lane &current_lane, const 
       ROS_WARN("Current_pose is far away from previous closest waypoint. Initilized...");
       return -1;
     }
-
+    range_min = static_cast<uint32_t>(previous_number);
     double ratio = 3;
     double dt = std::max(current_velocity.linear.x * ratio, static_cast<double>(search_closest_waypoint_minimum_dt));
-
-    auto range_max = static_cast<uint32_t>(previous_number + dt) < current_lane.waypoints.size() ?
-                         static_cast<uint32_t>(previous_number + dt) :
-                         current_lane.waypoints.size();
-    for (uint32_t i = static_cast<uint32_t>(previous_number); i < range_max; i++)
+    if (static_cast<uint32_t>(previous_number + dt) < current_lane.waypoints.size())
     {
-      geometry_msgs::Point converted_p =
-          convertPointIntoRelativeCoordinate(current_lane.waypoints.at(i).pose.pose.position, current_pose);
-      double angle = getRelativeAngle(current_lane.waypoints.at(i).pose.pose, current_pose);
-      if (converted_p.x > 0 && angle < 90)
-        idx_vec.push_back(i);
+      range_max = static_cast<uint32_t>(previous_number + dt);
+    }
+  }
+  const LaneDirection dir = getLaneDirection(current_lane);
+  const int sgn = (dir == LaneDirection::Forward) ? 1 : (dir == LaneDirection::Backward) ? -1 : 0;
+  for (uint32_t i = range_min; i < range_max; i++)
+  {
+    geometry_msgs::Point converted_p =
+      convertPointIntoRelativeCoordinate(current_lane.waypoints.at(i).pose.pose.position, current_pose);
+    double angle = getRelativeAngle(current_lane.waypoints.at(i).pose.pose, current_pose);
+    if (converted_p.x * sgn > 0 && angle < 90)
+    {
+      idx_vec.push_back(i);
     }
   }
 

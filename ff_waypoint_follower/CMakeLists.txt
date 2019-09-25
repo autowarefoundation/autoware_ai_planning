@@ -40,7 +40,6 @@ include_directories(
         include
         #  /usr/local/include/zmp/minivan
         ${catkin_INCLUDE_DIRS}
-        ${autoware_msgs_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library

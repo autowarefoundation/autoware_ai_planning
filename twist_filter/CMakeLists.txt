@@ -35,9 +35,7 @@ catkin_package(
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 include_directories(
-        ${autoware_config_msgs_INCLUDE_DIRS}
-        ${autoware_msgs_INCLUDE_DIRS}
-        ${catkin_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
 )
 
 add_executable(twist_filter src/twist_filter.cpp)

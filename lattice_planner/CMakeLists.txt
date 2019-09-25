@@ -53,7 +53,6 @@ include_directories(
         include
         ${ARMADILLO_INCLUDE_DIRS}
         ${catkin_INCLUDE_DIRS}
-        ${vector_map_INCLUDE_DIRS}
 )
 
 add_library(libtraj_gen lib/libtraj_gen.cpp)

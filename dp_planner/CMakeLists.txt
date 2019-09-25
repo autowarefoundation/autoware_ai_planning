@@ -57,7 +57,6 @@ SET(CMAKE_CXX_FLAGS "-O2 -g -Wall -Wno-unused-result -DROS ${CMAKE_CXX_FLAGS}")
 include_directories(
         include include/plannerh
         ${catkin_INCLUDE_DIRS}
-        ${vector_map_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library

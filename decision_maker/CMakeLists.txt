@@ -11,13 +11,6 @@ SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
 
 find_package(autoware_build_flags REQUIRED)
 
-find_package(autoware_msgs REQUIRED)
-
-find_package(autoware_config_msgs REQUIRED)
-
-find_package(vector_map_msgs REQUIRED)
-
-find_package(vector_map REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
@@ -33,6 +26,8 @@ find_package(catkin REQUIRED COMPONENTS
         rostest
         rosunit
         jsk_rviz_plugins
+        vector_map
+        vector_map_msgs
         )
 
 catkin_package(
@@ -52,9 +47,6 @@ catkin_package(
 include_directories(
         include/decision_maker
         ${catkin_INCLUDE_DIRS}
-        ${vector_map_INCLUDE_DIRS}
-        ${autoware_config_msgs_INCLUDE_DIRS}
-        ${autoware_msgs_INCLUDE_DIRS}
 )
 
 add_executable(decision_maker_node
@@ -72,9 +64,8 @@ add_executable(decision_maker_node
         )
 target_link_libraries(decision_maker_node
         ${catkin_LIBRARIES}
-        ${vector_map_LIBRARIES}
         )
-add_dependencies(decision_maker_node autoware_msgs_generate_msgs_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(decision_maker_node ${catkin_EXPORTED_TARGETS})
 
 install(TARGETS decision_maker_node
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

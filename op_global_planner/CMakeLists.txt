@@ -42,7 +42,6 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${vector_map_INCLUDE_DIRS}
 )
 
 

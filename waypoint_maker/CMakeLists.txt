@@ -42,9 +42,6 @@ SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 include_directories(
         include
         ${catkin_INCLUDE_DIRS}
-        ${vector_map_INCLUDE_DIRS}
-        ${autoware_msgs_INCLUDE_DIRS}
-        ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(waypoint_loader nodes/waypoint_loader/waypoint_loader_core.cpp nodes/waypoint_loader/waypoint_loader_node.cpp)

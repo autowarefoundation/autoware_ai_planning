@@ -46,8 +46,6 @@ SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 include_directories(
         include
-        ${autoware_config_msgs_INCLUDE_DIRS}
-        ${autoware_msgs_INCLUDE_DIRS}
         ${catkin_INCLUDE_DIRS}
 )
 

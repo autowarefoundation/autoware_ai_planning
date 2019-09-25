@@ -5,26 +5,26 @@ set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED COMPONENTS
   autoware_build_flags
+  autoware_msgs
+  geometry_msgs
+  pcl_ros
   roscpp
+  sensor_msgs
   tf
   tf_conversions
-  pcl_ros
-  sensor_msgs
-  geometry_msgs
-  autoware_msgs
 )
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES astar_search
   CATKIN_DEPENDS
+  autoware_msgs
+  geometry_msgs
+  pcl_ros
   roscpp
+  sensor_msgs
   tf
   tf_conversions
-  pcl_ros
-  sensor_msgs
-  geometry_msgs
-  autoware_msgs
 )
 
 include_directories(

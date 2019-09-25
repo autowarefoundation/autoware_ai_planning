@@ -3,27 +3,27 @@ project(twist_gate)
 
 find_package(
   catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  geometry_msgs
-  autoware_msgs
-  autoware_config_msgs
-  tablet_socket_msgs
-  autoware_health_checker
-  autoware_build_flags
-  rostest
-  rosunit
+    autoware_build_flags
+    autoware_config_msgs
+    autoware_health_checker
+    autoware_msgs
+    geometry_msgs
+    roscpp
+    rostest
+    rosunit
+    std_msgs
+    tablet_socket_msgs
 )
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp
-  std_msgs
-  geometry_msgs
-  autoware_msgs
-  autoware_config_msgs
-  tablet_socket_msgs
-  autoware_health_checker
+  CATKIN_DEPENDS
+    autoware_config_msgs
+    autoware_health_checker
+    autoware_msgs
+    geometry_msgs
+    std_msgs
+    tablet_socket_msgs
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")

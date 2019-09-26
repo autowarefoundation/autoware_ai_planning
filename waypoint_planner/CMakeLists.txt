@@ -3,32 +3,33 @@ project(waypoint_planner)
 
 set(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
-find_package(catkin REQUIRED COMPONENTS
-  autoware_build_flags
-  roscpp
-  std_msgs
-  pcl_ros
-  pcl_conversions
-  tf
-  libwaypoint_follower
-  autoware_config_msgs
-  autoware_health_checker
-  autoware_msgs
-  vector_map
-  astar_search
+find_package(autoware_build_flags REQUIRED)
+
+find_package(
+  catkin REQUIRED COMPONENTS
+    astar_search
+    autoware_config_msgs
+    autoware_health_checker
+    autoware_msgs
+    libwaypoint_follower
+    pcl_conversions
+    pcl_ros
+    roscpp
+    std_msgs
+    tf
+    vector_map
 )
 
 catkin_package(
   CATKIN_DEPENDS
-  roscpp
-  std_msgs
-  tf
-  libwaypoint_follower
-  autoware_config_msgs
-  autoware_health_checker
-  autoware_msgs
-  vector_map
-  astar_search
+    astar_search
+    autoware_config_msgs
+    autoware_health_checker
+    autoware_msgs
+    libwaypoint_follower
+    std_msgs
+    tf
+    vector_map
 )
 
 include_directories(
@@ -36,41 +37,48 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(astar_avoid
+add_executable(
+  astar_avoid
   src/astar_avoid/astar_avoid.cpp
   src/astar_avoid/astar_avoid_node.cpp
 )
 
-target_link_libraries(astar_avoid
+target_link_libraries(
+  astar_avoid
   ${catkin_LIBRARIES}
 )
 
-add_dependencies(astar_avoid
+add_dependencies(
+  astar_avoid
   ${catkin_EXPORTED_TARGETS}
 )
 
-add_executable(velocity_set
+add_executable(
+  velocity_set
   src/velocity_set/velocity_set.cpp
   src/velocity_set/velocity_set_path.cpp
   src/velocity_set/velocity_set_info.cpp
   src/velocity_set/libvelocity_set.cpp
 )
 
-target_link_libraries(velocity_set
+target_link_libraries(
+  velocity_set
   ${catkin_LIBRARIES}
 )
 
-add_dependencies(velocity_set
+add_dependencies(
+  velocity_set
   ${catkin_EXPORTED_TARGETS}
 )
 
-install(TARGETS astar_avoid velocity_set
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+install(
+  TARGETS astar_avoid velocity_set
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY launch/
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-        PATTERN ".svn" EXCLUDE
+install(
+  DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )

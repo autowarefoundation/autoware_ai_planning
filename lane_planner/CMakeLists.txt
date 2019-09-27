@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tablet_socket_msgs
   vector_map
+  lanelet2_extension
 )
 
 set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
@@ -86,6 +87,20 @@ add_dependencies(
 )
 
 add_executable(
+  lane_rule_lanelet2
+  nodes/lane_rule_lanelet2/lane_rule_lanelet2.cpp
+)
+target_link_libraries(
+  lane_rule_lanelet2
+  lane_planner
+  ${catkin_LIBRARIES}
+)
+add_dependencies(
+  lane_rule_lanelet2
+  ${catkin_EXPORTED_TARGETS}
+)
+
+add_executable(
   lane_stop
   nodes/lane_stop/lane_stop.cpp
 )
@@ -104,6 +119,7 @@ add_executable(
 )
 
 target_link_libraries(lane_select ${catkin_LIBRARIES})
+
 add_dependencies(
   lane_select
   ${catkin_EXPORTED_TARGETS}
@@ -119,6 +135,7 @@ install(
     lane_navi
     lane_planner
     lane_rule
+    lane_rule_lanelet2
     lane_select
     lane_stop
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

@@ -1,0 +1,17 @@
+<!-- -->
+<launch>
+  <arg name="use_ll2" default="true" />
+
+<group if="$(arg use_ll2)">
+
+  <node pkg="lane_planner" type="lane_rule_lanelet2" name="lane_rule_lanelet2" output="screen">
+    </node>		   
+</group>
+
+<group unless="$(arg use_ll2)">
+
+  <node pkg="lane_planner" type="lane_rule" name="lane_rule" output="screen">
+  </node>
+</group>
+
+</launch>

@@ -5,9 +5,6 @@ This node reads `PointCloud` and/or `DetectedObjectArray` and creates an `Occupa
 
 **You need to subscribe at least one of `PointCloud` or `DetectedObjectArray` to generate costmap.**
 
-
-
-
 #### Input topics
 `/points_no_ground` (sensor_msgs::PointCloud2) : from ray_ground_filter or compare map filter. It contains filtered points with the ground removed.
 
@@ -51,3 +48,24 @@ It can be launched as follows:
 ## Instruction Videos
 
 [![](https://img.youtube.com/vi/f7kSVJ23Mtw/0.jpg)](https://www.youtube.com/watch?v=f7kSVJ23Mtw)
+
+---
+
+## costmap_generator_lanelet2
+This node behave exactly like `costmap_generator` node, but uses different map format for wayarea.
+
+#### Input topics
+`/points_no_ground` (sensor_msgs::PointCloud2) : from ray_ground_filter or compare map filter. It contains filtered points with the ground removed.
+
+`/prediction/moving_predictor/objects` (autoware_msgs::DetectedObjectArray): predicted objects from naive_motion_predict.
+
+`/lanelet_map_bin`: from the `lanelet2_map_loader`. `/tf` to obtain the transform between the vector map(map_frame) and the sensor(sensor_frame) .
+
+#### Output topics
+same as `costmap_generator`
+
+#### How to launch
+run:
+```
+roslaunch costmap_generator costmap_generator_lanelet2.launch
+```

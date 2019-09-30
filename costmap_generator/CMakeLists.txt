@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf
   vector_map
+  lanelet2_extension
 )
 
 catkin_package(
@@ -68,8 +69,28 @@ add_dependencies(
   ${catkin_EXPORTED_TARGETS}
 )
 
+add_executable(
+  costmap_generator_lanelet2
+  nodes/costmap_generator/costmap_generator_lanelet2_node.cpp
+  nodes/costmap_generator/costmap_generator_lanelet2.cpp
+  nodes/costmap_generator/points_to_costmap.cpp
+  nodes/costmap_generator/objects_to_costmap.cpp
+)
 
-install(TARGETS costmap_generator
+target_link_libraries(
+  costmap_generator_lanelet2
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(
+  costmap_generator_lanelet2
+  ${catkin_EXPORTED_TARGETS}
+)
+
+install(
+  TARGETS 
+    costmap_generator
+    costmap_generator_lanelet2
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

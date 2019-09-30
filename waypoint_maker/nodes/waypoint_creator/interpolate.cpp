@@ -62,7 +62,7 @@ bool LinearInterpolate::interpolate(const std::vector<double>& base_index, const
   {
     if (base_index[i] == idx)
     {
-      return_value.push_back(base_index[i]);
+      return_value.push_back(base_value[i]);
       continue;
     }
     while (base_index[i] < idx)

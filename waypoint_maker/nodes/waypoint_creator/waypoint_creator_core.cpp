@@ -66,11 +66,22 @@ void WaypointCreator::inputPointCallback(const geometry_msgs::PointStamped& in_p
 
 void WaypointCreator::deletePoseCallback(const geometry_msgs::PoseStamped& in_pose)
 {
+  geometry_msgs::PoseStamped in_pose_converted;
+  try
+  {
+    tf2_buffer_.transform(in_pose, in_pose_converted, waypoint_frame_id_, ros::Duration(1.0));
+  }
+  catch (tf2::TransformException& ex)
+  {
+    ROS_WARN("[WaypointCreator] transform failed %s\n", ex.what());  // Print exception which was caught
+    return;
+  }
+
   unsigned int closest = 0;
   double dist_min = 1.0E5;
   for (unsigned int i = 0; i < source_pose_v_.size(); ++i)
   {
-    double dist = amathutils::find_distance(in_pose.pose, source_pose_v_.at(i));
+    double dist = amathutils::find_distance(in_pose_converted.pose, source_pose_v_.at(i));
     if (dist < dist_min)
     {
       dist_min = dist;

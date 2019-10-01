@@ -26,8 +26,8 @@
 #include <iostream>
 #include <limits>
 #include <chrono>
-
 #include <unistd.h>
+#include <deque>
 
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
@@ -92,6 +92,7 @@ private:
   std::string vehicle_model_type_;                           //!< @brief vehicle model type for MPC
   std::shared_ptr<QPSolverInterface> qpsolver_ptr_;          //!< @brief qp solver for MPC
   std::string output_interface_;                             //!< @brief output command type
+  std::deque<double> input_buffer_;                          //!< @brief control input (mpc_output) buffer for delay time conpemsation
 
   /* parameters for control*/
   double ctrl_period_;              //!< @brief control frequency [s]
@@ -122,6 +123,7 @@ private:
     double weight_terminal_lat_error;               //< @brief terminal lateral error weight in matrix Q
     double weight_terminal_heading_error;           //< @brief terminal heading error weight in matrix Q
     double zero_ff_steer_deg;                       //< @brief threshold that feed-forward angle becomes zero
+    double delay_compensation_time;                //< @brief delay time for steering input to be compensated
   };
   MPCParam mpc_param_; // for mpc design parameter
 
@@ -199,24 +201,11 @@ private:
 
   /* debug */
   bool show_debug_info_;      //!< @brief flag to display debug info
-  bool publish_debug_values_; //!< @brief flag to publish debug info
 
   ros::Publisher pub_debug_filtered_traj_;        //!< @brief publisher for debug info
   ros::Publisher pub_debug_predicted_traj_;       //!< @brief publisher for debug info
   ros::Publisher pub_debug_values_;               //!< @brief publisher for debug info
   ros::Publisher pub_debug_mpc_calc_time_;        //!< @brief publisher for debug info
-  ros::Publisher pub_debug_steer_cmd_;            //!< @brief publisher for debug info
-  ros::Publisher pub_debug_steer_cmd_raw_;        //!< @brief publisher for debug info
-  ros::Publisher pub_debug_steer_cmd_ff_;         //!< @brief publisher for debug info
-  ros::Publisher pub_debug_steer_;                //!< @brief publisher for debug info
-  ros::Publisher pub_debug_current_vel_;          //!< @brief publisher for debug info
-  ros::Publisher pub_debug_vel_cmd_;              //!< @brief publisher for debug info
-  ros::Publisher pub_debug_laterr_;               //!< @brief publisher for debug info
-  ros::Publisher pub_debug_yawerr_;               //!< @brief publisher for debug info
-  ros::Publisher pub_debug_angvel_cmd_;           //!< @brief publisher for debug info
-  ros::Publisher pub_debug_angvel_steer_;         //!< @brief publisher for debug info
-  ros::Publisher pub_debug_angvel_cmd_ff_;        //!< @brief publisher for debug info
-  ros::Publisher pub_debug_angvel_estimatetwist_; //!< @brief publisher for debug info
 
   ros::Subscriber sub_estimate_twist_;         //!< @brief subscriber for /estimate_twist for debug
   geometry_msgs::TwistStamped estimate_twist_; //!< @brief received /estimate_twist for debug

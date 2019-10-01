@@ -22,7 +22,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/Int32.h>
 
-#include "autoware_config_msgs/ConfigVelocitySet.h"
+#include <autoware_config_msgs/ConfigVelocitySet.h>
 
 #include <autoware_health_checker/health_checker/health_checker.h>
 #include <memory>

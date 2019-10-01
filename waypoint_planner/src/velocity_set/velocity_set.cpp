@@ -19,9 +19,9 @@
 #include <std_msgs/ColorRGBA.h>
 #include <iostream>
 
-#include "../../src/velocity_set/libvelocity_set.h"
-#include "../../src/velocity_set/velocity_set_info.h"
-#include "../../src/velocity_set/velocity_set_path.h"
+#include <waypoint_planner/velocity_set/libvelocity_set.h>
+#include <waypoint_planner/velocity_set/velocity_set_info.h>
+#include <waypoint_planner/velocity_set/velocity_set_path.h>
 
 namespace
 {

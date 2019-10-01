@@ -18,7 +18,8 @@
 #define VELOCITY_SET_PATH_H
 
 #include <autoware_msgs/Lane.h>
-#include "libwaypoint_follower/libwaypoint_follower.h"
+#include <libwaypoint_follower/libwaypoint_follower.h>
+
 class VelocitySetPath
 {
  private:

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "../../src/velocity_set/velocity_set_path.h"
+#include <waypoint_planner/velocity_set/velocity_set_path.h>
 
 VelocitySetPath::VelocitySetPath()
   : set_path_(false),

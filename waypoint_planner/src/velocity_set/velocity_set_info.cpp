@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "../../src/velocity_set/velocity_set_info.h"
+#include <waypoint_planner/velocity_set/velocity_set_info.h>
 
 void joinPoints(const pcl::PointCloud<pcl::PointXYZ>& points1, pcl::PointCloud<pcl::PointXYZ>* points2)
 {

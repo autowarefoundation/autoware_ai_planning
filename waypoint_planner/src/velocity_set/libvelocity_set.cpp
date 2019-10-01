@@ -1,4 +1,4 @@
-#include "../../src/velocity_set/libvelocity_set.h"
+#include <waypoint_planner/velocity_set/libvelocity_set.h>
 
 // extract edge points from zebra zone
 std::vector<geometry_msgs::Point> removeNeedlessPoints(std::vector<geometry_msgs::Point> &area_points)

@@ -11,6 +11,7 @@ find_package(
     autoware_config_msgs
     autoware_health_checker
     autoware_msgs
+    lanelet2_extension
     libwaypoint_follower
     pcl_conversions
     pcl_ros
@@ -18,6 +19,7 @@ find_package(
     std_msgs
     tf
     vector_map
+    roslint
 )
 
 catkin_package(
@@ -26,11 +28,15 @@ catkin_package(
     autoware_config_msgs
     autoware_health_checker
     autoware_msgs
+    lanelet2_extension
     libwaypoint_follower
     std_msgs
     tf
     vector_map
 )
+
+# TODO add all codes to roslint
+roslint_cpp(src/velocity_set_lanelet2/velocity_set_lanelet2.cpp)
 
 include_directories(
   include
@@ -71,8 +77,26 @@ add_dependencies(
   ${catkin_EXPORTED_TARGETS}
 )
 
+add_executable(
+  velocity_set_lanelet2
+  src/velocity_set_lanelet2/velocity_set_lanelet2.cpp
+  src/velocity_set/velocity_set_path.cpp
+  src/velocity_set/velocity_set_info.cpp
+  src/velocity_set/libvelocity_set.cpp
+)
+
+target_link_libraries(
+  velocity_set_lanelet2
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(
+  velocity_set_lanelet2
+  ${catkin_EXPORTED_TARGETS}
+)
+
 install(
-  TARGETS astar_avoid velocity_set
+  TARGETS astar_avoid velocity_set velocity_set_lanelet2
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -82,3 +106,7 @@ install(
   DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
+
+if (CATKIN_ENABLE_TESTING)
+  roslint_add_test()
+endif()

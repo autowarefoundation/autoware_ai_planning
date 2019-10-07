@@ -75,8 +75,11 @@ TEST_F(TwistGateTestSuite, twistCmdCallback) {
   test_obj_.publishTwistCmd(linear_x, angular_z);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
 
   ASSERT_EQ(linear_x, test_obj_.cb_vehicle_cmd.twist_cmd.twist.linear.x);
   ASSERT_EQ(angular_z, test_obj_.cb_vehicle_cmd.twist_cmd.twist.angular.z);
@@ -89,8 +92,12 @@ TEST_F(TwistGateTestSuite, controlCmdCallback) {
   test_obj_.publishControlCmd(linear_vel, linear_acc, steer_angle);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
+
 
   ASSERT_EQ(linear_vel, test_obj_.cb_vehicle_cmd.ctrl_cmd.linear_velocity);
   ASSERT_EQ(linear_acc, test_obj_.cb_vehicle_cmd.ctrl_cmd.linear_acceleration);
@@ -119,8 +126,11 @@ TEST_F(TwistGateTestSuite, remoteCmdCallback) {
   test_obj_.publishRemoteCmd(remote_cmd);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
 
   ASSERT_EQ(remote_cmd.vehicle_cmd.header.frame_id
       , test_obj_.cb_vehicle_cmd.header.frame_id);
@@ -160,8 +170,11 @@ TEST_F(TwistGateTestSuite, remoteCmdEmergency) {
   test_obj_.publishRemoteCmd(remote_cmd);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
 
   ASSERT_EQ("emergency", test_obj_.cb_state_cmd.data);
 }
@@ -172,8 +185,12 @@ TEST_F(TwistGateTestSuite, modeCmdCallback) {
   test_obj_.publishModeCmd(mode);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
+
 
   ASSERT_EQ(mode, test_obj_.cb_vehicle_cmd.mode);
 }
@@ -184,8 +201,12 @@ TEST_F(TwistGateTestSuite, gearCmdCallback) {
   test_obj_.publishGearCmd(gear);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
+
 
   ASSERT_EQ(gear, test_obj_.cb_vehicle_cmd.gear);
 }
@@ -196,8 +217,11 @@ TEST_F(TwistGateTestSuite, accelCmdCallback) {
   test_obj_.publishAccelCmd(accel);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
 
   ASSERT_EQ(accel, test_obj_.cb_vehicle_cmd.accel_cmd.accel);
 }
@@ -208,8 +232,12 @@ TEST_F(TwistGateTestSuite, steerCmdCallback) {
   test_obj_.publishSteerCmd(steer);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
+
 
   ASSERT_EQ(steer, test_obj_.cb_vehicle_cmd.steer_cmd.steer);
 }
@@ -220,8 +248,12 @@ TEST_F(TwistGateTestSuite, brakeCmdCallback) {
   test_obj_.publishBrakeCmd(brake);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
+
 
   ASSERT_EQ(brake, test_obj_.cb_vehicle_cmd.brake_cmd.brake);
 }
@@ -233,8 +265,11 @@ TEST_F(TwistGateTestSuite, lampCmdCallback) {
   test_obj_.publishLampCmd(lamp_l, lamp_r);
   ros::WallDuration(0.1).sleep();
   test_obj_.tgSpinOnce();
-  ros::WallDuration(0.1).sleep();
-  ros::spinOnce();
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
 
   ASSERT_EQ(lamp_l, test_obj_.cb_vehicle_cmd.lamp_cmd.l);
   ASSERT_EQ(lamp_r, test_obj_.cb_vehicle_cmd.lamp_cmd.r);

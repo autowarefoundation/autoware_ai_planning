@@ -69,7 +69,7 @@ private:
   void lamp_cmd_callback(const autoware_msgs::LampCmd::ConstPtr& input_msg);
   void ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg);
   void state_callback(const std_msgs::StringConstPtr& input_msg);
-
+  void timer_callback(const ros::TimerEvent& e);
   void reset_vehicle_cmd_msg();
 
   // spinOnce for test
@@ -84,11 +84,13 @@ private:
   ros::Publisher state_cmd_pub_;
   ros::Subscriber remote_cmd_sub_;
   std::map<std::string, ros::Subscriber> auto_cmd_sub_stdmap_;
+  ros::Timer timer_;
 
   vehicle_cmd_msg_t twist_gate_msg_;
   std_msgs::Bool emergency_stop_msg_;
   ros::Time remote_cmd_time_;
   ros::Duration timeout_period_;
+  double loop_rate_;
 
   std::thread watchdog_timer_thread_;
   bool is_alive;

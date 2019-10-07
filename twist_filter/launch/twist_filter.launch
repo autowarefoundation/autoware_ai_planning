@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="loop_rate" default="30.0" />
   <arg name="use_decision_maker" default="false" />
   <arg name="lateral_accel_limit" default="5.0" />
   <arg name="lowpass_gain_linear_x" default="0.0" />
@@ -13,6 +14,7 @@
   </node>
 
   <node pkg="twist_gate" type="twist_gate" name="twist_gate" output="log">
+    <param name="loop_rate" value="$(arg loop_rate)" />
     <param name="use_decision_maker" value="$(arg use_decision_maker)" />
   </node>
 </launch>

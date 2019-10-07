@@ -39,6 +39,7 @@ TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_n
   , command_mode_(CommandMode::AUTO)
   , previous_command_mode_(CommandMode::AUTO)
 {
+  private_nh_.param<double>("loop_rate", loop_rate_, 30.0);
   private_nh_.param<bool>("use_decision_maker", use_decision_maker_, false);
 
   health_checker_ptr_ = std::make_shared<autoware_health_checker::HealthChecker>(nh_,private_nh_);
@@ -48,6 +49,8 @@ TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_n
   state_cmd_pub_ = nh_.advertise<std_msgs::String>("/state_cmd", 1, false);
 
   remote_cmd_sub_ = nh_.subscribe("/remote_cmd", 1, &TwistGate::remote_cmd_callback, this);
+
+  timer_ = nh_.createTimer(ros::Duration(1.0 / loop_rate_), &TwistGate::timer_callback, this);
 
   auto_cmd_sub_stdmap_["twist_cmd"] = nh_.subscribe("/twist_cmd", 1, &TwistGate::auto_cmd_twist_cmd_callback, this);
   auto_cmd_sub_stdmap_["mode_cmd"] = nh_.subscribe("/mode_cmd", 1, &TwistGate::mode_cmd_callback, this);
@@ -187,7 +190,6 @@ void TwistGate::remote_cmd_callback(const remote_msgs_t::ConstPtr& input_msg)
     twist_gate_msg_.gear = input_msg->vehicle_cmd.gear;
     twist_gate_msg_.lamp_cmd = input_msg->vehicle_cmd.lamp_cmd;
     twist_gate_msg_.mode = input_msg->vehicle_cmd.mode;
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -203,7 +205,6 @@ void TwistGate::auto_cmd_twist_cmd_callback(const geometry_msgs::TwistStamped::C
     twist_gate_msg_.twist_cmd.twist = input_msg->twist;
 
     check_state();
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -220,7 +221,6 @@ void TwistGate::mode_cmd_callback(const tablet_socket_msgs::mode_cmd::ConstPtr& 
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
     twist_gate_msg_.header.seq++;
     twist_gate_msg_.mode = input_msg->mode;
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -229,7 +229,6 @@ void TwistGate::gear_cmd_callback(const tablet_socket_msgs::gear_cmd::ConstPtr& 
   if (command_mode_ == CommandMode::AUTO)
   {
     twist_gate_msg_.gear = input_msg->gear;
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -241,7 +240,6 @@ void TwistGate::accel_cmd_callback(const autoware_msgs::AccelCmd::ConstPtr& inpu
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
     twist_gate_msg_.header.seq++;
     twist_gate_msg_.accel_cmd.accel = input_msg->accel;
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -253,7 +251,6 @@ void TwistGate::steer_cmd_callback(const autoware_msgs::SteerCmd::ConstPtr& inpu
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
     twist_gate_msg_.header.seq++;
     twist_gate_msg_.steer_cmd.steer = input_msg->steer;
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -265,7 +262,6 @@ void TwistGate::brake_cmd_callback(const autoware_msgs::BrakeCmd::ConstPtr& inpu
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
     twist_gate_msg_.header.seq++;
     twist_gate_msg_.brake_cmd.brake = input_msg->brake;
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -278,7 +274,6 @@ void TwistGate::lamp_cmd_callback(const autoware_msgs::LampCmd::ConstPtr& input_
     twist_gate_msg_.header.seq++;
     twist_gate_msg_.lamp_cmd.l = input_msg->l;
     twist_gate_msg_.lamp_cmd.r = input_msg->r;
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -292,7 +287,6 @@ void TwistGate::ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::Co
     twist_gate_msg_.ctrl_cmd = input_msg->cmd;
 
     check_state();
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
   }
 }
 
@@ -320,7 +314,6 @@ void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
     {
       is_state_drive_ = false;
     }
-    vehicle_cmd_pub_.publish(twist_gate_msg_);
 
     // reset emergency flags
     if (input_msg->data.find("VehicleReady") != std::string::npos)
@@ -330,3 +323,9 @@ void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
     }
   }
 }
+
+void TwistGate::timer_callback(const ros::TimerEvent& e)
+{
+  vehicle_cmd_pub_.publish(twist_gate_msg_);
+}
+

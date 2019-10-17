@@ -39,6 +39,7 @@ class VelocitySetPath
   VelocitySetPath();
   ~VelocitySetPath();
 
+  double calcChangedVelocity(const double& current_vel, const double& accel, const std::array<int, 2>& range) const;
   void changeWaypointsForStopping(int stop_waypoint, int obstacle_waypoint, int closest_waypoint, double deceleration);
   void avoidSuddenDeceleration(double velocity_change_limit, double deceleration, int closest_waypoint);
   void avoidSuddenAcceleration(double decelerationint, int closest_waypoint);
@@ -81,7 +82,7 @@ class VelocitySetPath
   int getPrevWaypointsSize() const
   {
     return prev_waypoints_.waypoints.size();
-  }  
+  }
 
   int getNewWaypointsSize() const
   {

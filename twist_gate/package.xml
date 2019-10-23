@@ -16,6 +16,7 @@
   <depend>roscpp</depend>
   <depend>rostest</depend>
   <depend>rosunit</depend>
+  <depend>roslint</depend>
   <depend>std_msgs</depend>
   <depend>tablet_socket_msgs</depend>
 </package>

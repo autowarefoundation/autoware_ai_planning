@@ -31,23 +31,24 @@
 #include "twist_gate/twist_gate.h"
 
 #include <chrono>
+#include <string>
+#include <autoware_system_msgs/DiagnosticStatus.h>
+
+using AwDiagStatus = autoware_system_msgs::DiagnosticStatus;
 
 TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_nh)
   : nh_(nh)
   , private_nh_(private_nh)
-  , timeout_period_(1.0)
+  , timeout_period_(10.0)
   , command_mode_(CommandMode::AUTO)
   , previous_command_mode_(CommandMode::AUTO)
 {
   private_nh_.param<double>("loop_rate", loop_rate_, 30.0);
   private_nh_.param<bool>("use_decision_maker", use_decision_maker_, false);
 
-  health_checker_ptr_ = std::make_shared<autoware_health_checker::HealthChecker>(nh_,private_nh_);
-  emergency_stop_pub_ = nh_.advertise<std_msgs::Bool>("/emergency_stop", 1, true);
+  health_checker_ptr_ = std::make_shared<autoware_health_checker::HealthChecker>(nh_, private_nh_);
   control_command_pub_ = nh_.advertise<std_msgs::String>("/ctrl_mode", 1);
   vehicle_cmd_pub_ = nh_.advertise<vehicle_cmd_msg_t>("/vehicle_cmd", 1, true);
-  state_cmd_pub_ = nh_.advertise<std_msgs::String>("/state_cmd", 1, false);
-
   remote_cmd_sub_ = nh_.subscribe("/remote_cmd", 1, &TwistGate::remote_cmd_callback, this);
 
   timer_ = nh_.createTimer(ros::Duration(1.0 / loop_rate_), &TwistGate::timer_callback, this);
@@ -61,13 +62,16 @@ TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_n
   auto_cmd_sub_stdmap_["lamp_cmd"] = nh_.subscribe("/lamp_cmd", 1, &TwistGate::lamp_cmd_callback, this);
   auto_cmd_sub_stdmap_["ctrl_cmd"] = nh_.subscribe("/ctrl_cmd", 1, &TwistGate::ctrl_cmd_callback, this);
   auto_cmd_sub_stdmap_["state"] = nh_.subscribe("/decision_maker/state", 1, &TwistGate::state_callback, this);
+  auto_cmd_sub_stdmap_["emergency_velocity"] =
+      nh_.subscribe("emergency_velocity", 1, &TwistGate::emergency_cmd_callback, this);
 
   twist_gate_msg_.header.seq = 0;
   emergency_stop_msg_.data = false;
-  send_emergency_cmd = false;
   health_checker_ptr_->ENABLE();
+  health_checker_ptr_->NODE_ACTIVATE();
 
   remote_cmd_time_ = ros::Time::now();
+  emergency_handling_time_ = ros::Time::now();
   watchdog_timer_thread_ = std::thread(&TwistGate::watchdog_timer, this);
   is_alive = true;
 }
@@ -91,6 +95,7 @@ void TwistGate::reset_vehicle_cmd_msg()
   twist_gate_msg_.steer_cmd.steer = 0;
   twist_gate_msg_.ctrl_cmd.linear_velocity = -1;
   twist_gate_msg_.ctrl_cmd.steering_angle = 0;
+  twist_gate_msg_.emergency = 0;
 }
 
 void TwistGate::check_state()
@@ -107,7 +112,6 @@ void TwistGate::watchdog_timer()
   while (is_alive)
   {
     ros::Time now_time = ros::Time::now();
-    bool emergency_flag = false;
 
     // check command mode
     if (previous_command_mode_ != command_mode_)
@@ -129,39 +133,23 @@ void TwistGate::watchdog_timer()
       previous_command_mode_ = command_mode_;
     }
 
-    // if lost Communication
-    if (command_mode_ == CommandMode::REMOTE && now_time - remote_cmd_time_ > timeout_period_)
+    // check lost Communication
+    if (command_mode_ == CommandMode::REMOTE)
     {
-      emergency_flag = true;
-      ROS_WARN("Lost Communication!");
+      const double dt = (now_time - remote_cmd_time_).toSec() * 1000;
+      health_checker_ptr_->CHECK_MAX_VALUE("remote_cmd_interval", dt, 700, 1000, 1500, "remote cmd interval is too "
+                                                                                       "long.");
     }
 
-    // if push emergency stop button
-    if (emergency_stop_msg_.data == true)
-    {
-      emergency_flag = true;
-      ROS_WARN("Emergency Mode!");
-    }
+    // check push emergency stop button
+    const int level = (emergency_stop_msg_.data) ? AwDiagStatus::ERROR : AwDiagStatus::OK;
+    health_checker_ptr_->CHECK_TRUE("emergency_stop_button", emergency_stop_msg_.data, level, "emergency stop button "
+                                                                                              "is pushed.");
 
-    // Emergency
-    if (emergency_flag)
+    // if no emergency message received for more than timeout_period_
+    if ((now_time - emergency_handling_time_) > timeout_period_)
     {
-      // Change Auto Mode
-      command_mode_ = CommandMode::AUTO;
-      if (send_emergency_cmd == false)
-      {
-        // Change State to Stop
-        std_msgs::String state_cmd;
-        state_cmd.data = "emergency";
-        state_cmd_pub_.publish(state_cmd);
-        send_emergency_cmd = true;
-      }
-      // Set Emergency Stop
-      emergency_stop_pub_.publish(emergency_stop_msg_);
-      ROS_WARN("Emergency Stop!");
-    }
-    else {
-      send_emergency_cmd = false;
+      emergency_handling_active_ = false;
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -176,7 +164,6 @@ void TwistGate::remote_cmd_callback(const remote_msgs_t::ConstPtr& input_msg)
 
   // Update Emergency Mode
   twist_gate_msg_.emergency = input_msg->vehicle_cmd.emergency;
-
   if (command_mode_ == CommandMode::REMOTE && emergency_stop_msg_.data == false)
   {
     twist_gate_msg_.header.frame_id = input_msg->vehicle_cmd.header.frame_id;
@@ -195,9 +182,8 @@ void TwistGate::remote_cmd_callback(const remote_msgs_t::ConstPtr& input_msg)
 
 void TwistGate::auto_cmd_twist_cmd_callback(const geometry_msgs::TwistStamped::ConstPtr& input_msg)
 {
-  health_checker_ptr_->NODE_ACTIVATE();
   health_checker_ptr_->CHECK_RATE("topic_rate_twist_cmd_slow", 8, 5, 1, "topic twist_cmd subscribe rate slow.");
-  if(command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     twist_gate_msg_.header.frame_id = input_msg->header.frame_id;
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
@@ -210,9 +196,9 @@ void TwistGate::auto_cmd_twist_cmd_callback(const geometry_msgs::TwistStamped::C
 
 void TwistGate::mode_cmd_callback(const tablet_socket_msgs::mode_cmd::ConstPtr& input_msg)
 {
-  if (command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
-    // TODO:check this if statement
+    // TODO(unknown): check this if statement
     if (input_msg->mode == -1 || input_msg->mode == 0)
     {
       reset_vehicle_cmd_msg();
@@ -226,7 +212,7 @@ void TwistGate::mode_cmd_callback(const tablet_socket_msgs::mode_cmd::ConstPtr& 
 
 void TwistGate::gear_cmd_callback(const tablet_socket_msgs::gear_cmd::ConstPtr& input_msg)
 {
-  if (command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     twist_gate_msg_.gear = input_msg->gear;
   }
@@ -234,7 +220,7 @@ void TwistGate::gear_cmd_callback(const tablet_socket_msgs::gear_cmd::ConstPtr& 
 
 void TwistGate::accel_cmd_callback(const autoware_msgs::AccelCmd::ConstPtr& input_msg)
 {
-  if (command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     twist_gate_msg_.header.frame_id = input_msg->header.frame_id;
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
@@ -245,7 +231,7 @@ void TwistGate::accel_cmd_callback(const autoware_msgs::AccelCmd::ConstPtr& inpu
 
 void TwistGate::steer_cmd_callback(const autoware_msgs::SteerCmd::ConstPtr& input_msg)
 {
-  if (command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     twist_gate_msg_.header.frame_id = input_msg->header.frame_id;
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
@@ -256,7 +242,7 @@ void TwistGate::steer_cmd_callback(const autoware_msgs::SteerCmd::ConstPtr& inpu
 
 void TwistGate::brake_cmd_callback(const autoware_msgs::BrakeCmd::ConstPtr& input_msg)
 {
-  if (command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     twist_gate_msg_.header.frame_id = input_msg->header.frame_id;
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
@@ -267,7 +253,7 @@ void TwistGate::brake_cmd_callback(const autoware_msgs::BrakeCmd::ConstPtr& inpu
 
 void TwistGate::lamp_cmd_callback(const autoware_msgs::LampCmd::ConstPtr& input_msg)
 {
-  if (command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     twist_gate_msg_.header.frame_id = input_msg->header.frame_id;
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
@@ -279,7 +265,7 @@ void TwistGate::lamp_cmd_callback(const autoware_msgs::LampCmd::ConstPtr& input_
 
 void TwistGate::ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg)
 {
-  if (command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     twist_gate_msg_.header.frame_id = input_msg->header.frame_id;
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
@@ -292,7 +278,7 @@ void TwistGate::ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::Co
 
 void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
 {
-  if (command_mode_ == CommandMode::AUTO)
+  if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     // Set Parking Gear
     if (input_msg->data.find("WaitOrder") != std::string::npos)
@@ -306,7 +292,8 @@ void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
     }
 
     // get drive state
-    if (input_msg->data.find("Drive\n") != std::string::npos && input_msg->data.find("VehicleReady\n") != std::string::npos)
+    if (input_msg->data.find("Drive\n") != std::string::npos &&
+        input_msg->data.find("VehicleReady\n") != std::string::npos)
     {
       is_state_drive_ = true;
     }
@@ -319,13 +306,18 @@ void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
     if (input_msg->data.find("VehicleReady") != std::string::npos)
     {
       emergency_stop_msg_.data = false;
-      send_emergency_cmd = false;
     }
   }
+}
+
+void TwistGate::emergency_cmd_callback(const vehicle_cmd_msg_t::ConstPtr& input_msg)
+{
+  emergency_handling_time_ = ros::Time::now();
+  emergency_handling_active_ = true;
+  twist_gate_msg_ = *input_msg;
 }
 
 void TwistGate::timer_callback(const ros::TimerEvent& e)
 {
   vehicle_cmd_pub_.publish(twist_gate_msg_);
 }
-

@@ -11,6 +11,7 @@ find_package(
     roscpp
     rostest
     rosunit
+    roslint
     std_msgs
     tablet_socket_msgs
 )
@@ -27,6 +28,9 @@ catkin_package(
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
+set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
+
+roslint_cpp()
 
 include_directories(
   include
@@ -45,6 +49,7 @@ install(
 )
 
 if(CATKIN_ENABLE_TESTING)
+  roslint_add_test()
   find_package(rostest REQUIRED)
   add_rostest_gtest(
     test-twist_gate

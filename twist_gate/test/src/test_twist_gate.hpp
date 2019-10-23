@@ -35,19 +35,17 @@ public:
     steer_cmd_publisher = nh.advertise<autoware_msgs::SteerCmd>("steer_cmd", 0);
     brake_cmd_publisher = nh.advertise<autoware_msgs::BrakeCmd>("brake_cmd", 0);
     lamp_cmd_publisher = nh.advertise<autoware_msgs::LampCmd>("lamp_cmd", 0);
+    emergency_vehicle_cmd_publisher = nh.advertise<autoware_msgs::VehicleCmd>("emergency_velocity", 0);
     vehicle_cmd_subscriber = nh.subscribe(
         "/vehicle_cmd", 1, &TwistGateTestClass::vehicleCmdCallback, this);
-    state_cmd_subscriber = nh.subscribe(
-        "/state_cmd", 1, &TwistGateTestClass::stateCmdCallback, this);
   }
 
   TwistGate *tg;
   autoware_msgs::VehicleCmd cb_vehicle_cmd;
-  std_msgs::String cb_state_cmd;
 
   ros::NodeHandle nh;
-  ros::Publisher twist_cmd_publisher, control_cmd_publisher, remote_cmd_publisher, mode_cmd_publisher, gear_cmd_publisher, accel_cmd_publisher, steer_cmd_publisher, brake_cmd_publisher, lamp_cmd_publisher, decision_maker_state_publisher;
-  ros::Subscriber vehicle_cmd_subscriber, state_cmd_subscriber;
+  ros::Publisher twist_cmd_publisher, control_cmd_publisher, remote_cmd_publisher, mode_cmd_publisher, gear_cmd_publisher, accel_cmd_publisher, steer_cmd_publisher, brake_cmd_publisher, lamp_cmd_publisher, decision_maker_state_publisher, emergency_vehicle_cmd_publisher;
+  ros::Subscriber vehicle_cmd_subscriber;
 
   void tgSpinOnce() { tg->spinOnce(); }
 
@@ -65,6 +63,7 @@ public:
     tg->twist_gate_msg_.steer_cmd.steer = i_value;
     tg->twist_gate_msg_.ctrl_cmd.linear_velocity = i_value;
     tg->twist_gate_msg_.ctrl_cmd.steering_angle = i_value;
+    tg->twist_gate_msg_.emergency = i_value;
 
     return tg->twist_gate_msg_;
   }
@@ -144,6 +143,14 @@ public:
     lamp_cmd_publisher.publish(msg);
   }
 
+  void publishEmergencyVehicleCmd(int emergency){
+    autoware_msgs::VehicleCmd msg;
+    msg.header.stamp = ros::Time::now();
+    msg.emergency = emergency;
+
+    emergency_vehicle_cmd_publisher.publish(msg);
+  }
+
   void publishDecisionMakerState(std::string states) {
     std_msgs::String msg;
     msg.data = states;
@@ -153,10 +160,6 @@ public:
 
   void vehicleCmdCallback(autoware_msgs::VehicleCmd msg) {
     cb_vehicle_cmd = msg;
-  }
-
-  void stateCmdCallback(std_msgs::String msg) {
-    cb_state_cmd = msg;
   }
 
   autoware_msgs::VehicleCmd getTwistGateMsg() { return tg->twist_gate_msg_; }

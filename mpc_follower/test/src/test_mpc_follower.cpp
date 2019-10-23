@@ -308,11 +308,9 @@ TEST_F(TestSuite, TestMPCFollower)
     /* == TestMPCFollowerDebugOptions == */
     {
         pnh_.setParam("show_debug_info", true);
-        pnh_.setParam("publish_debug_values", true);
         testTurningRight();
 
         pnh_.setParam("show_debug_info", false);
-        pnh_.setParam("publish_debug_values", false);
         testTurningRight();
     }
 

@@ -190,28 +190,29 @@ void DecisionMakerNode::createSubscriber(void)
 {
   // Config subscriber
   Subs["config/decision_maker"] =
-      nh_.subscribe("/config/decision_maker", 3, &DecisionMakerNode::callbackFromConfig, this);
+      nh_.subscribe("config/decision_maker", 3, &DecisionMakerNode::callbackFromConfig, this);
 
-  Subs["state_cmd"] = nh_.subscribe("/state_cmd", 1, &DecisionMakerNode::callbackFromStateCmd, this);
+  Subs["state_cmd"] = nh_.subscribe("state_cmd", 1, &DecisionMakerNode::callbackFromStateCmd, this);
   Subs["current_velocity"] =
-      nh_.subscribe("/current_velocity", 1, &DecisionMakerNode::callbackFromCurrentVelocity, this);
+      nh_.subscribe("current_velocity", 1, &DecisionMakerNode::callbackFromCurrentVelocity, this);
   Subs["obstacle_waypoint"] =
-      nh_.subscribe("/obstacle_waypoint", 1, &DecisionMakerNode::callbackFromObstacleWaypoint, this);
+      nh_.subscribe("obstacle_waypoint", 1, &DecisionMakerNode::callbackFromObstacleWaypoint, this);
   Subs["stopline_waypoint"] =
-      nh_.subscribe("/stopline_waypoint", 1, &DecisionMakerNode::callbackFromStoplineWaypoint, this);
-  Subs["change_flag"] = nh_.subscribe("/change_flag", 1, &DecisionMakerNode::callbackFromLaneChangeFlag, this);
+      nh_.subscribe("stopline_waypoint", 1, &DecisionMakerNode::callbackFromStoplineWaypoint, this);
+  Subs["change_flag"] = nh_.subscribe("change_flag", 1, &DecisionMakerNode::callbackFromLaneChangeFlag, this);
+  Subs["lanelet_map"] = nh_.subscribe("lanelet_map_bin", 1, &DecisionMakerNode::callbackFromLanelet2Map, this);
 }
 void DecisionMakerNode::createPublisher(void)
 {
   // pub
-  Pubs["state/stopline_wpidx"] = nh_.advertise<std_msgs::Int32>("/state/stopline_wpidx", 1, false);
+  Pubs["state/stopline_wpidx"] = nh_.advertise<std_msgs::Int32>("state/stopline_wpidx", 1, false);
 
   // for controlling other planner
   Pubs["lane_waypoints_array"] = nh_.advertise<autoware_msgs::LaneArray>(TPNAME_CONTROL_LANE_WAYPOINTS_ARRAY, 10, true);
-  Pubs["light_color"] = nh_.advertise<autoware_msgs::TrafficLight>("/light_color_managed", 1);
+  Pubs["light_color"] = nh_.advertise<autoware_msgs::TrafficLight>("light_color_managed", 1);
 
   // for controlling vehicle
-  Pubs["lamp_cmd"] = nh_.advertise<autoware_msgs::LampCmd>("/lamp_cmd", 1);
+  Pubs["lamp_cmd"] = nh_.advertise<autoware_msgs::LampCmd>("lamp_cmd", 1);
 
   // for visualize status
   Pubs["state"] = private_nh_.advertise<std_msgs::String>("state", 1, true);
@@ -238,13 +239,32 @@ void DecisionMakerNode::initROS()
   }
   else
   {
-    initVectorMap();
+    if(use_lanelet_map_)
+    {
+      initLaneletMap();
+    }
+    else
+    {
+      initVectorMap();
+    }
   }
 
   spinners = std::shared_ptr<ros::AsyncSpinner>(new ros::AsyncSpinner(3));
   spinners->start();
 
   update_msgs();
+}
+
+void DecisionMakerNode::initLaneletMap(void)
+{
+  bool ll2_map_loaded = false;
+  while (!ll2_map_loaded && ros::ok())
+  {
+    ros::spinOnce();
+    ROS_INFO_THROTTLE(2, "Subscribing to lanelet map topic");
+    ll2_map_loaded = isEventFlagTrue("lanelet2_map_loaded");
+    ros::Duration(0.1).sleep();
+  }
 }
 
 void DecisionMakerNode::initVectorMap(void)

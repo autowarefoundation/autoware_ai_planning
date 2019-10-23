@@ -10,6 +10,7 @@
 #include <std_msgs/String.h>
 #include <stdio.h>
 #include <random>
+#include <string>
 
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -43,6 +44,11 @@
 #include <cross_road_area.hpp>
 #include <decision_maker_param.hpp>
 #include <state_machine_lib/state_context.hpp>
+
+#include <lanelet2_io/Io.h>
+#include <lanelet2_routing/Route.h>
+
+#include <autoware_lanelet2_msgs/MapBin.h> 
 
 namespace decision_maker
 {
@@ -133,6 +139,9 @@ private:
 
   std::vector<CrossRoadArea> intersects;
 
+  lanelet::LaneletMapPtr lanelet_map_;
+  lanelet::routing::RoutingGraphPtr routing_graph_;
+
   class DetectionArea
   {
   public:
@@ -160,11 +169,15 @@ private:
   double goal_threshold_vel_;
   double stopped_vel_;
   int stopline_reset_count_;
+
   bool sim_mode_;
+  bool use_lanelet_map_;
+  std::string stop_sign_id_;
 
   // initialization method
   void initROS();
   void initVectorMap(void);
+  void initLaneletMap(void);
 
   void createSubscriber(void);
   void createPublisher(void);
@@ -185,7 +198,8 @@ private:
   bool isArrivedGoal(void) const;
   bool isLocalizationConvergence(const geometry_msgs::Point& _current_point) const;
   void insertPointWithinCrossRoad(const std::vector<CrossRoadArea>& _intersects, autoware_msgs::LaneArray& lane_array);
-  void setWaypointState(autoware_msgs::LaneArray& lane_array);
+  void setWaypointStateUsingVectorMap(autoware_msgs::LaneArray& lane_array);
+  void setWaypointStateUsingLanelet2Map(autoware_msgs::LaneArray& lane_array);
   bool waitForEvent(cstring_t& key, const bool& flag);
   bool waitForEvent(cstring_t& key, const bool& flag, const double& timeout);
   bool drivingMissionCheck(void);
@@ -325,6 +339,7 @@ private:
   void callbackFromStoplineWaypoint(const std_msgs::Int32& msg);
   void callbackFromStopOrder(const std_msgs::Int32& msg);
   void callbackFromClearOrder(const std_msgs::Int32& msg);
+  void callbackFromLanelet2Map(const autoware_lanelet2_msgs::MapBin::ConstPtr& msg);
 
   void setEventFlag(cstring_t& key, const bool& value)
   {
@@ -362,6 +377,7 @@ public:
     , stopped_vel_(0.1)
     , stopline_reset_count_(20)
     , sim_mode_(false)
+    , use_lanelet_map_(false)
   {
     std::string file_name_mission;
     std::string file_name_vehicle;
@@ -384,6 +400,9 @@ public:
     private_nh_.getParam("stopped_vel", stopped_vel_);
     private_nh_.getParam("stopline_reset_count", stopline_reset_count_);
     private_nh_.getParam("sim_mode", sim_mode_);
+    private_nh_.getParam("use_ll2", use_lanelet_map_);
+    private_nh_.param<std::string>("stop_sign_id", stop_sign_id_, "stop_sign");
+
     current_status_.prev_stopped_wpidx = -1;
 
     ctx_vehicle = new state_machine::StateContext(file_name_vehicle, "autoware_states_vehicle");

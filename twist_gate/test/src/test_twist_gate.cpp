@@ -19,7 +19,8 @@
 
 #include "test_twist_gate.hpp"
 
-class TwistGateTestSuite : public ::testing::Test {
+class TwistGateTestSuite : public ::testing::Test
+{
 public:
   TwistGateTestSuite() {}
   ~TwistGateTestSuite() {}
@@ -27,15 +28,17 @@ public:
   TwistGateTestClass test_obj_;
 
 protected:
-  virtual void SetUp() {
+  virtual void SetUp()
+  {
     ros::NodeHandle nh;
     ros::NodeHandle private_nh("~");
     test_obj_.tg = new TwistGate(nh, private_nh);
   };
-  virtual void TearDown() { delete test_obj_.tg; };
+  virtual void TearDown() { delete test_obj_.tg; }
 };
 
-TEST_F(TwistGateTestSuite, resetVehicelCmd) {
+TEST_F(TwistGateTestSuite, resetVehicelCmd)
+{
   double d_value = 1.5;
   int i_value = 1;
 
@@ -52,6 +55,7 @@ TEST_F(TwistGateTestSuite, resetVehicelCmd) {
   ASSERT_EQ(i_value, msg.steer_cmd.steer);
   ASSERT_EQ(i_value, msg.ctrl_cmd.linear_velocity);
   ASSERT_EQ(i_value, msg.ctrl_cmd.steering_angle);
+  ASSERT_EQ(i_value, msg.emergency);
 
   test_obj_.tgResetVehicleCmdMsg();
   msg = test_obj_.getTgTwistGateMsg();
@@ -67,9 +71,11 @@ TEST_F(TwistGateTestSuite, resetVehicelCmd) {
   ASSERT_EQ(0, msg.steer_cmd.steer);
   ASSERT_EQ(-1, msg.ctrl_cmd.linear_velocity);
   ASSERT_EQ(0, msg.ctrl_cmd.steering_angle);
+  ASSERT_EQ(0, msg.emergency);
 }
 
-TEST_F(TwistGateTestSuite, twistCmdCallback) {
+TEST_F(TwistGateTestSuite, twistCmdCallback)
+{
   double linear_x = 5.0;
   double angular_z = 1.5;
   test_obj_.publishTwistCmd(linear_x, angular_z);
@@ -85,7 +91,8 @@ TEST_F(TwistGateTestSuite, twistCmdCallback) {
   ASSERT_EQ(angular_z, test_obj_.cb_vehicle_cmd.twist_cmd.twist.angular.z);
 }
 
-TEST_F(TwistGateTestSuite, controlCmdCallback) {
+TEST_F(TwistGateTestSuite, controlCmdCallback)
+{
   double linear_vel = 5.0;
   double linear_acc = 1.5;
   double steer_angle = 1.57;
@@ -104,7 +111,8 @@ TEST_F(TwistGateTestSuite, controlCmdCallback) {
   ASSERT_EQ(steer_angle, test_obj_.cb_vehicle_cmd.ctrl_cmd.steering_angle);
 }
 
-TEST_F(TwistGateTestSuite, remoteCmdCallback) {
+TEST_F(TwistGateTestSuite, remoteCmdCallback)
+{
   autoware_msgs::RemoteCmd remote_cmd;
   remote_cmd.vehicle_cmd.header.frame_id = "/test_frame";
   remote_cmd.vehicle_cmd.header.stamp = ros::Time::now();
@@ -162,24 +170,8 @@ TEST_F(TwistGateTestSuite, remoteCmdCallback) {
       , test_obj_.cb_vehicle_cmd.mode);
 }
 
-
-TEST_F(TwistGateTestSuite, remoteCmdEmergency) {
-  autoware_msgs::RemoteCmd remote_cmd;
-  remote_cmd.vehicle_cmd.emergency = 1;
-
-  test_obj_.publishRemoteCmd(remote_cmd);
-  ros::WallDuration(0.1).sleep();
-  test_obj_.tgSpinOnce();
-  for (int i = 0; i < 3; i++)
-  {
-    ros::WallDuration(0.1).sleep();
-    ros::spinOnce();
-  }
-
-  ASSERT_EQ("emergency", test_obj_.cb_state_cmd.data);
-}
-
-TEST_F(TwistGateTestSuite, modeCmdCallback) {
+TEST_F(TwistGateTestSuite, modeCmdCallback)
+{
   int mode = 8;
 
   test_obj_.publishModeCmd(mode);
@@ -195,7 +187,8 @@ TEST_F(TwistGateTestSuite, modeCmdCallback) {
   ASSERT_EQ(mode, test_obj_.cb_vehicle_cmd.mode);
 }
 
-TEST_F(TwistGateTestSuite, gearCmdCallback) {
+TEST_F(TwistGateTestSuite, gearCmdCallback)
+{
   int gear = CMD_GEAR_D;
 
   test_obj_.publishGearCmd(gear);
@@ -211,7 +204,8 @@ TEST_F(TwistGateTestSuite, gearCmdCallback) {
   ASSERT_EQ(gear, test_obj_.cb_vehicle_cmd.gear);
 }
 
-TEST_F(TwistGateTestSuite, accelCmdCallback) {
+TEST_F(TwistGateTestSuite, accelCmdCallback)
+{
   int accel = 100;
 
   test_obj_.publishAccelCmd(accel);
@@ -226,7 +220,8 @@ TEST_F(TwistGateTestSuite, accelCmdCallback) {
   ASSERT_EQ(accel, test_obj_.cb_vehicle_cmd.accel_cmd.accel);
 }
 
-TEST_F(TwistGateTestSuite, steerCmdCallback) {
+TEST_F(TwistGateTestSuite, steerCmdCallback)
+{
   int steer = 100;
 
   test_obj_.publishSteerCmd(steer);
@@ -242,7 +237,8 @@ TEST_F(TwistGateTestSuite, steerCmdCallback) {
   ASSERT_EQ(steer, test_obj_.cb_vehicle_cmd.steer_cmd.steer);
 }
 
-TEST_F(TwistGateTestSuite, brakeCmdCallback) {
+TEST_F(TwistGateTestSuite, brakeCmdCallback)
+{
   int brake = 100;
 
   test_obj_.publishBrakeCmd(brake);
@@ -258,7 +254,8 @@ TEST_F(TwistGateTestSuite, brakeCmdCallback) {
   ASSERT_EQ(brake, test_obj_.cb_vehicle_cmd.brake_cmd.brake);
 }
 
-TEST_F(TwistGateTestSuite, lampCmdCallback) {
+TEST_F(TwistGateTestSuite, lampCmdCallback)
+{
   int lamp_l = 1;
   int lamp_r = 1;
 
@@ -275,7 +272,58 @@ TEST_F(TwistGateTestSuite, lampCmdCallback) {
   ASSERT_EQ(lamp_r, test_obj_.cb_vehicle_cmd.lamp_cmd.r);
 }
 
-TEST_F(TwistGateTestSuite, stateCallback) {
+TEST_F(TwistGateTestSuite, emergencyVehicleCmdCallback)
+{
+  int lamp_l_pre = 0;
+  int lamp_r_pre = 0;
+  int emergency = 1;
+
+  test_obj_.publishLampCmd(lamp_l_pre, lamp_r_pre);
+  test_obj_.publishEmergencyVehicleCmd(emergency);
+  ros::WallDuration(0.1).sleep();
+  test_obj_.tgSpinOnce();
+
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
+
+  ASSERT_EQ(emergency, test_obj_.cb_vehicle_cmd.emergency);
+
+  int lamp_l = 1;
+  int lamp_r = 1;
+  test_obj_.publishLampCmd(lamp_l, lamp_r);
+  ros::WallDuration(0.1).sleep();
+  test_obj_.tgSpinOnce();
+
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
+
+  ASSERT_EQ(lamp_l_pre, test_obj_.cb_vehicle_cmd.lamp_cmd.l);
+  ASSERT_EQ(lamp_r_pre, test_obj_.cb_vehicle_cmd.lamp_cmd.r);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+
+  test_obj_.publishLampCmd(lamp_l, lamp_r);
+  ros::WallDuration(0.1).sleep();
+  test_obj_.tgSpinOnce();
+
+  for (int i = 0; i < 3; i++)
+  {
+    ros::WallDuration(0.1).sleep();
+    ros::spinOnce();
+  }
+
+  ASSERT_EQ(lamp_l, test_obj_.cb_vehicle_cmd.lamp_cmd.l);
+  ASSERT_EQ(lamp_r, test_obj_.cb_vehicle_cmd.lamp_cmd.r);
+}
+
+TEST_F(TwistGateTestSuite, stateCallback)
+{
   test_obj_.publishDecisionMakerState("VehicleReady\nWaitOrder\nWaitEngage\n");
   test_obj_.tgSpinOnce();
   ros::WallDuration(0.1).sleep();
@@ -295,7 +343,8 @@ TEST_F(TwistGateTestSuite, stateCallback) {
   ASSERT_EQ(true, test_obj_.getIsStateDriveFlag());
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   testing::InitGoogleTest(&argc, argv);
   ros::init(argc, argv, "TwistGateTestNode");
   return RUN_ALL_TESTS();

@@ -19,11 +19,13 @@
   <depend>jsk_recognition_msgs</depend>
   <depend>jsk_rviz_plugins</depend>
   <depend>roscpp</depend>
+  <depend>roslint</depend>
   <depend>state_machine_lib</depend>
   <depend>std_msgs</depend>
   <depend>tf</depend>
   <depend>vector_map</depend>
   <depend>vector_map_msgs</depend>
+  <depend>lanelet2_extension</depend>
 
   <test_depend>rostest</test_depend>
   <test_depend>rosunit</test_depend>

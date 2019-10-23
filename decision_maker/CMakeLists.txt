@@ -16,7 +16,9 @@ find_package(
   geometry_msgs
   jsk_recognition_msgs
   jsk_rviz_plugins
+  lanelet2_extension
   roscpp
+  roslint
   rostest
   rosunit
   state_machine_lib
@@ -35,6 +37,7 @@ catkin_package(
     geometry_msgs
     jsk_recognition_msgs
     jsk_rviz_plugins
+    lanelet2_extension
     roscpp
     state_machine_lib
     std_msgs
@@ -42,6 +45,10 @@ catkin_package(
     vector_map
     vector_map_msgs
 )
+
+set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
+roslint_cpp(test/src/test_node_lanelet2_functions.cpp)
+
 include_directories(
   include/decision_maker
   ${catkin_INCLUDE_DIRS}
@@ -94,12 +101,14 @@ install(
 )
 
 if(CATKIN_ENABLE_TESTING)
+  roslint_add_test()
   find_package(rostest REQUIRED)
   add_rostest_gtest(
     test-decision_maker
     test/test_decision_maker.test
     test/src/test_main.cpp
     test/src/test_node_decision.cpp
+    test/src/test_node_lanelet2_functions.cpp
     test/src/test_node_state_drive.cpp
     nodes/decision_maker/decision_maker_node_core.cpp
     nodes/decision_maker/decision_maker_node_decision.cpp

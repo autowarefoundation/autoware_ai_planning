@@ -17,6 +17,8 @@
   <arg name="stopped_vel" default="0.1" />
   <arg name="stopline_reset_count" default="20" />
   <arg name="sim_mode" default="false" />
+  <arg name="use_ll2" default="false" />
+  <arg name="stop_sign_id" default="stop_sign" />
 
   <node pkg="decision_maker" type="decision_maker_node" name="decision_maker" output="screen">
     <param name="state_vehicle_file_name" value="$(find decision_maker)/$(arg state_vehicle_file_name)" />
@@ -34,7 +36,9 @@
     <param name="goal_threshold_dist" value="$(arg goal_threshold_dist)" />
     <param name="goal_threshold_vel" value="$(arg goal_threshold_vel)" />
     <param name="stopped_vel" value="$(arg stopped_vel)" />
-    <param name="stopline_reset_count" value="$(arg stopline_reset_count)"/ >
+    <param name="stopline_reset_count" value="$(arg stopline_reset_count)" />
     <param name="sim_mode" value="$(arg sim_mode)" />
+    <param name="use_ll2" value="$(arg use_ll2)" />
+    <param name="stop_sign_id" value="$(arg stop_sign_id)" />
   </node>
 </launch>

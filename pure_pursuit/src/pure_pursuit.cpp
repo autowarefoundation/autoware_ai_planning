@@ -42,20 +42,27 @@ double PurePursuit::calcCurvature(geometry_msgs::Point target) const
   double numerator = 2 * calcRelativeCoordinate(target, current_pose_).y;
 
   if (denominator != 0)
+  {
     kappa = numerator / denominator;
+  }
   else
   {
     if (numerator > 0)
+    {
       kappa = KAPPA_MIN_;
+    }
     else
+    {
       kappa = -KAPPA_MIN_;
+    }
   }
   ROS_INFO("kappa : %lf", kappa);
   return kappa;
 }
 
 // linear interpolation of next target
-bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point* next_target) const
+bool PurePursuit::interpolateNextTarget(
+  int next_waypoint, geometry_msgs::Point* next_target) const
 {
   constexpr double ERROR = pow(10, -5);  // 0.00001
 
@@ -67,11 +74,14 @@ bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point*
   }
   double search_radius = lookahead_distance_;
   geometry_msgs::Point zero_p;
-  geometry_msgs::Point end = current_waypoints_.at(next_waypoint).pose.pose.position;
-  geometry_msgs::Point start = current_waypoints_.at(next_waypoint - 1).pose.pose.position;
+  geometry_msgs::Point end =
+    current_waypoints_.at(next_waypoint).pose.pose.position;
+  geometry_msgs::Point start =
+    current_waypoints_.at(next_waypoint - 1).pose.pose.position;
 
   // let the linear equation be "ax + by + c = 0"
-  // if there are two points (x1,y1) , (x2,y2), a = "y2-y1, b = "(-1) * x2 - x1" ,c = "(-1) * (y2-y1)x1 + (x2-x1)y1"
+  // if there are two points (x1,y1) , (x2,y2),
+  // a = "y2-y1, b = "(-1) * x2 - x1" ,c = "(-1) * (y2-y1)x1 + (x2-x1)y1"
   double a = 0;
   double b = 0;
   double c = 0;
@@ -79,8 +89,10 @@ bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point*
   if (!get_linear_flag)
     return false;
 
-  // let the center of circle be "(x0,y0)", in my code , the center of circle is vehicle position
-  // the distance  "d" between the foot of a perpendicular line and the center of circle is ...
+  // let the center of circle be "(x0,y0)", in my code ,
+  // the center of circle is vehicle position
+  // the distance  "d" between the foot of
+  // a perpendicular line and the center of circle is ...
   //    | a * x0 + b * y0 + c |
   // d = -------------------------------
   //          √( a~2 + b~2)
@@ -99,8 +111,10 @@ bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point*
   tf::Vector3 unit_v = v.normalize();
 
   // normal unit vectors of v
-  tf::Vector3 unit_w1 = rotateUnitVector(unit_v, 90);   // rotate to counter clockwise 90 degree
-  tf::Vector3 unit_w2 = rotateUnitVector(unit_v, -90);  // rotate to counter clockwise 90 degree
+  // rotate to counter clockwise 90 degree
+  tf::Vector3 unit_w1 = rotateUnitVector(unit_v, 90);
+  // rotate to counter clockwise 90 degree
+  tf::Vector3 unit_w2 = rotateUnitVector(unit_v, -90);
 
   // the foot of a perpendicular line
   geometry_msgs::Point h1;
@@ -205,7 +219,9 @@ void PurePursuit::getNextWaypoint()
     }
 
     // if there exists an effective waypoint
-    if (getPlaneDistance(current_waypoints_.at(i).pose.pose.position, current_pose_.position) > lookahead_distance_)
+    if (getPlaneDistance(
+      current_waypoints_.at(i).pose.pose.position, current_pose_.position)
+      > lookahead_distance_)
     {
       next_waypoint_number_ = i;
       return;
@@ -230,7 +246,8 @@ bool PurePursuit::canGetCurvature(double* output_kappa)
   bool is_valid_curve = false;
   for (const auto& el : current_waypoints_)
   {
-    if (getPlaneDistance(el.pose.pose.position, current_pose_.position) > minimum_lookahead_distance_)
+    if (getPlaneDistance(el.pose.pose.position, current_pose_.position)
+      > minimum_lookahead_distance_)
     {
       is_valid_curve = true;
       break;
@@ -242,15 +259,17 @@ bool PurePursuit::canGetCurvature(double* output_kappa)
   }
   // if is_linear_interpolation_ is false or next waypoint is first or last
   if (!is_linear_interpolation_ || next_waypoint_number_ == 0 ||
-      next_waypoint_number_ == (static_cast<int>(current_waypoints_.size() - 1)))
+    next_waypoint_number_ == (static_cast<int>(current_waypoints_.size() - 1)))
   {
-    next_target_position_ = current_waypoints_.at(next_waypoint_number_).pose.pose.position;
+    next_target_position_ =
+      current_waypoints_.at(next_waypoint_number_).pose.pose.position;
     *output_kappa = calcCurvature(next_target_position_);
     return true;
   }
 
   // linear interpolation and calculate angular velocity
-  bool interpolation = interpolateNextTarget(next_waypoint_number_, &next_target_position_);
+  bool interpolation =
+    interpolateNextTarget(next_waypoint_number_, &next_target_position_);
 
   if (!interpolation)
   {
@@ -258,10 +277,11 @@ bool PurePursuit::canGetCurvature(double* output_kappa)
     return false;
   }
 
-  // ROS_INFO("next_target : ( %lf , %lf , %lf)", next_target.x, next_target.y,next_target.z);
+  // ROS_INFO("next_target : ( %lf , %lf , %lf)",
+  //  next_target.x, next_target.y,next_target.z);
 
   *output_kappa = calcCurvature(next_target_position_);
   return true;
 }
 
-}  // waypoint_follower
+}  // namespace waypoint_follower

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PURE_PURSUIT_H
-#define PURE_PURSUIT_H
+#ifndef PURE_PURSUIT_PURE_PURSUIT_H
+#define PURE_PURSUIT_PURE_PURSUIT_H
 
 // ROS includes
 #include <ros/ros.h>
@@ -23,9 +23,12 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 
+// C++ includes
+#include <vector>
+
 // User defined includes
-#include "autoware_msgs/Lane.h"
-#include "libwaypoint_follower/libwaypoint_follower.h"
+#include <autoware_msgs/Lane.h>
+#include <libwaypoint_follower/libwaypoint_follower.h>
 
 namespace waypoint_follower
 {
@@ -106,9 +109,10 @@ private:
 
   // functions
   double calcCurvature(geometry_msgs::Point target) const;
-  bool interpolateNextTarget(int next_waypoint, geometry_msgs::Point* next_target) const;
+  bool interpolateNextTarget(
+    int next_waypoint, geometry_msgs::Point* next_target) const;
   void getNextWaypoint();
 };
-}  // waypoint_follower
+}  // namespace waypoint_follower
 
-#endif  // PURE_PURSUIT_H
+#endif  // PURE_PURSUIT_PURE_PURSUIT_H

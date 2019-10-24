@@ -16,6 +16,7 @@ find_package(
     std_msgs
     tf
     tf2
+    roslint
 )
 
 catkin_package(
@@ -34,6 +35,9 @@ catkin_package(
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
+
+set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
+roslint_cpp()
 
 include_directories(
   include
@@ -64,7 +68,7 @@ install(
 
 if(CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
-    
+
     add_rostest_gtest(
       test-pure_pursuit
       test/test_pure_pursuit.test
@@ -74,4 +78,6 @@ if(CATKIN_ENABLE_TESTING)
     )
     add_dependencies(test-pure_pursuit ${catkin_EXPORTED_TARGETS})
     target_link_libraries(test-pure_pursuit ${catkin_LIBRARIES})
+
+    roslint_add_test()
 endif()

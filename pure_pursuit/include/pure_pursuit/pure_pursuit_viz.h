@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PURE_PURSUIT_VIZ_H
-#define PURE_PURSUIT_VIZ_H
+#ifndef PURE_PURSUIT_PURE_PURSUIT_VIZ_H
+#define PURE_PURSUIT_PURE_PURSUIT_VIZ_H
 
 // ROS includes
 #include <ros/ros.h>
@@ -27,9 +27,10 @@
 
 // C++ includes
 #include <memory>
+#include <vector>
 
 // User defined includes
-#include "libwaypoint_follower/libwaypoint_follower.h"
+#include <libwaypoint_follower/libwaypoint_follower.h>
 
 namespace waypoint_follower
 {
@@ -37,18 +38,22 @@ namespace waypoint_follower
 visualization_msgs::Marker displayNextWaypoint(geometry_msgs::Point position);
 // display the next target by markers.
 visualization_msgs::Marker displayNextTarget(geometry_msgs::Point target);
-visualization_msgs::Marker displayExpandWaypoints(const std::vector<autoware_msgs::Waypoint>& waypoints, int size);
+visualization_msgs::Marker displayExpandWaypoints(
+  const std::vector<autoware_msgs::Waypoint>& waypoints, int size);
 
-double calcRadius(geometry_msgs::Point target, geometry_msgs::Pose current_pose);
+double calcRadius(
+  geometry_msgs::Point target, geometry_msgs::Pose current_pose);
 
 // generate the locus of pure pursuit
-std::vector<geometry_msgs::Point> generateTrajectoryCircle(geometry_msgs::Point target,
-                                                           geometry_msgs::Pose current_pose);
+std::vector<geometry_msgs::Point> generateTrajectoryCircle(
+  geometry_msgs::Point target, geometry_msgs::Pose current_pose);
 // display the locus of pure pursuit by markers.
-visualization_msgs::Marker displayTrajectoryCircle(std::vector<geometry_msgs::Point> traj_circle_array);
+visualization_msgs::Marker displayTrajectoryCircle(
+  std::vector<geometry_msgs::Point> traj_circle_array);
 
 // display the search radius by markers.
-visualization_msgs::Marker displaySearchRadius(geometry_msgs::Point current_pose, double search_radius);
-}
+visualization_msgs::Marker displaySearchRadius(
+  geometry_msgs::Point current_pose, double search_radius);
+}  // namespace waypoint_follower
 
-#endif  // PURE_PURSUIT_VIZ_H
+#endif  // PURE_PURSUIT_PURE_PURSUIT_VIZ_H

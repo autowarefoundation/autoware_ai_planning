@@ -28,27 +28,28 @@ protected:
   {
     obj_ = std::unique_ptr<PurePursuitNode>(new PurePursuitNode());
     obj_->add_virtual_end_waypoints_ = true;
-  };
+  }
   virtual void TearDown()
   {
     obj_.reset();
-  };
+  }
 
 public:
-  PurePursuitNodeTestSuite(){};
-  ~PurePursuitNodeTestSuite(){};
-  int getDirection()
+  PurePursuitNodeTestSuite() {}
+  ~PurePursuitNodeTestSuite() {}
+  LaneDirection getDirection()
   {
     return obj_->direction_;
-  };
+  }
   void ppCallbackFromWayPoints(const autoware_msgs::LaneConstPtr& msg)
   {
     obj_->callbackFromWayPoints(msg);
-  };
-  void ppConnectVirtualLastWaypoints(autoware_msgs::Lane* expand_lane, int direction)
+  }
+  void ppConnectVirtualLastWaypoints(
+    autoware_msgs::Lane* expand_lane, LaneDirection direction)
   {
     obj_->connectVirtualLastWaypoints(expand_lane, direction);
-  };
+  }
 };
 
 TEST_F(PurePursuitNodeTestSuite, inputPositivePath)
@@ -58,11 +59,14 @@ TEST_F(PurePursuitNodeTestSuite, inputPositivePath)
   for (int i = 0; i < 3; i++)
   {
     original_lane.waypoints[i].pose.pose.position.x = i;
-    original_lane.waypoints[i].pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+    original_lane.waypoints[i].pose.pose.orientation =
+      tf::createQuaternionMsgFromYaw(0.0);
   }
-  const autoware_msgs::LaneConstPtr lp(boost::make_shared<autoware_msgs::Lane>(original_lane));
+  const autoware_msgs::LaneConstPtr
+    lp(boost::make_shared<autoware_msgs::Lane>(original_lane));
   ppCallbackFromWayPoints(lp);
-  ASSERT_EQ(getDirection(), 1) << "direction is not matching to positive lane.";
+  ASSERT_EQ(getDirection(), LaneDirection::Forward)
+    << "direction is not matching to positive lane.";
 }
 
 TEST_F(PurePursuitNodeTestSuite, inputNegativePath)
@@ -72,18 +76,22 @@ TEST_F(PurePursuitNodeTestSuite, inputNegativePath)
   for (int i = 0; i < 3; i++)
   {
     original_lane.waypoints[i].pose.pose.position.x = -i;
-    original_lane.waypoints[i].pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+    original_lane.waypoints[i].pose.pose.orientation =
+      tf::createQuaternionMsgFromYaw(0.0);
   }
-  const autoware_msgs::LaneConstPtr lp(boost::make_shared<autoware_msgs::Lane>(original_lane));
+  const autoware_msgs::LaneConstPtr
+    lp(boost::make_shared<autoware_msgs::Lane>(original_lane));
   ppCallbackFromWayPoints(lp);
-  ASSERT_EQ(getDirection(), -1) << "direction is not matching to negative lane.";
+  ASSERT_EQ(getDirection(), LaneDirection::Backward)
+    << "direction is not matching to negative lane.";
 }
 // If original lane is empty, new lane is also empty.
 TEST_F(PurePursuitNodeTestSuite, inputEmptyLane)
 {
   autoware_msgs::Lane original_lane, new_lane;
-  ppConnectVirtualLastWaypoints(&new_lane, 1);
-  ASSERT_EQ(original_lane.waypoints.size(), new_lane.waypoints.size()) << "Input empty lane, and output is not empty";
+  ppConnectVirtualLastWaypoints(&new_lane, LaneDirection::Forward);
+  ASSERT_EQ(original_lane.waypoints.size(), new_lane.waypoints.size())
+    << "Input empty lane, and output is not empty";
 }
 
 // If the original lane exceeds 2 points,
@@ -98,11 +106,13 @@ TEST_F(PurePursuitNodeTestSuite, inputNormalLane)
     original_lane.waypoints[i].pose.pose.position.x = i;
   }
   autoware_msgs::Lane new_lane(original_lane);
-  ppConnectVirtualLastWaypoints(&new_lane, 1);
+  ppConnectVirtualLastWaypoints(&new_lane, LaneDirection::Forward);
 
-  ASSERT_LT(original_lane.waypoints.size(), new_lane.waypoints.size()) << "Fail to expand waypoints";
+  ASSERT_LT(original_lane.waypoints.size(), new_lane.waypoints.size())
+    << "Fail to expand waypoints";
 }
-}
+}  // namespace waypoint_follower
+
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);

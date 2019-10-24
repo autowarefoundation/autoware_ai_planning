@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <string>
+#include <vector>
 #include <pure_pursuit/pure_pursuit_viz.h>
 
 namespace waypoint_follower
@@ -308,4 +310,4 @@ void displayLinePoint(double a, double b, double c, geometry_msgs::Point target,
   _line_point_pub.publish(marker);
 }
  */
-}
+}  // namespace waypoint_follower

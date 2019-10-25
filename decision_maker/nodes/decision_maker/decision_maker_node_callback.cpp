@@ -69,6 +69,7 @@ void DecisionMakerNode::callbackFromConfig(const autoware_config_msgs::ConfigDec
   goal_threshold_vel_ = msg.goal_threshold_vel;
   stopped_vel_ = msg.stopped_vel;
   disuse_vector_map_ = msg.disuse_vector_map;
+  sim_mode_ = msg.sim_mode;
 }
 
 void DecisionMakerNode::callbackFromLightColor(const ros::MessageEvent<autoware_msgs::TrafficLight const>& event)

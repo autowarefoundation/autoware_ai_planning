@@ -29,6 +29,7 @@
 #include <std_msgs/Int32.h>
 #include <std_msgs/String.h>
 
+#include "autoware_config_msgs/ConfigTwistFilter.h"
 #include "autoware_msgs/ControlCommandStamped.h"
 #include "autoware_msgs/RemoteCmd.h"
 #include "autoware_msgs/VehicleCmd.h"
@@ -71,7 +72,7 @@ private:
   void state_callback(const std_msgs::StringConstPtr& input_msg);
   void timer_callback(const ros::TimerEvent& e);
   void emergency_cmd_callback(const vehicle_cmd_msg_t::ConstPtr& input_msg);
-
+  void config_callback(const autoware_config_msgs::ConfigTwistFilter& msg);
   void reset_vehicle_cmd_msg();
 
   // spinOnce for test
@@ -83,12 +84,14 @@ private:
   ros::Publisher control_command_pub_;
   ros::Publisher vehicle_cmd_pub_;
   ros::Subscriber remote_cmd_sub_;
+  ros::Subscriber config_sub_;
   std::map<std::string, ros::Subscriber> auto_cmd_sub_stdmap_;
   ros::Timer timer_;
 
   vehicle_cmd_msg_t twist_gate_msg_;
   std_msgs::Bool emergency_stop_msg_;
   ros::Time remote_cmd_time_, emergency_handling_time_;
+  ros::Time state_time_;
   ros::Duration timeout_period_;
   double loop_rate_;
 
@@ -105,7 +108,7 @@ private:
   previous_command_mode_;
   std_msgs::String command_mode_topic_;
 
-  bool is_state_drive_ = true;
+  bool is_state_drive_ = false;
   bool use_decision_maker_ = false;
 
   bool emergency_handling_active_ = false;

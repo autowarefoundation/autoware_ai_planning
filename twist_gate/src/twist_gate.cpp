@@ -50,6 +50,7 @@ TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_n
   control_command_pub_ = nh_.advertise<std_msgs::String>("/ctrl_mode", 1);
   vehicle_cmd_pub_ = nh_.advertise<vehicle_cmd_msg_t>("/vehicle_cmd", 1, true);
   remote_cmd_sub_ = nh_.subscribe("/remote_cmd", 1, &TwistGate::remote_cmd_callback, this);
+  config_sub_ = nh_.subscribe("config/twist_filter", 1, &TwistGate::config_callback, this);
 
   timer_ = nh_.createTimer(ros::Duration(1.0 / loop_rate_), &TwistGate::timer_callback, this);
 
@@ -72,6 +73,7 @@ TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_n
 
   remote_cmd_time_ = ros::Time::now();
   emergency_handling_time_ = ros::Time::now();
+  state_time_ = ros::Time::now();
   watchdog_timer_thread_ = std::thread(&TwistGate::watchdog_timer, this);
   is_alive = true;
 }
@@ -100,7 +102,10 @@ void TwistGate::reset_vehicle_cmd_msg()
 
 void TwistGate::check_state()
 {
-  if (use_decision_maker_ && !is_state_drive_)
+  const double state_msg_timeout = 0.5;
+  double state_time_diff = ros::Time::now().toSec() - state_time_.toSec();
+
+  if (use_decision_maker_ && (!is_state_drive_ || state_time_diff >= state_msg_timeout) )
   {
     twist_gate_msg_.twist_cmd.twist = geometry_msgs::Twist();
     twist_gate_msg_.ctrl_cmd = autoware_msgs::ControlCommand();
@@ -278,6 +283,7 @@ void TwistGate::ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::Co
 
 void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
 {
+  state_time_ = ros::Time::now();
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     // Set Parking Gear
@@ -320,4 +326,9 @@ void TwistGate::emergency_cmd_callback(const vehicle_cmd_msg_t::ConstPtr& input_
 void TwistGate::timer_callback(const ros::TimerEvent& e)
 {
   vehicle_cmd_pub_.publish(twist_gate_msg_);
+}
+
+void TwistGate::config_callback(const autoware_config_msgs::ConfigTwistFilter& msg)
+{
+  use_decision_maker_ = msg.use_decision_maker;
 }

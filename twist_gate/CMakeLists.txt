@@ -14,6 +14,7 @@ find_package(
     roslint
     std_msgs
     tablet_socket_msgs
+    ros_observer
 )
 
 catkin_package(

@@ -29,6 +29,7 @@
 */
 
 #include "twist_gate/twist_gate.h"
+#include <ros_observer/lib_ros_observer.h>
 
 #include <chrono>
 #include <string>
@@ -114,6 +115,8 @@ void TwistGate::check_state()
 
 void TwistGate::watchdog_timer()
 {
+  ShmVitalMonitor shm_vmon("TwistGate", 100);
+
   while (is_alive)
   {
     ros::Time now_time = ros::Time::now();
@@ -137,6 +140,8 @@ void TwistGate::watchdog_timer()
       control_command_pub_.publish(command_mode_topic_);
       previous_command_mode_ = command_mode_;
     }
+
+    shm_vmon.run();
 
     // check lost Communication
     if (command_mode_ == CommandMode::REMOTE)

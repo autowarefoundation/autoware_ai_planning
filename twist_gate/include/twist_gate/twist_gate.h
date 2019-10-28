@@ -70,9 +70,10 @@ private:
   void lamp_cmd_callback(const autoware_msgs::LampCmd::ConstPtr& input_msg);
   void ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg);
   void state_callback(const std_msgs::StringConstPtr& input_msg);
-  void timer_callback(const ros::TimerEvent& e);
   void emergency_cmd_callback(const vehicle_cmd_msg_t::ConstPtr& input_msg);
+  void timer_callback(const ros::TimerEvent& e);
   void config_callback(const autoware_config_msgs::ConfigTwistFilter& msg);
+
   void reset_vehicle_cmd_msg();
 
   // spinOnce for test

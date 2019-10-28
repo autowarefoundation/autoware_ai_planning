@@ -19,4 +19,5 @@
   <depend>roslint</depend>
   <depend>std_msgs</depend>
   <depend>tablet_socket_msgs</depend>
+  <depend>ros_observer</depend>
 </package>

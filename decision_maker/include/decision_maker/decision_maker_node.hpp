@@ -162,6 +162,7 @@ private:
   bool auto_mission_change_;
   bool use_fms_;
   bool disuse_vector_map_;
+  bool insert_stop_line_wp_;
   int param_num_of_steer_behind_;
   double change_threshold_dist_;
   double change_threshold_angle_;
@@ -369,6 +370,7 @@ public:
     , auto_mission_change_(false)
     , use_fms_(false)
     , disuse_vector_map_(false)
+    , insert_stop_line_wp_(true)
     , param_num_of_steer_behind_(30)
     , change_threshold_dist_(1.0)
     , change_threshold_angle_(15)

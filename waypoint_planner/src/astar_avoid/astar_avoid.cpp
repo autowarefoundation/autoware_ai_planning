@@ -21,6 +21,7 @@ AstarAvoid::AstarAvoid()
   , private_nh_("~")
   , closest_waypoint_index_(-1)
   , obstacle_waypoint_index_(-1)
+  , closest_local_index_(-1)
   , costmap_initialized_(false)
   , current_pose_initialized_(false)
   , current_velocity_initialized_(false)
@@ -88,13 +89,38 @@ void AstarAvoid::currentVelocityCallback(const geometry_msgs::TwistStamped& msg)
 
 void AstarAvoid::baseWaypointsCallback(const autoware_msgs::Lane& msg)
 {
+  static autoware_msgs::Lane prev_base_waypoints;
   base_waypoints_ = msg;
+
+  if (base_waypoints_initialized_)
+  {
+    // detect waypoint change by timestamp update
+    ros::Time t1 = prev_base_waypoints.header.stamp;
+    ros::Time t2 = base_waypoints_.header.stamp;
+    if ((t2 - t1).toSec() > 1e-3)
+    {
+      ROS_INFO("Receive new /base_waypoints, reset waypoint index.");
+      closest_local_index_ = -1; // reset local closest waypoint
+      prev_base_waypoints = base_waypoints_;
+    }
+  }
+  else
+  {
+    prev_base_waypoints = base_waypoints_;
+  }
+
   base_waypoints_initialized_ = true;
 }
 
 void AstarAvoid::closestWaypointCallback(const std_msgs::Int32& msg)
 {
   closest_waypoint_index_ = msg.data;
+
+  if (closest_waypoint_index_ == -1)
+  {
+    closest_local_index_ = -1; // reset local closest waypoint
+  }
+
   closest_waypoint_initialized_ = true;
 }
 
@@ -391,23 +417,17 @@ tf::Transform AstarAvoid::getTransform(const std::string& from, const std::strin
 
 int AstarAvoid::getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose, const int& search_size)
 {
-  static int prev_index = -1;
   static autoware_msgs::Lane local_waypoints;  // around self-vehicle
+  const int prev_index = closest_local_index_;
 
   // search in all waypoints if lane_select judges you're not on waypoints
-  if (closest_waypoint_index_ == -1)
+  if (closest_local_index_ == -1)
   {
-    prev_index = -1;
-    return getClosestWaypoint(waypoints, pose);
+    closest_local_index_ = getClosestWaypoint(waypoints, pose);
   }
   // search in limited area based on prev_index
   else
   {
-    if (prev_index == -1)
-    {
-      prev_index = closest_waypoint_index_;
-    }
-
     // get neighborhood waypoints around prev_index
     int start_index = std::max(0, prev_index - search_size / 2);
     int end_index = std::min(prev_index + search_size / 2, (int)waypoints.waypoints.size());
@@ -416,9 +436,8 @@ int AstarAvoid::getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, co
     local_waypoints.waypoints = std::vector<autoware_msgs::Waypoint>(start_itr, end_itr);
 
     // get closest waypoint in neighborhood waypoints
-    int closest_local_index = start_index + getClosestWaypoint(local_waypoints, pose);
-    prev_index = closest_local_index;
-
-    return closest_local_index;
+    closest_local_index_ = start_index + getClosestWaypoint(local_waypoints, pose);
   }
+
+  return closest_local_index_;
 }

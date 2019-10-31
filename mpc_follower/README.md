@@ -6,7 +6,7 @@ A waypoint follower based on model predictive control (MPC) for accurate path tr
 
 There are 2 nodes related to MPC follower.
  - `/mpc_waypoint_converter` : converts `/final_waypoints` to `/mpc_waypoints` which includes waypoints behind the self position. This is to solve temporary conflict of planning system and mpc follower so that mpc follower can be used in the same way as pure_pursuit. This will be removed in a future release.
- - `/mpc_follower` : generates control command (`/twist_raw` or/and `/ctrl_cmd`) to follow `/mpc_waypoints`.
+ - `/mpc_follower` : generates control command (`/twist_raw` or/and `/ctrl_raw`) to follow `/mpc_waypoints`.
 
 [Video](https://www.youtube.com/watch?v=4IO1zxsY4wU&t=18s) : comparison of pure_pursuit and mpc_follower with gazebo simulation. 
 
@@ -19,7 +19,7 @@ There are 2 nodes related to MPC follower.
     - /vehicle_status : vehicle information (as velocity and steering angle source)
 - output
     - /twist_raw : command for vehicle
-    - /ctrl_cmd : command for vehicle
+    - /ctrl_raw : command for vehicle
 
 
 ## node graph

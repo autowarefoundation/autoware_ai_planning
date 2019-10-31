@@ -7,10 +7,12 @@ find_package(
   catkin REQUIRED COMPONENTS
     autoware_config_msgs
     autoware_health_checker
+    autoware_msgs
     geometry_msgs
     roscpp
     rostest
     std_msgs
+    roslint
 )
 
 catkin_package(
@@ -23,6 +25,9 @@ catkin_package(
     roscpp
     std_msgs
 )
+
+set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
+roslint_cpp()
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
@@ -45,3 +50,8 @@ install(
   DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
+
+if (CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  roslint_add_test()
+endif ()

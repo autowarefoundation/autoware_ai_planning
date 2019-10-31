@@ -32,12 +32,12 @@ class TestSuite : public ::testing::Test
 public:
     TestSuite() : nh_(""), pnh_("~")
     {
-        pub_pose_ = nh_.advertise<geometry_msgs::PoseStamped>("/current_pose", 1);
-        pub_vs_ = nh_.advertise<autoware_msgs::VehicleStatus>("/vehicle_status", 1);
-        pub_lane_ = nh_.advertise<autoware_msgs::Lane>("/base_waypoints", 1);
-        pub_estimate_twist_ = nh_.advertise<geometry_msgs::TwistStamped>("/estimate_twist", 1);
-        sub_twist_ = nh_.subscribe("/twist_raw", 1, &TestSuite::callbackTwistRaw, this);
-        sub_ctrl_cmd_ = nh_.subscribe("/ctrl_cmd", 1, &TestSuite::callbackCtrlCmd, this);
+        pub_pose_ = nh_.advertise<geometry_msgs::PoseStamped>("current_pose", 1);
+        pub_vs_ = nh_.advertise<autoware_msgs::VehicleStatus>("vehicle_status", 1);
+        pub_lane_ = nh_.advertise<autoware_msgs::Lane>("base_waypoints", 1);
+        pub_estimate_twist_ = nh_.advertise<geometry_msgs::TwistStamped>("estimate_twist", 1);
+        sub_twist_ = nh_.subscribe("twist_raw", 1, &TestSuite::callbackTwistRaw, this);
+        sub_ctrl_cmd_ = nh_.subscribe("ctrl_raw", 1, &TestSuite::callbackCtrlCmd, this);
         spin_duration_ = 0.05;
         spin_loopnum_ = 10;
     }
@@ -163,7 +163,7 @@ public:
 TEST_F(TestSuite, TestMPCFollower)
 {
     /* TestMPCFollowerInvalidPath */
-    { 
+    {
         MPCFollower mpc_follower;
 
         publishEstimateTwist();
@@ -185,7 +185,7 @@ TEST_F(TestSuite, TestMPCFollower)
         // first publish valid values
         publishMsgs(current_pose, vs, vx, wz, dt, x, y, yaw);
 
-        // then, publish invalid path 
+        // then, publish invalid path
         autoware_msgs::Lane empty_lane;
         for (int i = 0; i < spin_loopnum_; ++i)
         {
@@ -210,9 +210,9 @@ TEST_F(TestSuite, TestMPCFollower)
         current_pose.pose.orientation.w = 1.0;
 
         autoware_msgs::VehicleStatus vs;
-        vs.speed = 0.0; 
-        vs.speed = 0.0; 
-        vs.speed = 0.0; 
+        vs.speed = 0.0;
+        vs.speed = 0.0;
+        vs.speed = 0.0;
         vs.angle = 0.0;
 
         // autoware_msgs::Lane lane;
@@ -244,15 +244,15 @@ TEST_F(TestSuite, TestMPCFollower)
         MPCFollower mpc_follower;
 
         geometry_msgs::PoseStamped current_pose;
-        current_pose.pose.position.y = 1.0; 
-        current_pose.pose.position.y = 1.0; 
-        current_pose.pose.position.y = 1.0; 
+        current_pose.pose.position.y = 1.0;
+        current_pose.pose.position.y = 1.0;
+        current_pose.pose.position.y = 1.0;
         current_pose.pose.orientation.w = 1.0;
 
         autoware_msgs::VehicleStatus vs;
-        vs.speed = 0.0; 
-        vs.speed = 0.0; 
-        vs.speed = 0.0; 
+        vs.speed = 0.0;
+        vs.speed = 0.0;
+        vs.speed = 0.0;
         vs.angle = 0.0; // first publish valid value
 
         // autoware_msgs::Lane lane;
@@ -302,7 +302,7 @@ TEST_F(TestSuite, TestMPCFollower)
                 testTurningRight();
                 testTurningLeft();
             }
-        } 
+        }
     }
 
     /* == TestMPCFollowerDebugOptions == */

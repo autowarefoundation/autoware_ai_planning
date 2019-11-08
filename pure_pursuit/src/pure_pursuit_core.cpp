@@ -212,20 +212,18 @@ double PurePursuitNode::computeCommandVelocity() const
   return command_linear_velocity_;
 }
 
+// Assume constant acceleration motion, v_f^2 - v_i^2 = 2 * a * delta_d
 double PurePursuitNode::computeCommandAccel() const
 {
   const geometry_msgs::Pose current_pose = pp_.getCurrentPose();
   const geometry_msgs::Pose target_pose =
     pp_.getCurrentWaypoints().at(1).pose.pose;
 
-  // v^2 - v0^2 = 2ax
-  const double x =
-      std::hypot(current_pose.position.x - target_pose.position.x,
-        current_pose.position.y - target_pose.position.y);
-  const double v0 = current_linear_velocity_;
-  const double v = computeCommandVelocity();
-  const double a = getSgn() * (v * v - v0 * v0) / (2 * x);
-  return a;
+  const double delta_d =
+      std::hypot(target_pose.position.x - current_pose.position.x, target_pose.position.y - current_pose.position.y);
+  const double v_i = current_linear_velocity_;
+  const double v_f = computeCommandVelocity();
+  return (v_f * v_f - v_i * v_i) / (2 * delta_d);
 }
 
 double PurePursuitNode::computeAngularGravity(
@@ -257,14 +255,21 @@ void PurePursuitNode::publishDeviationCurrentPosition(
     return;
   }
 
-  double a, b, c;
-  getLinearEquation(
-    waypoints.at(2).pose.pose.position, waypoints.at(1).pose.pose.position,
-    &a, &b, &c);
+  const geometry_msgs::Point end = waypoints.at(2).pose.pose.position;
+  const geometry_msgs::Point start = waypoints.at(1).pose.pose.position;
+
+  tf::Vector3 p_A(start.x, start.y, 0.0);
+  tf::Vector3 p_B(end.x, end.y, 0.0);
+  tf::Vector3 p_C(point.x, point.y, 0.0);
+
+  // The distance form a point C to a line passing through A and B is given by
+  // length(AB.crossProduct(AC))/length(AC)
+  tf::Vector3 AB = p_B - p_A;
+  tf::Vector3 AC = p_C - p_A;
+  float distance = (AB.cross(AC)).length()/AC.length();
 
   std_msgs::Float32 msg;
-  msg.data = getDistanceBetweenLineAndPoint(point, a, b, c);
-
+  msg.data = distance;
   pub17_.publish(msg);
 }
 

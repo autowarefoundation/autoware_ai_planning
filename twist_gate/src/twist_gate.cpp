@@ -193,6 +193,9 @@ void TwistGate::remote_cmd_callback(const remote_msgs_t::ConstPtr& input_msg)
 void TwistGate::auto_cmd_twist_cmd_callback(const geometry_msgs::TwistStamped::ConstPtr& input_msg)
 {
   health_checker_ptr_->CHECK_RATE("topic_rate_twist_cmd_slow", 8, 5, 1, "topic twist_cmd subscribe rate slow.");
+  health_checker_ptr_->CHECK_MAX_VALUE("twist_cmd_linear_high", input_msg->twist.linear.x,
+    DBL_MAX, DBL_MAX, DBL_MAX, "linear twist_cmd is too high");
+
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     twist_gate_msg_.header.frame_id = input_msg->header.frame_id;

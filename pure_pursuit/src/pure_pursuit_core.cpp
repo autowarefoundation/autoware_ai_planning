@@ -153,8 +153,6 @@ void PurePursuitNode::publishTwistStamped(
   ts.header.stamp = ros::Time::now();
   ts.twist.linear.x = can_get_curvature ? computeCommandVelocity() : 0;
   ts.twist.angular.z = can_get_curvature ? kappa * ts.twist.linear.x : 0;
-  health_checker_ptr_->CHECK_MAX_VALUE("twist_cmd_linear_high",
-    ts.twist.linear.x, 2.2, 3.3, 4.4, "linear twist_cmd is too high");
   pub1_.publish(ts);
 }
 

@@ -177,22 +177,23 @@ EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& points,
   for (auto lli = closest_crosswalks.begin(); lli != closest_crosswalks.end(); lli++)
   {
     // get polygon in lidar frame
-    lanelet::BasicPolygon2d poly = lli->polygon2d().basicPolygon();
-    for (auto& point : poly)
+    lanelet::BasicPolygon2d transformed_poly2d;
+    lanelet::BasicPolygon3d poly3d = lli->polygon3d().basicPolygon();
+
+    for (const auto& point : poly3d)
     {
       geometry_msgs::Point point_geom, transformed_point_geom;
-      point_geom.x = point.x();
-      point_geom.y = point.y();
-      point_geom.z = 0;
+      lanelet::utils::conversion::toGeomMsgPt(point, &point_geom);
       transformed_point_geom = calcRelativeCoordinate(point_geom, localizer_pose.pose);
-      point = lanelet::BasicPoint2d(transformed_point_geom.x, transformed_point_geom.y);
+      lanelet::BasicPoint2d transformed_point2d(transformed_point_geom.x, transformed_point_geom.y);
+      transformed_poly2d.push_back(transformed_point2d);
     }
 
     int stop_count = 0;  // number of points in the detection area
     for (const auto& p : points)
     {
       lanelet::BasicPoint2d p2d(p.x, p.y);
-      double distance = lanelet::geometry::distance(poly, p2d);
+      double distance = lanelet::geometry::distance(transformed_poly2d, p2d);
 
       if (distance < std::numeric_limits<double>::epsilon())
       {

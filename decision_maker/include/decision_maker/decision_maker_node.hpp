@@ -48,7 +48,7 @@
 #include <lanelet2_io/Io.h>
 #include <lanelet2_routing/Route.h>
 
-#include <autoware_lanelet2_msgs/MapBin.h> 
+#include <autoware_lanelet2_msgs/MapBin.h>
 
 namespace decision_maker
 {
@@ -403,6 +403,7 @@ public:
     private_nh_.getParam("stopline_reset_count", stopline_reset_count_);
     private_nh_.getParam("sim_mode", sim_mode_);
     private_nh_.getParam("use_ll2", use_lanelet_map_);
+    private_nh_.getParam("insert_stop_line_wp", insert_stop_line_wp_);
     private_nh_.param<std::string>("stop_sign_id", stop_sign_id_, "stop_sign");
 
     current_status_.prev_stopped_wpidx = -1;

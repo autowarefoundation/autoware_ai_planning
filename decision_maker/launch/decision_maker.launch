@@ -19,6 +19,7 @@
   <arg name="sim_mode" default="false" />
   <arg name="use_ll2" default="false" />
   <arg name="stop_sign_id" default="stop_sign" />
+  <arg name="insert_stop_line_wp" default="true" />
 
   <node pkg="decision_maker" type="decision_maker_node" name="decision_maker" output="screen">
     <param name="state_vehicle_file_name" value="$(find decision_maker)/$(arg state_vehicle_file_name)" />
@@ -40,5 +41,6 @@
     <param name="sim_mode" value="$(arg sim_mode)" />
     <param name="use_ll2" value="$(arg use_ll2)" />
     <param name="stop_sign_id" value="$(arg stop_sign_id)" />
+    <param name="insert_stop_line_wp" value="$(arg insert_stop_line_wp)" />
   </node>
 </launch>

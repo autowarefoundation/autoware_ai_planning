@@ -13,6 +13,7 @@ find_package(
     op_ros_helpers
     op_utility
     pcl_conversions
+    rosbag
     vector_map_msgs
 )
 

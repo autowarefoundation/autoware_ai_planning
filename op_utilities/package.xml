@@ -17,6 +17,7 @@
   <depend>op_ros_helpers</depend>
   <depend>op_utility</depend>
   <depend>pcl_conversions</depend>
+  <depend>rosbag</depend>
   <depend>roscpp</depend>  
   <depend>vector_map_msgs</depend>
 </package>

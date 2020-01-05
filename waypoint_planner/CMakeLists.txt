@@ -16,24 +16,13 @@ find_package(
     pcl_conversions
     pcl_ros
     roscpp
+    roslint
     std_msgs
     tf
     vector_map
-    roslint
 )
 
-catkin_package(
-  CATKIN_DEPENDS
-    astar_search
-    autoware_config_msgs
-    autoware_health_checker
-    autoware_msgs
-    lanelet2_extension
-    libwaypoint_follower
-    std_msgs
-    tf
-    vector_map
-)
+catkin_package()
 
 # TODO add all codes to roslint
 roslint_cpp(src/velocity_set_lanelet2/velocity_set_lanelet2.cpp)

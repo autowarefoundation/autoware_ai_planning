@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(costmap_generator)
 
+find_package(autoware_build_flags REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
-  autoware_build_flags
   autoware_msgs
   grid_map_ros
   object_map
@@ -14,16 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   lanelet2_extension
 )
 
-catkin_package(
-  CATKIN_DEPENDS
-    autoware_msgs
-    grid_map_ros
-    object_map
-    pcl_ros
-    roscpp
-    tf
-    vector_map
-)
+catkin_package()
 
 set(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 

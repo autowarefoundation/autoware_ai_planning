@@ -9,15 +9,15 @@
   <buildtool_depend>autoware_build_flags</buildtool_depend>
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>autoware_config_msgs</depend>
   <depend>autoware_msgs</depend>
   <depend>gnss</depend>
+  <depend>lanelet2_extension</depend>
+  <depend>libwaypoint_follower</depend>
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
-  <depend>vector_map</depend>
   <depend>tablet_socket_msgs</depend>
-  <depend>libwaypoint_follower</depend>
-  <depend>autoware_config_msgs</depend>
-  <depend>lanelet2_extension</depend>
+  <depend>vector_map</depend>
 
   <test_depend>rostest</test_depend>
   <test_depend>rosunit</test_depend>

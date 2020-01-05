@@ -18,8 +18,8 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_signs_simulator");
-	SignsSimulatorNS::OpenPlannerSimulatorSigns  traffic_signs;
-	traffic_signs.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_signs_simulator");
+  SignsSimulatorNS::OpenPlannerSimulatorSigns  traffic_signs;
+  traffic_signs.MainLoop();
+  return 0;
 }

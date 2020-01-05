@@ -24,7 +24,7 @@
   <arg name="potential_weight" default="10.0" />
   <arg name="distance_heuristic_weight" default="1.0" />
 
-	<node pkg="freespace_planner" type="astar_navi" name="astar_navi" output="screen">
+  <node pkg="freespace_planner" type="astar_navi" name="astar_navi" output="screen">
     <remap from="costmap" to="$(arg costmap_topic)" />
     <param name="waypoints_velocity" value="$(arg waypoints_velocity)" />
     <param name="update_rate" value="$(arg update_rate)" />
@@ -46,9 +46,9 @@
     <param name="obstacle_threshold" value="$(arg obstacle_threshold)" />
     <param name="potential_weight" value="$(arg potential_weight)" />
     <param name="distance_heuristic_weight" value="$(arg distance_heuristic_weight)" />
-	</node>
+  </node>
 
-	<!-- Visualization node-->
-	<node pkg="waypoint_maker" type="waypoint_marker_publisher" name="waypoint_marker_publisher" />
+  <!-- Visualization node-->
+  <node pkg="waypoint_maker" type="waypoint_marker_publisher" name="waypoint_marker_publisher" />
 
 </launch>

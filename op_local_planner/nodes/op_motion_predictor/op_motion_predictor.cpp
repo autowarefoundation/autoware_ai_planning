@@ -20,8 +20,8 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_motion_predictor");
-	MotionPredictorNS::MotionPrediction  predict_traj;
-	predict_traj.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_motion_predictor");
+  MotionPredictorNS::MotionPrediction  predict_traj;
+  predict_traj.MainLoop();
+  return 0;
 }

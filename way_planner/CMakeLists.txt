@@ -25,14 +25,6 @@ find_package(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES way_planner
-  CATKIN_DEPENDS
-    geometry_msgs
-    libwaypoint_follower
-    op_planner
-    op_simu
-    op_utility
-    std_msgs
-    vector_map_msgs
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall -Wno-unused-result -DROS ${CMAKE_CXX_FLAGS}")

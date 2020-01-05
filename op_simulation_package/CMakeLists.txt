@@ -31,16 +31,6 @@ find_package(
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS
-    autoware_msgs
-    geometry_msgs
-    libwaypoint_follower
-    map_file
-    op_planner
-    op_ros_helpers
-    op_simu
-    op_utility
-    roscpp
 )
 
 include_directories(

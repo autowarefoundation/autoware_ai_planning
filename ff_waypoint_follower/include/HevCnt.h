@@ -12,7 +12,7 @@ using namespace zmp::minivan;
 
 struct BattInf {
     float current;              // 0x3B 充放電電流[A*10]
-    float max_dischg_current;	// 0x3CB 最大放電電流[A*10]
+    float max_dischg_current;  // 0x3CB 最大放電電流[A*10]
     float max_chg_current;      // 0x3CB 最大充電電流[A*10]
     float soc;                  // 0x3CB 残容量[%]
     int min_temp;               // 0x3CB 最低温度[℃ ]
@@ -22,9 +22,9 @@ struct BattInf {
 
 struct BrakeInf {
     bool pressed;           // ペダルスイッチ状態(ON=true, OFF=false)
-    int actualPedalStr;		// ペダルストローク現在値
-    int targetPedalStr;		// ペダルストローク目標値
-    int inputPedalStr;		// ペダルストローク入力値
+    int actualPedalStr;    // ペダルストローク現在値
+    int targetPedalStr;    // ペダルストローク目標値
+    int inputPedalStr;    // ペダルストローク入力値
     float prl;              // PRLセンサ値
     float pfl;              // PFLセンサ値
     float prr;              // PRRセンサ値
@@ -33,7 +33,7 @@ struct BrakeInf {
     float sks2;             // SKS2ペダルセンサ値
     float pmc1;             // PMC1ペダルセンサ値
     float pmc2;             // PMC2ペダルセンサ値
-//    int targetStr;		// 目標ストローク
+//    int targetStr;    // 目標ストローク
     unsigned char brakeLamp;
     unsigned char blinkerLeft;
     unsigned char blinkerRight;
@@ -45,10 +45,10 @@ struct OtherInf {
     float acc;              // 0x23 前後加速度
     float angleFromP;       // 0x25 ステアリング角度
     float brkPedalStrFromP;// 0x30 ブレーキペダル状態
-    float velocFrFromP;		// 0xB1 右前輪速度[km/h*100]
-    float velocFlFromP;		// 0xB1 左前輪速度[km/h*100]
-    float velocRrFromP;		// 0xB3 右後輪速度[km/h*100]
-    float velocRlFromP;		// 0xB3 左後輪速度[km/h*100]
+    float velocFrFromP;    // 0xB1 右前輪速度[km/h*100]
+    float velocFlFromP;    // 0xB1 左前輪速度[km/h*100]
+    float velocRrFromP;    // 0xB3 右後輪速度[km/h*100]
+    float velocRlFromP;    // 0xB3 左後輪速度[km/h*100]
     float velocFromP2;      // 0xB4 速度
     int drv_mode;           // 0x120 ドライブモード
     unsigned int drvPedalStrFromP;  // 0x244 アクセルペダル状態
@@ -57,9 +57,9 @@ struct OtherInf {
     int ev_mode;            // 0x529 EVモード
     int temp;               // 0x52C 温度[℃ ]
     int shiftFromPrius;     // 0x540 シフト状態
-    LIGHT_STATE light;		// 0x57F ライト状態
+    LIGHT_STATE light;    // 0x57F ライト状態
     int level;              // 0x5A4 燃料の残量
-    DOOR_STATE door;		// 0x5B6 ドアの状態
+    DOOR_STATE door;    // 0x5B6 ドアの状態
     bool cluise;            // 0x5C8 クルーズコントロールON/OFF
     char dtcData1;          // 0x7E8,0x7EA,0x7EB
     char dtcData2;          // 0x7E8,0x7EA,0x7EB
@@ -74,29 +74,29 @@ struct OtherInf {
 struct DrvInf {
     int mode;               // ドライブモード(manual=0x00, program=0x10)
     int contMode;           // ドライブ制御モード(velocity=0x00, stroke=0x10)
-    int overrideMode;		// オーバーライドモード(ON=0x00, OFF=0x10)
+    int overrideMode;    // オーバーライドモード(ON=0x00, OFF=0x10)
     int servo;              // 制御のON/OFF(ON=true, OFF=false)
-    int actualPedalStr;		// ペダルストローク現在値
-    int targetPedalStr;		// ペダルストローク目標値
-    int inputPedalStr;		// ペダルストローク入力値
+    int actualPedalStr;    // ペダルストローク現在値
+    int targetPedalStr;    // ペダルストローク目標値
+    int inputPedalStr;    // ペダルストローク入力値
     float vpa1;             // VPA1ペダルセンサ値
     float vpa2;             // VPA2ペダルセンサ値
-    float targetVeloc;		// 目標速度[km/h*100]
+    float targetVeloc;    // 目標速度[km/h*100]
     float veloc;            // 現在速度[km/h*100]
     int actualShift;        // シフトポジション現在値
-    int targetShift;		// シフトポジション目標値
+    int targetShift;    // シフトポジション目標値
     int inputShift;         // シフトポジション入力値
 //    int shiftFromPrius;
     int shiftRawVsx1;       // シフトRaw値VSX1
     int shiftRawVsx2;       // シフトRaw値VSX2
     int shiftRawVsx3;       // シフトRaw値VSX3
     int shiftRawVsx4;       // シフトRaw値VSX4
-//    int spls_sp1;		// 車速パルス
-//    int spls_fr;		// 右フロント車速パルス
-//    int spls_fl;		// 左フロント車速パルス
-//    int spls_rr;		// 右リア車速パルス
-//    int spls_rl;		// 左リア車速パルス
-//    int targetStr;		// 目標ストローク
+//    int spls_sp1;    // 車速パルス
+//    int spls_fr;    // 右フロント車速パルス
+//    int spls_fl;    // 左フロント車速パルス
+//    int spls_rr;    // 右リア車速パルス
+//    int spls_rl;    // 左リア車速パルス
+//    int targetStr;    // 目標ストローク
 };
 
 struct StrInf {

@@ -3,8 +3,8 @@ project(astar_search)
 
 set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
 
+find_package(autoware_build_flags REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
-  autoware_build_flags
   autoware_msgs
   geometry_msgs
   pcl_ros
@@ -17,14 +17,6 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES astar_search
-  CATKIN_DEPENDS
-  autoware_msgs
-  geometry_msgs
-  pcl_ros
-  roscpp
-  sensor_msgs
-  tf
-  tf_conversions
 )
 
 include_directories(
@@ -46,18 +38,25 @@ add_dependencies(astar_search
 )
 
 install(DIRECTORY include/${PROJECT_NAME}/
-	DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-	FILES_MATCHING PATTERN "*.h"
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
 )
 
 install(TARGETS astar_search
-	ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-	RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
-  add_rostest_gtest(astar_search-test test/test_astar_search.test test/src/test_main.cpp test/src/test_astar_util.cpp test/src/test_astar_search.cpp test/src/test_class.cpp)
+  add_rostest_gtest(
+    astar_search-test
+    test/test_astar_search.test
+    test/src/test_main.cpp
+    test/src/test_astar_util.cpp
+    test/src/test_astar_search.cpp
+    test/src/test_class.cpp
+  )
   target_link_libraries(astar_search-test ${catkin_LIBRARIES} astar_search)
 endif()

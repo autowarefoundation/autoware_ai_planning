@@ -23,8 +23,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_trajectory_evaluator");
-	TrajectoryEvaluatorNS::TrajectoryEval trajectory_eval;
-	trajectory_eval.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_trajectory_evaluator");
+  TrajectoryEvaluatorNS::TrajectoryEval trajectory_eval;
+  trajectory_eval.MainLoop();
+  return 0;
 }

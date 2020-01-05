@@ -210,7 +210,7 @@ void HevCnt::UpdateSteerState(REP_STEER_INFO_INDEX index)
         break;
     case REP_ANGLE: _hevCnt->GetStrAngle((float&)_strInf.angle, (float&)_strInf.targetAngle); break;
     case REP_ANGLE_FROMOBD: _hevCnt->GetStrAngleFromOBD((float&)_otherInf.angleFromP); break;
-	default: printf("\n"); break;
+  default: printf("\n"); break;
     }
 
     return;
@@ -246,7 +246,7 @@ void HevCnt::UpdateDriveState(REP_DRIVE_INFO_INDEX index)
                          //(char&)_otherInf.dtcData4, (char&)_otherInf.dtcData5, (char&)_otherInf.dtcData6, (char&)_otherInf.dtcData7, (char&)_otherInf.dtcData8);
                          break;
     case REP_BRAKE_STATUS: _hevCnt->GetBrakeStatus((unsigned char&)_brakeInf.brakeLamp, (unsigned char&)_brakeInf.blinkerLeft, (unsigned char&)_brakeInf.blinkerRight, (unsigned char&)_brakeInf.brakeMode); break;
-	default: printf("\n"); break;
+  default: printf("\n"); break;
     }
     return;
 }
@@ -254,19 +254,19 @@ void HevCnt::UpdateDriveState(REP_DRIVE_INFO_INDEX index)
 void HevCnt::UpdateBattState(REP_BATT_INFO_INDEX index)
 {
     switch(index){
-	case REP_BATT_INFO: 
-	    _hevCnt->GetBattInfo((float&)_battInf.soc,
-				 (int&)_battInf.max_temp,
-				 (int&)_battInf.min_temp,
-				 (float&)_battInf.max_chg_current,
-				 (float&)_battInf.max_dischg_current);
+  case REP_BATT_INFO: 
+      _hevCnt->GetBattInfo((float&)_battInf.soc,
+         (int&)_battInf.max_temp,
+         (int&)_battInf.min_temp,
+         (float&)_battInf.max_chg_current,
+         (float&)_battInf.max_dischg_current);
     case REP_BATT_INFO_CURRENT:
         _hevCnt->GetBattCurrent((float&)_battInf.current);
         break;
     case REP_BATT_INFO_VOLT:
         _hevCnt->GetBattVoltage((int&)_battInf.voltage);
-	    break;
-	default: printf("\n"); break;
+      break;
+  default: printf("\n"); break;
     }
 
     return;
@@ -275,16 +275,16 @@ void HevCnt::UpdateBattState(REP_BATT_INFO_INDEX index)
 void HevCnt::UpdateOtherState(REP_OTHER_INFO_INDEX index)
 {
     switch(index){
-	case REP_LIGHT_STATE:
-	    _hevCnt->GetLightState((LIGHT_STATE&)_otherInf.light);
-	    break;
-	case REP_GAS_LEVEL:
+  case REP_LIGHT_STATE:
+      _hevCnt->GetLightState((LIGHT_STATE&)_otherInf.light);
+      break;
+  case REP_GAS_LEVEL:
         _hevCnt->GetGasLevel((int&)_otherInf.level);
-	    break;
-	case REP_DOOR_STATE:
-	    _hevCnt->GetDoorState((DOOR_STATE&)_otherInf.door);
-	    break;
-	default: printf("\n"); break;
+      break;
+  case REP_DOOR_STATE:
+      _hevCnt->GetDoorState((DOOR_STATE&)_otherInf.door);
+      break;
+  default: printf("\n"); break;
     }
 
     return;
@@ -307,43 +307,43 @@ void HevCnt::UpdateDemoSensorState(REP_DEMO_SENSOR_INFO_INDEX index)
                 // -100から100にノーマライズ
         _sensInf.ofz[0] = (v[5] + v[6]) / 2 * 100;
  //               _sensInf.cntS[0]++;
-//		printf("##########################################OFZ0 v5=%2.2f v6=%2.2f _ofz=%d\n",
-//			v[5], v[6], _sensInf.ofz[0]);
+//    printf("##########################################OFZ0 v5=%2.2f v6=%2.2f _ofz=%d\n",
+//      v[5], v[6], _sensInf.ofz[0]);
        break;
     case REP_OFZ1:
         _hevCnt->GetOfzValue1(v);
         _sensInf.ofz[1] = -(v[5] + v[6]) / 2 * 100;
 //                _sensInf.cntS[1]++;
-//		printf("##########################################OFZ1 v5=%2.2f v6=%2.2f _ofz=%d\n",
-//			v[5], v[6], _sensInf.ofz[1]);
+//    printf("##########################################OFZ1 v5=%2.2f v6=%2.2f _ofz=%d\n",
+//      v[5], v[6], _sensInf.ofz[1]);
         break;
     case REP_OFZ2:
         _hevCnt->GetOfzValue2(v);
         _sensInf.ofz[2] = (v[5] + v[6]) / 2 * 100;
 //                _sensInf.cntS[2]++;
-//		printf("##########################################OFZ2 v5=%2.2f v6=%2.2f _ofz=%d\n",
-//			v[5], v[6], _sensInf.ofz[2]);
+//    printf("##########################################OFZ2 v5=%2.2f v6=%2.2f _ofz=%d\n",
+//      v[5], v[6], _sensInf.ofz[2]);
         break;
     case REP_OFZ3:
         _hevCnt->GetOfzValue3(v);
         _sensInf.ofz[3] = -(v[5] + v[6]) / 2 * 100;
 //                _sensInf.cntS[3]++;
-//		printf("##########################################OFZ3 v5=%2.2f v6=%2.2f _ofz=%d\n",
-//			v[5], v[6], _sensInf.ofz[3]);
+//    printf("##########################################OFZ3 v5=%2.2f v6=%2.2f _ofz=%d\n",
+//      v[5], v[6], _sensInf.ofz[3]);
         break;
     case REP_SEAT_SENSOR:
         _hevCnt->GetSeatSensor((float&)_sensInf.seat);
                 // 人が30cm以内にいたら1
-//		printf("Sens s=%2.2f\n",_sensInf.seat);
+//    printf("Sens s=%2.2f\n",_sensInf.seat);
         break;
-	default: break;
-	}	
+  default: break;
+  }  
 }
 
 void HevCnt::ReceiveConfig(int num, int index, int value[])
 {
     printf("ReceiveConfig() num=%d index=%d value=%d\n", 
-	   num, index, value[index]);
+     num, index, value[index]);
     int data[3];
     for(int i=0; i<num; i++){
         _config.data[index - 100] = value[i];

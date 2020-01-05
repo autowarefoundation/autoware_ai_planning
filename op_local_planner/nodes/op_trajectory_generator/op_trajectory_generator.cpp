@@ -23,8 +23,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_trajectory_generator");
-	TrajectoryGeneratorNS::TrajectoryGen trajectory_gen;
-	trajectory_gen.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_trajectory_generator");
+  TrajectoryGeneratorNS::TrajectoryGen trajectory_gen;
+  trajectory_gen.MainLoop();
+  return 0;
 }

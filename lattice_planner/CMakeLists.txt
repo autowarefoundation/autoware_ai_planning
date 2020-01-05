@@ -5,47 +5,33 @@ find_package(autoware_build_flags REQUIRED)
 
 find_package(
   catkin REQUIRED COMPONENTS
-    roscpp
-    std_msgs
-    pcl_ros
-    pcl_conversions
-    sensor_msgs
-    tf
+    autoware_can_msgs
     gnss
     libwaypoint_follower
+    pcl_conversions
+    pcl_ros
+    roscpp
+    sensor_msgs
+    std_msgs
+    tf
     vector_map
     waypoint_planner
-    autoware_can_msgs
-    vector_map
 )
 
 find_package(Armadillo REQUIRED)
 
-OPTION(USE_OpenMP "Use OpenMP" ON)
-IF (USE_OpenMP)
-    FIND_PACKAGE(OpenMP)
-    IF (OPENMP_FOUND)
-        SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    ENDIF ()
-ENDIF ()
-
+option(USE_OpenMP "Use OpenMP" ON)
+if(USE_OpenMP)
+  find_package(OpenMP)
+  if(OPENMP_FOUND)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  endif()
+endif()
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES libtraj_gen
-  CATKIN_DEPENDS
-    autoware_can_msgs
-    gnss
-    libwaypoint_follower
-    pcl_conversions
-    pcl_ros
-    roscpp
-    sensor_msgs
-    std_msgs
-    tf
-    vector_map
-    waypoint_planner
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")

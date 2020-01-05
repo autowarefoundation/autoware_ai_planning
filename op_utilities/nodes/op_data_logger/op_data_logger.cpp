@@ -18,8 +18,8 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_data_logger");
-	DataLoggerNS::OpenPlannerDataLogger logger;
-	logger.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_data_logger");
+  DataLoggerNS::OpenPlannerDataLogger logger;
+  logger.MainLoop();
+  return 0;
 }

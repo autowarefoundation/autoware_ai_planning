@@ -6,16 +6,13 @@ find_package(autoware_build_flags REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   autoware_config_msgs
   autoware_msgs
-  autoware_msgs
   gnss
+  lanelet2_extension
   libwaypoint_follower
   roscpp
-  rostest
-  rosunit
   std_msgs
   tablet_socket_msgs
   vector_map
-  lanelet2_extension
 )
 
 set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
@@ -23,15 +20,6 @@ set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES lane_planner
-  CATKIN_DEPENDS
-    autoware_config_msgs
-    autoware_msgs
-    gnss
-    libwaypoint_follower
-    roscpp
-    std_msgs
-    tablet_socket_msgs
-    vector_map
 )
 
 include_directories(
@@ -148,7 +136,7 @@ install(
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
-if (CATKIN_ENABLE_TESTING)
+if(CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
     add_rostest_gtest(test-lane_select
       test/test_lane_select.test
@@ -159,4 +147,4 @@ if (CATKIN_ENABLE_TESTING)
     add_dependencies(test-lane_select ${catkin_EXPORTED_TARGETS})
     target_link_libraries(test-lane_select
     ${catkin_LIBRARIES})
-endif ()
+endif()

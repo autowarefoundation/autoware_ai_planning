@@ -5,7 +5,7 @@
 <group if="$(arg use_ll2)">
 
   <node pkg="lane_planner" type="lane_rule_lanelet2" name="lane_rule_lanelet2" output="screen">
-    </node>		   
+    </node>       
 </group>
 
 <group unless="$(arg use_ll2)">

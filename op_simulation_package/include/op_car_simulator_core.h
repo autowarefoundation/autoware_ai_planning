@@ -73,113 +73,113 @@ enum MAP_SOURCE_TYPE{MAP_AUTOWARE, MAP_FOLDER, MAP_KML_FILE};
 class SimuCommandParams
 {
 public:
-	int id;
-	std::string 	KmlMapPath;
-	std::string 	strID;
-	std::string 	meshPath;
-	std::string 	logPath;
-	MAP_SOURCE_TYPE	mapSource;
-	bool			bRvizPositions;
-	bool 			bLooper;
-	PlannerHNS::WayPoint startPose;
-	PlannerHNS::WayPoint goalPose;
-	std_msgs::ColorRGBA modelColor;
-	bool			bEnableLogs;
+  int id;
+  std::string   KmlMapPath;
+  std::string   strID;
+  std::string   meshPath;
+  std::string   logPath;
+  MAP_SOURCE_TYPE  mapSource;
+  bool      bRvizPositions;
+  bool       bLooper;
+  PlannerHNS::WayPoint startPose;
+  PlannerHNS::WayPoint goalPose;
+  std_msgs::ColorRGBA modelColor;
+  bool      bEnableLogs;
 
-	SimuCommandParams()
-	{
-		id = 1;
-		bEnableLogs = true;
-		bLooper = false;
-		bRvizPositions = true;
-		mapSource = MAP_FOLDER;
-		modelColor.a = 1;
-		modelColor.b = 1;
-		modelColor.r = 1;
-		modelColor.g = 1;
-	}
+  SimuCommandParams()
+  {
+    id = 1;
+    bEnableLogs = true;
+    bLooper = false;
+    bRvizPositions = true;
+    mapSource = MAP_FOLDER;
+    modelColor.a = 1;
+    modelColor.b = 1;
+    modelColor.r = 1;
+    modelColor.g = 1;
+  }
 };
 
 class OpenPlannerCarSimulator
 {
 protected:
-	timespec m_PlanningTimer;
-	geometry_msgs::Pose m_OriginPos;
+  timespec m_PlanningTimer;
+  geometry_msgs::Pose m_OriginPos;
 
 
-	std::string m_BaseLinkFrameID;
-	std::string m_VelodyneFrameID;
+  std::string m_BaseLinkFrameID;
+  std::string m_VelodyneFrameID;
 
-	bool m_bStepByStep;
-	bool m_bSimulatedVelodyne;
-	bool m_bGoNextStep;
-	bool 						m_bMap;
-	PlannerHNS::RoadNetwork		m_Map;
-	PlannerHNS::PlannerH		m_GlobalPlanner;
-	PlannerHNS::SimuDecisionMaker* 	m_LocalPlanner;
-	SimulationNS::TrajectoryFollower m_PredControl;
-	std::vector<PlannerHNS::DetectedObject> m_PredictedObjects;
-	std::vector<std::vector<PlannerHNS::WayPoint> > m_GlobalPaths;
-	PlannerHNS::VehicleState  m_JoyDesiredStatus;
-	bool bPredictedObjects;
+  bool m_bStepByStep;
+  bool m_bSimulatedVelodyne;
+  bool m_bGoNextStep;
+  bool             m_bMap;
+  PlannerHNS::RoadNetwork    m_Map;
+  PlannerHNS::PlannerH    m_GlobalPlanner;
+  PlannerHNS::SimuDecisionMaker*   m_LocalPlanner;
+  SimulationNS::TrajectoryFollower m_PredControl;
+  std::vector<PlannerHNS::DetectedObject> m_PredictedObjects;
+  std::vector<std::vector<PlannerHNS::WayPoint> > m_GlobalPaths;
+  PlannerHNS::VehicleState  m_JoyDesiredStatus;
+  bool bPredictedObjects;
 
-	bool bInitPos;
-	bool bGoalPos;
-	bool bUseWheelController;
-	bool bNewLightSignal;
-	std::vector<PlannerHNS::TrafficLight> m_CurrTrafficLight;
-	std::vector<PlannerHNS::TrafficLight> m_PrevTrafficLight;
+  bool bInitPos;
+  bool bGoalPos;
+  bool bUseWheelController;
+  bool bNewLightSignal;
+  std::vector<PlannerHNS::TrafficLight> m_CurrTrafficLight;
+  std::vector<PlannerHNS::TrafficLight> m_PrevTrafficLight;
 
 
-	SimuCommandParams m_SimParams;
-	PlannerHNS::CAR_BASIC_INFO m_CarInfo;
-	PlannerHNS::ControllerParams m_ControlParams;
-	PlannerHNS::PlanningParams m_PlanningParams;
-	PlannerHNS::BehaviorState m_CurrBehavior;
+  SimuCommandParams m_SimParams;
+  PlannerHNS::CAR_BASIC_INFO m_CarInfo;
+  PlannerHNS::ControllerParams m_ControlParams;
+  PlannerHNS::PlanningParams m_PlanningParams;
+  PlannerHNS::BehaviorState m_CurrBehavior;
 
-	ros::NodeHandle nh;
+  ros::NodeHandle nh;
 
-	tf::TransformListener m_Listener;
+  tf::TransformListener m_Listener;
 
-	ros::Publisher pub_SafetyBorderRviz;
-	ros::Publisher pub_SimuBoxPose;
-	ros::Publisher pub_CurrPoseRviz;
-	ros::Publisher pub_LocalTrajectoriesRviz;
-	ros::Publisher pub_BehaviorStateRviz;
-	ros::Publisher pub_PointerBehaviorStateRviz;
-	ros::Publisher pub_InternalInfoRviz;
-	ros::Publisher pub_SimulatedVelodyne;
-	ros::Publisher pub_CurrentLocalPath;
+  ros::Publisher pub_SafetyBorderRviz;
+  ros::Publisher pub_SimuBoxPose;
+  ros::Publisher pub_CurrPoseRviz;
+  ros::Publisher pub_LocalTrajectoriesRviz;
+  ros::Publisher pub_BehaviorStateRviz;
+  ros::Publisher pub_PointerBehaviorStateRviz;
+  ros::Publisher pub_InternalInfoRviz;
+  ros::Publisher pub_SimulatedVelodyne;
+  ros::Publisher pub_CurrentLocalPath;
 
-	// define subscribers.
-	ros::Subscriber sub_initialpose;
-	ros::Subscriber sub_goalpose;
-	ros::Subscriber sub_predicted_objects;
-	ros::Subscriber sub_TrafficLightSignals	;
-	ros::Subscriber sub_StepSignal;
-	ros::Subscriber sub_cloud_clusters;
-	ros::Subscriber sub_joystick;
+  // define subscribers.
+  ros::Subscriber sub_initialpose;
+  ros::Subscriber sub_goalpose;
+  ros::Subscriber sub_predicted_objects;
+  ros::Subscriber sub_TrafficLightSignals  ;
+  ros::Subscriber sub_StepSignal;
+  ros::Subscriber sub_cloud_clusters;
+  ros::Subscriber sub_joystick;
 
-	// Callback function for subscriber.
-	void callbackGetInitPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr &msg);
-	void callbackGetGoalPose(const geometry_msgs::PoseStampedConstPtr &msg);
-	void callbackGetPredictedObjects(const autoware_msgs::DetectedObjectArrayConstPtr& msg);
-	void callbackGetTrafficLightSignals(const autoware_msgs::Signals& msg);
-	void callbackGetStepForwardSignals(const geometry_msgs::TwistStampedConstPtr& msg);
-	void callbackGetCloudClusters(const autoware_msgs::CloudClusterArrayConstPtr& msg);
-	void callbackGetJoyStickInfo(const sensor_msgs::JoyConstPtr& msg);
+  // Callback function for subscriber.
+  void callbackGetInitPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr &msg);
+  void callbackGetGoalPose(const geometry_msgs::PoseStampedConstPtr &msg);
+  void callbackGetPredictedObjects(const autoware_msgs::DetectedObjectArrayConstPtr& msg);
+  void callbackGetTrafficLightSignals(const autoware_msgs::Signals& msg);
+  void callbackGetStepForwardSignals(const geometry_msgs::TwistStampedConstPtr& msg);
+  void callbackGetCloudClusters(const autoware_msgs::CloudClusterArrayConstPtr& msg);
+  void callbackGetJoyStickInfo(const sensor_msgs::JoyConstPtr& msg);
 
 public:
-	OpenPlannerCarSimulator();
+  OpenPlannerCarSimulator();
 
-	virtual ~OpenPlannerCarSimulator();
+  virtual ~OpenPlannerCarSimulator();
 
-	void MainLoop();
+  void MainLoop();
 
   void GetTransformFromTF(const std::string parent_frame, const std::string child_frame, tf::StampedTransform &transform);
 
   void ReadParamFromLaunchFile(PlannerHNS::CAR_BASIC_INFO& m_CarInfo,
-		  PlannerHNS::ControllerParams& m_ControlParams);
+      PlannerHNS::ControllerParams& m_ControlParams);
 
   void displayFollowingInfo(const std::vector<PlannerHNS::GPSPoint>& safety_rect, PlannerHNS::WayPoint& curr_pose);
   void visualizePath(const std::vector<PlannerHNS::WayPoint>& path);
@@ -192,40 +192,40 @@ public:
   void PublishSpecialTF(const PlannerHNS::WayPoint& pose);
 
 
-	//Mapping Section
+  //Mapping Section
 
-	UtilityHNS::MapRaw m_MapRaw;
+  UtilityHNS::MapRaw m_MapRaw;
 
-	ros::Subscriber sub_lanes;
-	ros::Subscriber sub_points;
-	ros::Subscriber sub_dt_lanes;
-	ros::Subscriber sub_intersect;
-	ros::Subscriber sup_area;
-	ros::Subscriber sub_lines;
-	ros::Subscriber sub_stop_line;
-	ros::Subscriber sub_signals;
-	ros::Subscriber sub_vectors;
-	ros::Subscriber sub_curbs;
-	ros::Subscriber sub_edges;
-	ros::Subscriber sub_way_areas;
-	ros::Subscriber sub_cross_walk;
-	ros::Subscriber sub_nodes;
+  ros::Subscriber sub_lanes;
+  ros::Subscriber sub_points;
+  ros::Subscriber sub_dt_lanes;
+  ros::Subscriber sub_intersect;
+  ros::Subscriber sup_area;
+  ros::Subscriber sub_lines;
+  ros::Subscriber sub_stop_line;
+  ros::Subscriber sub_signals;
+  ros::Subscriber sub_vectors;
+  ros::Subscriber sub_curbs;
+  ros::Subscriber sub_edges;
+  ros::Subscriber sub_way_areas;
+  ros::Subscriber sub_cross_walk;
+  ros::Subscriber sub_nodes;
 
 
-	void callbackGetVMLanes(const vector_map_msgs::LaneArray& msg);
-	void callbackGetVMPoints(const vector_map_msgs::PointArray& msg);
-	void callbackGetVMdtLanes(const vector_map_msgs::DTLaneArray& msg);
-	void callbackGetVMIntersections(const vector_map_msgs::CrossRoadArray& msg);
-	void callbackGetVMAreas(const vector_map_msgs::AreaArray& msg);
-	void callbackGetVMLines(const vector_map_msgs::LineArray& msg);
-	void callbackGetVMStopLines(const vector_map_msgs::StopLineArray& msg);
-	void callbackGetVMSignal(const vector_map_msgs::SignalArray& msg);
-	void callbackGetVMVectors(const vector_map_msgs::VectorArray& msg);
-	void callbackGetVMCurbs(const vector_map_msgs::CurbArray& msg);
-	void callbackGetVMRoadEdges(const vector_map_msgs::RoadEdgeArray& msg);
-	void callbackGetVMWayAreas(const vector_map_msgs::WayAreaArray& msg);
-	void callbackGetVMCrossWalks(const vector_map_msgs::CrossWalkArray& msg);
-	void callbackGetVMNodes(const vector_map_msgs::NodeArray& msg);
+  void callbackGetVMLanes(const vector_map_msgs::LaneArray& msg);
+  void callbackGetVMPoints(const vector_map_msgs::PointArray& msg);
+  void callbackGetVMdtLanes(const vector_map_msgs::DTLaneArray& msg);
+  void callbackGetVMIntersections(const vector_map_msgs::CrossRoadArray& msg);
+  void callbackGetVMAreas(const vector_map_msgs::AreaArray& msg);
+  void callbackGetVMLines(const vector_map_msgs::LineArray& msg);
+  void callbackGetVMStopLines(const vector_map_msgs::StopLineArray& msg);
+  void callbackGetVMSignal(const vector_map_msgs::SignalArray& msg);
+  void callbackGetVMVectors(const vector_map_msgs::VectorArray& msg);
+  void callbackGetVMCurbs(const vector_map_msgs::CurbArray& msg);
+  void callbackGetVMRoadEdges(const vector_map_msgs::RoadEdgeArray& msg);
+  void callbackGetVMWayAreas(const vector_map_msgs::WayAreaArray& msg);
+  void callbackGetVMCrossWalks(const vector_map_msgs::CrossWalkArray& msg);
+  void callbackGetVMNodes(const vector_map_msgs::NodeArray& msg);
 };
 
 }

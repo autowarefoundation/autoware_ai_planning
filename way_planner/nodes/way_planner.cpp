@@ -28,8 +28,8 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "way_planner");
-	WayPlannerNS::way_planner_core global_planner;
-	global_planner.PlannerMainLoop();
-	return 0;
+  ros::init(argc, argv, "way_planner");
+  WayPlannerNS::way_planner_core global_planner;
+  global_planner.PlannerMainLoop();
+  return 0;
 }

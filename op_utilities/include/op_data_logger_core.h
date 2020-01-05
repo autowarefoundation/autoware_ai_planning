@@ -50,12 +50,12 @@ namespace DataLoggerNS
 class VehicleDataContainer
 {
 public:
-	int id;
-	std::vector<PlannerHNS::WayPoint> path;
-	PlannerHNS::BehaviorState beh;
-	PlannerHNS::WayPoint pose;
-	ros::Time path_time;
-	ros::Time pose_time;
+  int id;
+  std::vector<PlannerHNS::WayPoint> path;
+  PlannerHNS::BehaviorState beh;
+  PlannerHNS::WayPoint pose;
+  ros::Time path_time;
+  ros::Time pose_time;
 };
 
 class OpenPlannerDataLogger
@@ -63,41 +63,41 @@ class OpenPlannerDataLogger
 
 protected:
 
-	ros::Subscriber sub_predicted_objects;
-	ros::Subscriber sub_behavior_state;
-	std::vector<ros::Subscriber> sub_simu_paths;
-	std::vector<ros::Subscriber> sub_objs;
+  ros::Subscriber sub_predicted_objects;
+  ros::Subscriber sub_behavior_state;
+  std::vector<ros::Subscriber> sub_simu_paths;
+  std::vector<ros::Subscriber> sub_objs;
 
-	ros::NodeHandle nh;
-	timespec m_Timer;
+  ros::NodeHandle nh;
+  timespec m_Timer;
 
-	std::vector<VehicleDataContainer>  m_SimulatedVehicle;
-	std::vector<PlannerHNS::DetectedObject> m_PredictedObjects;
-	ros::Time m_pred_time;
-	PlannerHNS::BehaviorState m_CurrentBehavior;
-	PlannerHNS::MAP_SOURCE_TYPE m_MapType;
-	std::string m_MapPath;
-	PlannerHNS::RoadNetwork m_Map;
-	bool bMap;
-	int m_iSimuCarsNumber;
+  std::vector<VehicleDataContainer>  m_SimulatedVehicle;
+  std::vector<PlannerHNS::DetectedObject> m_PredictedObjects;
+  ros::Time m_pred_time;
+  PlannerHNS::BehaviorState m_CurrentBehavior;
+  PlannerHNS::MAP_SOURCE_TYPE m_MapType;
+  std::string m_MapPath;
+  PlannerHNS::RoadNetwork m_Map;
+  bool bMap;
+  int m_iSimuCarsNumber;
 
-	std::vector<std::vector<std::string> >  m_LogData;
+  std::vector<std::vector<std::string> >  m_LogData;
 
-	void callbackGetSimuPose(const geometry_msgs::PoseArray &msg);
-	void callbackGetPredictedObjects(const autoware_msgs::DetectedObjectArrayConstPtr& msg);
-	void callbackGetSimuCarsPathAndState(const autoware_msgs::LaneConstPtr& msg);
-	void callbackGetBehaviorState(const geometry_msgs::TwistStampedConstPtr& msg );
-	PlannerHNS::BehaviorState ConvertBehaviorStateFromAutowareToPlannerH(const geometry_msgs::TwistStampedConstPtr& msg);
-	PlannerHNS::STATE_TYPE GetStateFromNumber(const int& iBehState);
-	PlannerHNS::BEH_STATE_TYPE GetBehStateFromNumber(const int& iBehState);
+  void callbackGetSimuPose(const geometry_msgs::PoseArray &msg);
+  void callbackGetPredictedObjects(const autoware_msgs::DetectedObjectArrayConstPtr& msg);
+  void callbackGetSimuCarsPathAndState(const autoware_msgs::LaneConstPtr& msg);
+  void callbackGetBehaviorState(const geometry_msgs::TwistStampedConstPtr& msg );
+  PlannerHNS::BehaviorState ConvertBehaviorStateFromAutowareToPlannerH(const geometry_msgs::TwistStampedConstPtr& msg);
+  PlannerHNS::STATE_TYPE GetStateFromNumber(const int& iBehState);
+  PlannerHNS::BEH_STATE_TYPE GetBehStateFromNumber(const int& iBehState);
 
-	void CompareAndLog(VehicleDataContainer& ground_truth, PlannerHNS::DetectedObject& predicted);
-	double CalculateRMS(std::vector<PlannerHNS::WayPoint>& path1, std::vector<PlannerHNS::WayPoint>& path2);
+  void CompareAndLog(VehicleDataContainer& ground_truth, PlannerHNS::DetectedObject& predicted);
+  double CalculateRMS(std::vector<PlannerHNS::WayPoint>& path1, std::vector<PlannerHNS::WayPoint>& path2);
 
 public:
-	OpenPlannerDataLogger();
-	virtual ~OpenPlannerDataLogger();
-	void MainLoop();
+  OpenPlannerDataLogger();
+  virtual ~OpenPlannerDataLogger();
+  void MainLoop();
 };
 
 }

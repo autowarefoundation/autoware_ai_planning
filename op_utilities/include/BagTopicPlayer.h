@@ -36,183 +36,183 @@ template <class T>
 class BagTopicPlayer
 {
 public:
-	void InitPlayer(const rosbag::Bag& _bag, const std::string& topic_name)
-	{
-		if(_bag.getSize() == 0) return;
+  void InitPlayer(const rosbag::Bag& _bag, const std::string& topic_name)
+  {
+    if(_bag.getSize() == 0) return;
 
-		rosbag::View view(_bag);
-		std::vector<const rosbag::ConnectionInfo *> connection_infos = view.getConnections();
-		std::vector<std::string> topics_to_subscribe;
+    rosbag::View view(_bag);
+    std::vector<const rosbag::ConnectionInfo *> connection_infos = view.getConnections();
+    std::vector<std::string> topics_to_subscribe;
 
-		std::set<std::string> bagTopics;
+    std::set<std::string> bagTopics;
 
-		BOOST_FOREACH(const rosbag::ConnectionInfo *info, connection_infos)
-		{
-			bagTopics.insert(info->topic);
-		}
+    BOOST_FOREACH(const rosbag::ConnectionInfo *info, connection_infos)
+    {
+      bagTopics.insert(info->topic);
+    }
 
-		if (bagTopics.find(topic_name) == bagTopics.end())
-		{
-			ROS_WARN_STREAM("Can't Find LIDAR Topic in ROSBag File :" << topic_name);
-			return;
-		}
-		else
-		{
-			topics_to_subscribe.push_back(std::string(topic_name));
-		}
+    if (bagTopics.find(topic_name) == bagTopics.end())
+    {
+      ROS_WARN_STREAM("Can't Find LIDAR Topic in ROSBag File :" << topic_name);
+      return;
+    }
+    else
+    {
+      topics_to_subscribe.push_back(std::string(topic_name));
+    }
 
-		m_BagView.addQuery(_bag, rosbag::TopicQuery(topics_to_subscribe));
-		m_ViewIterator = m_BagView.begin();
-		m_StartTime = m_BagView.getBeginTime();
-		m_bReadNext = true;
-	}
+    m_BagView.addQuery(_bag, rosbag::TopicQuery(topics_to_subscribe));
+    m_ViewIterator = m_BagView.begin();
+    m_StartTime = m_BagView.getBeginTime();
+    m_bReadNext = true;
+  }
 
-	bool ReadNext(boost::shared_ptr<T>& msg, ros::Time* pSyncTime)
-	{
+  bool ReadNext(boost::shared_ptr<T>& msg, ros::Time* pSyncTime)
+  {
 
-		if(m_ViewIterator != m_BagView.end())
-		{
-			if(m_bReadNext == true)
-			{
-				if(m_iPlayHead < m_PrevRecords.size())
-				{
-					m_CurrRecord = m_PrevRecords.at(m_iPlayHead);
-				}
-				else
-				{
-					rosbag::MessageInstance m = *m_ViewIterator;
-					m_CurrRecord = m.instantiate<T>();
+    if(m_ViewIterator != m_BagView.end())
+    {
+      if(m_bReadNext == true)
+      {
+        if(m_iPlayHead < m_PrevRecords.size())
+        {
+          m_CurrRecord = m_PrevRecords.at(m_iPlayHead);
+        }
+        else
+        {
+          rosbag::MessageInstance m = *m_ViewIterator;
+          m_CurrRecord = m.instantiate<T>();
 
-					if(m_CurrRecord == NULL)
-					{
-						std::cout << "Record is Null !! Skip" << std::endl;
-						return false;
-					}
-				}
+          if(m_CurrRecord == NULL)
+          {
+            std::cout << "Record is Null !! Skip" << std::endl;
+            return false;
+          }
+        }
 
-				m_bReadNext = false;
-			}
+        m_bReadNext = false;
+      }
 
-			ros::Time sync_time = m_CurrRecord->header.stamp;
-			ros::Time prev_time = m_CurrRecord->header.stamp;
+      ros::Time sync_time = m_CurrRecord->header.stamp;
+      ros::Time prev_time = m_CurrRecord->header.stamp;
 
-			if(pSyncTime != NULL)
-				sync_time = *pSyncTime;
+      if(pSyncTime != NULL)
+        sync_time = *pSyncTime;
 
-			if(m_PrevRecord != NULL)
-				prev_time = m_PrevRecord->header.stamp;
+      if(m_PrevRecord != NULL)
+        prev_time = m_PrevRecord->header.stamp;
 
-			ros::Duration rec_time_diff = m_CurrRecord->header.stamp - prev_time;
-			ros::Duration actual_time_diff = ros::Time().now() - m_Timer;
-			ros::Duration sync_time_diff = m_CurrRecord->header.stamp - sync_time;
+      ros::Duration rec_time_diff = m_CurrRecord->header.stamp - prev_time;
+      ros::Duration actual_time_diff = ros::Time().now() - m_Timer;
+      ros::Duration sync_time_diff = m_CurrRecord->header.stamp - sync_time;
 
-			if(actual_time_diff >= rec_time_diff && actual_time_diff >= sync_time_diff)
-			{
-				msg = m_CurrRecord;
-				m_PrevRecord = m_CurrRecord;
-				m_Timer = ros::Time().now();
-				m_bReadNext = true;
-				m_iFrame++;
+      if(actual_time_diff >= rec_time_diff && actual_time_diff >= sync_time_diff)
+      {
+        msg = m_CurrRecord;
+        m_PrevRecord = m_CurrRecord;
+        m_Timer = ros::Time().now();
+        m_bReadNext = true;
+        m_iFrame++;
 
-				if(m_iPlayHead == m_PrevRecords.size())
-				{
-					m_PrevRecords.push_back(m_CurrRecord);
-					if(m_PrevRecords.size() > MAX_RECORDS_BUFFER)
-						m_PrevRecords.erase(m_PrevRecords.begin()+0);
-					m_iPlayHead = m_PrevRecords.size();
-					m_ViewIterator++;
-				}
-				else
-				{
-					m_iPlayHead++;
-				}
+        if(m_iPlayHead == m_PrevRecords.size())
+        {
+          m_PrevRecords.push_back(m_CurrRecord);
+          if(m_PrevRecords.size() > MAX_RECORDS_BUFFER)
+            m_PrevRecords.erase(m_PrevRecords.begin()+0);
+          m_iPlayHead = m_PrevRecords.size();
+          m_ViewIterator++;
+        }
+        else
+        {
+          m_iPlayHead++;
+        }
 
-				return true;
-			}
+        return true;
+      }
 
-			return false;
+      return false;
 
-		}
-		else
-		{
-			return false;
-		}
-	}
+    }
+    else
+    {
+      return false;
+    }
+  }
 
-	bool ReadPrev(boost::shared_ptr<T>& msg, ros::Time* pSyncTime)
-	{
-		if(m_PrevRecords.size() > 0 && m_iPlayHead > 0 )
-		{
-			boost::shared_ptr<T> currRecord;
-			m_iPlayHead--;
-			currRecord = m_PrevRecords.at(m_iPlayHead);
+  bool ReadPrev(boost::shared_ptr<T>& msg, ros::Time* pSyncTime)
+  {
+    if(m_PrevRecords.size() > 0 && m_iPlayHead > 0 )
+    {
+      boost::shared_ptr<T> currRecord;
+      m_iPlayHead--;
+      currRecord = m_PrevRecords.at(m_iPlayHead);
 
-			ros::Time sync_time  = currRecord->header.stamp;
-			ros::Time prev_time  = currRecord->header.stamp;
+      ros::Time sync_time  = currRecord->header.stamp;
+      ros::Time prev_time  = currRecord->header.stamp;
 
-			if(pSyncTime != NULL)
-				sync_time = *pSyncTime;
+      if(pSyncTime != NULL)
+        sync_time = *pSyncTime;
 
-			if(m_PrevRecord != NULL)
-				prev_time = m_PrevRecord->header.stamp;
+      if(m_PrevRecord != NULL)
+        prev_time = m_PrevRecord->header.stamp;
 
-			ros::Duration rec_time_diff = prev_time - currRecord->header.stamp;
-			ros::Duration actual_time_diff = ros::Time().now() - m_Timer;
-			ros::Duration sync_time_diff = sync_time - currRecord->header.stamp;
+      ros::Duration rec_time_diff = prev_time - currRecord->header.stamp;
+      ros::Duration actual_time_diff = ros::Time().now() - m_Timer;
+      ros::Duration sync_time_diff = sync_time - currRecord->header.stamp;
 
-			//if(actual_time_diff >= rec_time_diff && actual_time_diff >= sync_time_diff)
-			if(actual_time_diff >= sync_time_diff)
-			{
-				m_iFrame--;
-				m_Timer = ros::Time().now();
-				msg = currRecord;
-				m_PrevRecord = currRecord;
-				m_bReadNext = true;
-				return true;
-			}
-		}
+      //if(actual_time_diff >= rec_time_diff && actual_time_diff >= sync_time_diff)
+      if(actual_time_diff >= sync_time_diff)
+      {
+        m_iFrame--;
+        m_Timer = ros::Time().now();
+        msg = currRecord;
+        m_PrevRecord = currRecord;
+        m_bReadNext = true;
+        return true;
+      }
+    }
 
-		return false;
-	}
+    return false;
+  }
 
-	void GetReadingInfo(int& _t_sec, int& _t_nsec, int& iFrame, int& nTotalFrames)
-	{
-		if(m_CurrRecord != NULL)
-		{
-			ros::Duration dur = (m_CurrRecord->header.stamp - m_StartTime);
-			_t_sec = dur.sec;
-			_t_nsec = dur.nsec;
-		}
+  void GetReadingInfo(int& _t_sec, int& _t_nsec, int& iFrame, int& nTotalFrames)
+  {
+    if(m_CurrRecord != NULL)
+    {
+      ros::Duration dur = (m_CurrRecord->header.stamp - m_StartTime);
+      _t_sec = dur.sec;
+      _t_nsec = dur.nsec;
+    }
 
-		iFrame = m_iFrame;
-		nTotalFrames = m_BagView.size();
-	}
+    iFrame = m_iFrame;
+    nTotalFrames = m_BagView.size();
+  }
 
 
-	BagTopicPlayer()
-	{
-		m_bReadNext = true;
-		m_iFrame = 0;
-		m_iPlayHead = 0;
-	}
+  BagTopicPlayer()
+  {
+    m_bReadNext = true;
+    m_iFrame = 0;
+    m_iPlayHead = 0;
+  }
 
-	virtual ~BagTopicPlayer()
-	{
+  virtual ~BagTopicPlayer()
+  {
 
-	}
+  }
 
 
 private:
-	rosbag::View::iterator m_ViewIterator;
-	rosbag::View m_BagView;
-	std::vector<boost::shared_ptr<T> > m_PrevRecords;
-	boost::shared_ptr<T> m_CurrRecord;
-	boost::shared_ptr<T> m_PrevRecord;
-	bool m_bReadNext;
-	ros::Time m_Timer;
-	int m_iFrame;
-	ros::Time m_StartTime;
-	int m_iPlayHead;
+  rosbag::View::iterator m_ViewIterator;
+  rosbag::View m_BagView;
+  std::vector<boost::shared_ptr<T> > m_PrevRecords;
+  boost::shared_ptr<T> m_CurrRecord;
+  boost::shared_ptr<T> m_PrevRecord;
+  bool m_bReadNext;
+  ros::Time m_Timer;
+  int m_iFrame;
+  ros::Time m_StartTime;
+  int m_iPlayHead;
 
 };
 

@@ -13,16 +13,7 @@ find_package(
     visualization_msgs
 )
 
-catkin_package(
-  CATKIN_DEPENDS
-  astar_search
-  autoware_msgs
-  geometry_msgs
-  nav_msgs
-  roscpp
-  tf
-  visualization_msgs
-)
+catkin_package()
 
 include_directories(
   include

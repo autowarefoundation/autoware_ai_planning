@@ -18,8 +18,8 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_car_simulator");
-	CarSimulatorNS::OpenPlannerCarSimulator simulator;
-	simulator.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_car_simulator");
+  CarSimulatorNS::OpenPlannerCarSimulator simulator;
+  simulator.MainLoop();
+  return 0;
 }

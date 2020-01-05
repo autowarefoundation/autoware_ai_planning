@@ -41,7 +41,7 @@ protected:
 };
 
 TEST_F(TestSuite, getSteeringStateFromWaypoint) {
-	test_obj_.createFinalWaypoints();
+  test_obj_.createFinalWaypoints();
   ASSERT_EQ(test_obj_.getSteeringStateFromWaypoint(),
             autoware_msgs::WaypointState::STR_STRAIGHT)
       << "Could not get the expected state"
@@ -61,9 +61,9 @@ TEST_F(TestSuite, getSteeringStateFromWaypoint) {
 }
 
 TEST_F(TestSuite, getEventStateFromWaypoint) {
-	test_obj_.setCurrentPose(0, 0, 0);
+  test_obj_.setCurrentPose(0, 0, 0);
 
-	test_obj_.createFinalWaypoints();
+  test_obj_.createFinalWaypoints();
   ASSERT_EQ(test_obj_.getEventStateFromWaypoint(),
             autoware_msgs::WaypointState::TYPE_EVENT_NULL)
       << "Could not get the expected state"
@@ -103,10 +103,10 @@ TEST_F(TestSuite, getEventStateFromWaypoint) {
 }
 
 TEST_F(TestSuite, getStopSignStateFromWaypoint) {
-	test_obj_.setCurrentPose(0, 0, 0);
-	test_obj_.setCurrentVelocity(10.0);
+  test_obj_.setCurrentPose(0, 0, 0);
+  test_obj_.setCurrentVelocity(10.0);
 
-	test_obj_.createFinalWaypoints();
+  test_obj_.createFinalWaypoints();
   std::pair<uint8_t, int> ret1 = test_obj_.getStopSignStateFromWaypoint();
   ASSERT_EQ(ret1.first, autoware_msgs::WaypointState::NULLSTATE)
       << "Could not get the expected state"

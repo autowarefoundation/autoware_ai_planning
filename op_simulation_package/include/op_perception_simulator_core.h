@@ -48,49 +48,49 @@ namespace PerceptionSimulatorNS
 class DetectionCommandParams
 {
 public:
-	int 	nSimuObjs;
-	double 	errFactor;
-	double  nPointsPerObj;
+  int   nSimuObjs;
+  double   errFactor;
+  double  nPointsPerObj;
 
-	DetectionCommandParams()
-	{
-		nSimuObjs = 3;
-		errFactor = 0;
-		nPointsPerObj = 50;
-	}
+  DetectionCommandParams()
+  {
+    nSimuObjs = 3;
+    errFactor = 0;
+    nPointsPerObj = 50;
+  }
 };
 
 class OpenPlannerSimulatorPerception
 {
 protected:
-	ros::NodeHandle nh;
-	timespec m_Timer;
-	DetectionCommandParams m_DecParams;
+  ros::NodeHandle nh;
+  timespec m_Timer;
+  DetectionCommandParams m_DecParams;
 
-	autoware_msgs::CloudCluster m_SimulatedCluter;
+  autoware_msgs::CloudCluster m_SimulatedCluter;
 
-	autoware_msgs::CloudClusterArray m_ObjClustersArray;
-	autoware_msgs::CloudClusterArray m_AllObjClustersArray;
-	bool m_bSetSimulatedObj;
-	std::vector<std::pair<int, double> > m_keepTime;
+  autoware_msgs::CloudClusterArray m_ObjClustersArray;
+  autoware_msgs::CloudClusterArray m_AllObjClustersArray;
+  bool m_bSetSimulatedObj;
+  std::vector<std::pair<int, double> > m_keepTime;
 
-	ros::Publisher pub_DetectedObjects;
+  ros::Publisher pub_DetectedObjects;
 
-	// define subscribers.
-	std::vector<ros::Subscriber> sub_objs;
-	ros::Subscriber sub_simulated_obstacle_pose_rviz;
+  // define subscribers.
+  std::vector<ros::Subscriber> sub_objs;
+  ros::Subscriber sub_simulated_obstacle_pose_rviz;
 
 
-	// Callback function for subscriber.
-	void callbackGetSimuData(const geometry_msgs::PoseArray &msg);
-	void callbackGetRvizPoint(const geometry_msgs::PointStampedConstPtr& msg);
+  // Callback function for subscriber.
+  void callbackGetSimuData(const geometry_msgs::PoseArray &msg);
+  void callbackGetRvizPoint(const geometry_msgs::PointStampedConstPtr& msg);
 
 public:
-	OpenPlannerSimulatorPerception();
-	virtual ~OpenPlannerSimulatorPerception();
-	autoware_msgs::CloudCluster GenerateSimulatedObstacleCluster(const double& x_rand, const double& y_rand, const double& z_rand, const int& nPoints, const geometry_msgs::Pose& centerPose);
+  OpenPlannerSimulatorPerception();
+  virtual ~OpenPlannerSimulatorPerception();
+  autoware_msgs::CloudCluster GenerateSimulatedObstacleCluster(const double& x_rand, const double& y_rand, const double& z_rand, const int& nPoints, const geometry_msgs::Pose& centerPose);
 
-	void MainLoop();
+  void MainLoop();
 };
 
 }

@@ -23,8 +23,8 @@
 
 class TestSuite: public ::testing::Test {
 public:
-	TestSuite(){}
-	~TestSuite(){}
+  TestSuite(){}
+  ~TestSuite(){}
 };
 
 
@@ -286,7 +286,7 @@ TEST(TestSuite, TestMPCTrajSize)
 }
 
 int main(int argc, char **argv) {
-	testing::InitGoogleTest(&argc, argv);
-	ros::init(argc, argv, "TestNode");
-	return RUN_ALL_TESTS();
+  testing::InitGoogleTest(&argc, argv);
+  ros::init(argc, argv, "TestNode");
+  return RUN_ALL_TESTS();
 }

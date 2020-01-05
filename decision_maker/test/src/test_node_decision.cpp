@@ -67,10 +67,10 @@ TEST_F(TestSuite, isLocalizationConvergence) {
 }
 
 TEST_F(TestSuite, isArrivedGoal) {
-	test_obj_.createFinalWaypoints();
+  test_obj_.createFinalWaypoints();
 
-	test_obj_.setCurrentPose(100, 0, 0);
-	test_obj_.setCurrentVelocity(0.0);
+  test_obj_.setCurrentPose(100, 0, 0);
+  test_obj_.setCurrentVelocity(0.0);
   ASSERT_TRUE(test_obj_.isArrivedGoal()) << "Current pose is outside the target range."
                                << "It should be true";
 

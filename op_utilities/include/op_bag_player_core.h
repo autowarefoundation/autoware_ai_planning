@@ -35,14 +35,14 @@ namespace OP_TESTING_NS
 class BagReaderParams
 {
 public:
-	std::string fileName;
-	std::string lidarTopic;
-	std::string poseTopic;
-	std::string imageTopic;
+  std::string fileName;
+  std::string lidarTopic;
+  std::string poseTopic;
+  std::string imageTopic;
 
-	std::string lidarTopic_pub;
-	std::string poseTopic_pub;
-	std::string imageTopic_pub;
+  std::string lidarTopic_pub;
+  std::string poseTopic_pub;
+  std::string imageTopic_pub;
 };
 
 enum TESTING_MODE {SIMULATION_MODE, ROSBAG_MODE, LIVE_MODE};
@@ -51,12 +51,12 @@ enum ROSBAG_PLAY_MODE {PLAY_FORWARD, PLAY_BACKWARD, PLAY_PAUSE, PLAY_STEP_FORWAR
 class TestingUI : public DrawObjBase
 {
 public:
-	TestingUI();
-	virtual ~TestingUI();
-	void InitNode(const BagReaderParams& params, const int& mode);
+  TestingUI();
+  virtual ~TestingUI();
+  void InitNode(const BagReaderParams& params, const int& mode);
 
-	void DrawSimu();
-	void OnKeyboardPress(const int& sKey, const unsigned char& key);
+  void DrawSimu();
+  void OnKeyboardPress(const int& sKey, const unsigned char& key);
     void SimulationModeMainLoop();
 
     double m_VehicleTargetStateAccelerator;
@@ -69,35 +69,35 @@ public:
     ros::Publisher pub_SimuStepSignal;
     ros::Publisher pub_SimuGenSignal;
     ros::Publisher pub_PredStepSignal;
-	TESTING_MODE m_TestMode;
+  TESTING_MODE m_TestMode;
 
-	//ROSbag reader
+  //ROSbag reader
 private:
-	BagReaderParams m_BagParams;
-	rosbag::Bag m_bag;
-	std::string m_ReadingInfo;
+  BagReaderParams m_BagParams;
+  rosbag::Bag m_bag;
+  std::string m_ReadingInfo;
 
-	bool m_bBagOpen;
-	ROSBAG_PLAY_MODE m_PlayMode;
-	bool m_bStepDone;
+  bool m_bBagOpen;
+  ROSBAG_PLAY_MODE m_PlayMode;
+  bool m_bStepDone;
 
-	geometry_msgs::PoseStampedPtr m_pLatestPose;
-	sensor_msgs::PointCloud2Ptr m_pLatestCloud;
-	sensor_msgs::ImagePtr m_pLatestImage;
+  geometry_msgs::PoseStampedPtr m_pLatestPose;
+  sensor_msgs::PointCloud2Ptr m_pLatestCloud;
+  sensor_msgs::ImagePtr m_pLatestImage;
 
-	ros::Publisher pub_Point_Raw;
-	ros::Publisher pub_Image_Raw;
-	ros::Publisher pub_NDT_pose;
+  ros::Publisher pub_Point_Raw;
+  ros::Publisher pub_Image_Raw;
+  ros::Publisher pub_NDT_pose;
 
-	UtilityHNS::BagTopicPlayer<sensor_msgs::PointCloud2> m_CloudReader;
-	UtilityHNS::BagTopicPlayer<sensor_msgs::Image> m_ImageReader;
-	UtilityHNS::BagTopicPlayer<geometry_msgs::PoseStamped> m_PoseReader;
+  UtilityHNS::BagTopicPlayer<sensor_msgs::PointCloud2> m_CloudReader;
+  UtilityHNS::BagTopicPlayer<sensor_msgs::Image> m_ImageReader;
+  UtilityHNS::BagTopicPlayer<geometry_msgs::PoseStamped> m_PoseReader;
 
 
-	bool OpenROSBag();
-	void BagReaderModeMainLoop();
-	bool ReadNextFrame();
-	bool ReadPrevFrame();
+  bool OpenROSBag();
+  void BagReaderModeMainLoop();
+  bool ReadNextFrame();
+  bool ReadPrevFrame();
 };
 
 } /* namespace Graphics */

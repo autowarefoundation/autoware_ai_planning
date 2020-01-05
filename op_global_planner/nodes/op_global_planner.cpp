@@ -28,8 +28,8 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_global_planner");
-	GlobalPlanningNS::GlobalPlanner global_planner;
-	global_planner.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_global_planner");
+  GlobalPlanningNS::GlobalPlanner global_planner;
+  global_planner.MainLoop();
+  return 0;
 }

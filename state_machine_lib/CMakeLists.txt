@@ -5,14 +5,13 @@ find_package(autoware_build_flags REQUIRED)
 
 find_package(
   catkin REQUIRED COMPONENTS
-    roscpp
     autoware_msgs
+    roscpp
 )
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES state_machine_lib
-  CATKIN_DEPENDS roscpp autoware_msgs
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
@@ -43,7 +42,6 @@ install(
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.hpp"
 )
-
 
 install(
   TARGETS state_machine_lib

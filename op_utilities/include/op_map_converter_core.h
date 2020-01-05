@@ -48,62 +48,62 @@ class Vector2OP
 {
 
 protected:
-//	UtilityHNS::AisanLanesFileReader* pLanes;
-//	UtilityHNS::AisanPointsFileReader* pPoints;
-//	UtilityHNS::AisanCenterLinesFileReader* pCenterLines;
-//	UtilityHNS::AisanIntersectionFileReader* pIntersections;
-//	UtilityHNS::AisanAreasFileReader* pAreas;
-//	UtilityHNS::AisanLinesFileReader* pLines;
-//	UtilityHNS::AisanStopLineFileReader* pStopLines;
-//	UtilityHNS::AisanSignalFileReader* pSignals;
-//	UtilityHNS::AisanVectorFileReader* pVectors;
-//	UtilityHNS::AisanCurbFileReader* pCurbs;
-//	UtilityHNS::AisanRoadEdgeFileReader* pRoadedges;
-//	UtilityHNS::AisanWayareaFileReader* pWayAreas;
-//	UtilityHNS::AisanCrossWalkFileReader* pCrossWalks;
-//	UtilityHNS::AisanNodesFileReader* pNodes;
-//	UtilityHNS::AisanDataConnFileReader* pConnections;
+//  UtilityHNS::AisanLanesFileReader* pLanes;
+//  UtilityHNS::AisanPointsFileReader* pPoints;
+//  UtilityHNS::AisanCenterLinesFileReader* pCenterLines;
+//  UtilityHNS::AisanIntersectionFileReader* pIntersections;
+//  UtilityHNS::AisanAreasFileReader* pAreas;
+//  UtilityHNS::AisanLinesFileReader* pLines;
+//  UtilityHNS::AisanStopLineFileReader* pStopLines;
+//  UtilityHNS::AisanSignalFileReader* pSignals;
+//  UtilityHNS::AisanVectorFileReader* pVectors;
+//  UtilityHNS::AisanCurbFileReader* pCurbs;
+//  UtilityHNS::AisanRoadEdgeFileReader* pRoadedges;
+//  UtilityHNS::AisanWayareaFileReader* pWayAreas;
+//  UtilityHNS::AisanCrossWalkFileReader* pCrossWalks;
+//  UtilityHNS::AisanNodesFileReader* pNodes;
+//  UtilityHNS::AisanDataConnFileReader* pConnections;
 
-	UtilityHNS::MapRaw m_MapRaw;
+  UtilityHNS::MapRaw m_MapRaw;
 
-	ros::NodeHandle nh;
+  ros::NodeHandle nh;
 
-	ros::Subscriber sub_lanes;
-	ros::Subscriber sub_points;
-	ros::Subscriber sub_dt_lanes;
-	ros::Subscriber sub_intersect;
-	ros::Subscriber sup_area;
-	ros::Subscriber sub_lines;
-	ros::Subscriber sub_stop_line;
-	ros::Subscriber sub_signals;
-	ros::Subscriber sub_vectors;
-	ros::Subscriber sub_curbs;
-	ros::Subscriber sub_edges;
-	ros::Subscriber sub_way_areas;
-	ros::Subscriber sub_cross_walk;
-	ros::Subscriber sub_nodes;
+  ros::Subscriber sub_lanes;
+  ros::Subscriber sub_points;
+  ros::Subscriber sub_dt_lanes;
+  ros::Subscriber sub_intersect;
+  ros::Subscriber sup_area;
+  ros::Subscriber sub_lines;
+  ros::Subscriber sub_stop_line;
+  ros::Subscriber sub_signals;
+  ros::Subscriber sub_vectors;
+  ros::Subscriber sub_curbs;
+  ros::Subscriber sub_edges;
+  ros::Subscriber sub_way_areas;
+  ros::Subscriber sub_cross_walk;
+  ros::Subscriber sub_nodes;
 
 
-	void callbackGetVMLanes(const vector_map_msgs::LaneArrayConstPtr& msg);
-	void callbackGetVMPoints(const vector_map_msgs::PointArrayConstPtr& msg);
-	void callbackGetVMdtLanes(const vector_map_msgs::DTLaneArrayConstPtr& msg);
-	void callbackGetVMIntersections(const vector_map_msgs::CrossRoadArrayConstPtr& msg);
-	void callbackGetVMAreas(const vector_map_msgs::AreaArrayConstPtr& msg);
-	void callbackGetVMLines(const vector_map_msgs::LineArrayConstPtr& msg);
-	void callbackGetVMStopLines(const vector_map_msgs::StopLineArrayConstPtr& msg);
-	void callbackGetVMSignal(const vector_map_msgs::SignalArrayConstPtr& msg);
-	void callbackGetVMVectors(const vector_map_msgs::VectorArrayConstPtr& msg);
-	void callbackGetVMCurbs(const vector_map_msgs::CurbArrayConstPtr& msg);
-	void callbackGetVMRoadEdges(const vector_map_msgs::RoadEdgeArrayConstPtr& msg);
-	void callbackGetVMWayAreas(const vector_map_msgs::WayAreaArrayConstPtr& msg);
-	void callbackGetVMCrossWalks(const vector_map_msgs::CrossWalkArrayConstPtr& msg);
-	void callbackGetVMNodes(const vector_map_msgs::NodeArrayConstPtr& msg);
+  void callbackGetVMLanes(const vector_map_msgs::LaneArrayConstPtr& msg);
+  void callbackGetVMPoints(const vector_map_msgs::PointArrayConstPtr& msg);
+  void callbackGetVMdtLanes(const vector_map_msgs::DTLaneArrayConstPtr& msg);
+  void callbackGetVMIntersections(const vector_map_msgs::CrossRoadArrayConstPtr& msg);
+  void callbackGetVMAreas(const vector_map_msgs::AreaArrayConstPtr& msg);
+  void callbackGetVMLines(const vector_map_msgs::LineArrayConstPtr& msg);
+  void callbackGetVMStopLines(const vector_map_msgs::StopLineArrayConstPtr& msg);
+  void callbackGetVMSignal(const vector_map_msgs::SignalArrayConstPtr& msg);
+  void callbackGetVMVectors(const vector_map_msgs::VectorArrayConstPtr& msg);
+  void callbackGetVMCurbs(const vector_map_msgs::CurbArrayConstPtr& msg);
+  void callbackGetVMRoadEdges(const vector_map_msgs::RoadEdgeArrayConstPtr& msg);
+  void callbackGetVMWayAreas(const vector_map_msgs::WayAreaArrayConstPtr& msg);
+  void callbackGetVMCrossWalks(const vector_map_msgs::CrossWalkArrayConstPtr& msg);
+  void callbackGetVMNodes(const vector_map_msgs::NodeArrayConstPtr& msg);
 
 
 public:
-	Vector2OP();
-	virtual ~Vector2OP();
-	void MainLoop();
+  Vector2OP();
+  virtual ~Vector2OP();
+  void MainLoop();
 };
 
 }

@@ -20,16 +20,16 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_common_params");
+  ros::init(argc, argv, "op_common_params");
 
-	UtilityHNS::DataRW::CreateLoggingFolder();
+  UtilityHNS::DataRW::CreateLoggingFolder();
 
-	ros::NodeHandle nh;
-	ros::Rate loop_rate(1);
-	while (ros::ok())
-	{
-		ros::spinOnce();
-		loop_rate.sleep();
-	}
-	return 0;
+  ros::NodeHandle nh;
+  ros::Rate loop_rate(1);
+  while (ros::ok())
+  {
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+  return 0;
 }

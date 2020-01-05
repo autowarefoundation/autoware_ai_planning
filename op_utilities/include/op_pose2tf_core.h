@@ -34,16 +34,16 @@ class PoseToTF
 
 protected:
 
-	ros::Subscriber sub_ndt_pose;
-	ros::Publisher pub_reset_time;
-	ros::NodeHandle nh;
+  ros::Subscriber sub_ndt_pose;
+  ros::Publisher pub_reset_time;
+  ros::NodeHandle nh;
 
-	void callbackGetPose(const geometry_msgs::PoseStampedConstPtr &msg);
+  void callbackGetPose(const geometry_msgs::PoseStampedConstPtr &msg);
 
 public:
-	PoseToTF();
-	virtual ~PoseToTF();
-	void MainLoop();
+  PoseToTF();
+  virtual ~PoseToTF();
+  void MainLoop();
 };
 
 }

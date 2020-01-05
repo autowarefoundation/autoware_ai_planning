@@ -1,31 +1,22 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(twist_gate)
 
+find_package(autoware_build_flags REQUIRED)
 find_package(
   catkin REQUIRED COMPONENTS
-    autoware_build_flags
     autoware_config_msgs
     autoware_health_checker
     autoware_msgs
     geometry_msgs
+    ros_observer
     roscpp
-    rostest
-    rosunit
     roslint
     std_msgs
     tablet_socket_msgs
-    ros_observer
 )
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS
-    autoware_config_msgs
-    autoware_health_checker
-    autoware_msgs
-    geometry_msgs
-    std_msgs
-    tablet_socket_msgs
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")

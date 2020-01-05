@@ -638,7 +638,7 @@ int main(int argc, char **argv)
           if(curvature.success==TRUE)
           { 
             std_msgs::Float64MultiArray spline;
-  	        spline.data.clear();
+            spline.data.clear();
 
             for(int i = 0; i < 6;i++)
             {

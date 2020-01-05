@@ -23,8 +23,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_behavior_selector");
-	BehaviorGeneratorNS::BehaviorGen beh_gen;
-	beh_gen.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_behavior_selector");
+  BehaviorGeneratorNS::BehaviorGen beh_gen;
+  beh_gen.MainLoop();
+  return 0;
 }

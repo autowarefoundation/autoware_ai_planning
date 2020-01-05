@@ -4,16 +4,16 @@ project(op_utilities)
 find_package(autoware_build_flags REQUIRED)
 
 find_package(
-  catkin REQUIRED COMPONENTS		
-    roscpp
+  catkin REQUIRED COMPONENTS    
     autoware_msgs
-    geometry_msgs  	
+    geometry_msgs    
     map_file
     op_planner
     op_ros_helpers
     op_utility
     pcl_conversions
     rosbag
+    roscpp
     vector_map_msgs
 )
 
@@ -29,15 +29,6 @@ find_package(Threads REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES 
-  CATKIN_DEPENDS
-    geometry_msgs
-    map_file
-    op_planner
-    op_ros_helpers
-    op_utility
-    pcl_conversions
-    roscpp
-    vector_map_msgs
 )
 
 include_directories(

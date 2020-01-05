@@ -19,32 +19,14 @@ find_package(
   lanelet2_extension
   roscpp
   roslint
-  rostest
-  rosunit
   state_machine_lib
   std_msgs
   tf
   vector_map
   vector_map_msgs
-  vector_map_msgs
 )
 
-catkin_package(
-  CATKIN_DEPENDS
-    amathutils_lib
-    autoware_config_msgs
-    autoware_msgs
-    geometry_msgs
-    jsk_recognition_msgs
-    jsk_rviz_plugins
-    lanelet2_extension
-    roscpp
-    state_machine_lib
-    std_msgs
-    tf
-    vector_map
-    vector_map_msgs
-)
+catkin_package()
 
 set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
 roslint_cpp(test/src/test_node_lanelet2_functions.cpp)

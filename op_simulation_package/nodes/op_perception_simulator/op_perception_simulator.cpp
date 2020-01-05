@@ -19,8 +19,8 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "op_perception_simulator");
-	PerceptionSimulatorNS::OpenPlannerSimulatorPerception  detector;
-	detector.MainLoop();
-	return 0;
+  ros::init(argc, argv, "op_perception_simulator");
+  PerceptionSimulatorNS::OpenPlannerSimulatorPerception  detector;
+  detector.MainLoop();
+  return 0;
 }

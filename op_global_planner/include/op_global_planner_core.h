@@ -62,28 +62,28 @@ namespace GlobalPlanningNS
 class WayPlannerParams
 {
 public:
-	std::string KmlMapPath;
-	bool bEnableSmoothing;
-	bool bEnableLaneChange;
-	bool bEnableHMI;
-	bool bEnableRvizInput;
-	bool bEnableReplanning;
-	double pathDensity;
-	PlannerHNS::MAP_SOURCE_TYPE	mapSource;
-	bool bEnableDynamicMapUpdate;
+  std::string KmlMapPath;
+  bool bEnableSmoothing;
+  bool bEnableLaneChange;
+  bool bEnableHMI;
+  bool bEnableRvizInput;
+  bool bEnableReplanning;
+  double pathDensity;
+  PlannerHNS::MAP_SOURCE_TYPE  mapSource;
+  bool bEnableDynamicMapUpdate;
 
 
-	WayPlannerParams()
-	{
-	    bEnableDynamicMapUpdate = false;
-		bEnableReplanning = false;
-		bEnableHMI = false;
-		bEnableSmoothing = false;
-		bEnableLaneChange = false;
-		bEnableRvizInput = true;
-		pathDensity = 0.5;
-		mapSource = PlannerHNS::MAP_KML_FILE;
-	}
+  WayPlannerParams()
+  {
+      bEnableDynamicMapUpdate = false;
+    bEnableReplanning = false;
+    bEnableHMI = false;
+    bEnableSmoothing = false;
+    bEnableLaneChange = false;
+    bEnableRvizInput = true;
+    pathDensity = 0.5;
+    mapSource = PlannerHNS::MAP_KML_FILE;
+  }
 };
 
 
@@ -91,44 +91,44 @@ class GlobalPlanner
 {
 
 public:
-	int m_iCurrentGoalIndex;
+  int m_iCurrentGoalIndex;
 protected:
 
-	WayPlannerParams m_params;
-	PlannerHNS::WayPoint m_CurrentPose;
-	std::vector<PlannerHNS::WayPoint> m_GoalsPos;
-	geometry_msgs::Pose m_OriginPos;
-	PlannerHNS::VehicleState m_VehicleState;
-	std::vector<int> m_GridMapIntType;
-	std::vector<std::pair<std::vector<PlannerHNS::WayPoint*> , timespec> > m_ModifiedMapItemsTimes;
-	timespec m_ReplnningTimer;
+  WayPlannerParams m_params;
+  PlannerHNS::WayPoint m_CurrentPose;
+  std::vector<PlannerHNS::WayPoint> m_GoalsPos;
+  geometry_msgs::Pose m_OriginPos;
+  PlannerHNS::VehicleState m_VehicleState;
+  std::vector<int> m_GridMapIntType;
+  std::vector<std::pair<std::vector<PlannerHNS::WayPoint*> , timespec> > m_ModifiedMapItemsTimes;
+  timespec m_ReplnningTimer;
 
-	int m_GlobalPathID;
+  int m_GlobalPathID;
 
-	bool m_bFirstStart;
+  bool m_bFirstStart;
 
-	ros::NodeHandle nh;
+  ros::NodeHandle nh;
 
-	ros::Publisher pub_MapRviz;
-	ros::Publisher pub_Paths;
-	ros::Publisher pub_PathsRviz;
-	ros::Publisher pub_TrafficInfo;
-	//ros::Publisher pub_TrafficInfoRviz;
-	//ros::Publisher pub_StartPointRviz;
-	//ros::Publisher pub_GoalPointRviz;
-	//ros::Publisher pub_NodesListRviz;
-	ros::Publisher pub_GoalsListRviz;
+  ros::Publisher pub_MapRviz;
+  ros::Publisher pub_Paths;
+  ros::Publisher pub_PathsRviz;
+  ros::Publisher pub_TrafficInfo;
+  //ros::Publisher pub_TrafficInfoRviz;
+  //ros::Publisher pub_StartPointRviz;
+  //ros::Publisher pub_GoalPointRviz;
+  //ros::Publisher pub_NodesListRviz;
+  ros::Publisher pub_GoalsListRviz;
 
-	ros::Subscriber sub_robot_odom;
-	ros::Subscriber sub_start_pose;
-	ros::Subscriber sub_goal_pose;
-	ros::Subscriber sub_current_pose;
-	ros::Subscriber sub_current_velocity;
-	ros::Subscriber sub_can_info;
-	ros::Subscriber sub_road_status_occupancy;
+  ros::Subscriber sub_robot_odom;
+  ros::Subscriber sub_start_pose;
+  ros::Subscriber sub_goal_pose;
+  ros::Subscriber sub_current_pose;
+  ros::Subscriber sub_current_velocity;
+  ros::Subscriber sub_can_info;
+  ros::Subscriber sub_road_status_occupancy;
 
 public:
-	GlobalPlanner();
+  GlobalPlanner();
   ~GlobalPlanner();
   void MainLoop();
 
@@ -147,53 +147,53 @@ private:
   void callbackGetRoadStatusOccupancyGrid(const nav_msgs::OccupancyGridConstPtr& msg);
 
   protected:
-  	PlannerHNS::RoadNetwork m_Map;
-  	bool	m_bKmlMap;
-  	PlannerHNS::PlannerH m_PlannerH;
-  	std::vector<std::vector<PlannerHNS::WayPoint> > m_GeneratedTotalPaths;
+    PlannerHNS::RoadNetwork m_Map;
+    bool  m_bKmlMap;
+    PlannerHNS::PlannerH m_PlannerH;
+    std::vector<std::vector<PlannerHNS::WayPoint> > m_GeneratedTotalPaths;
 
-  	bool GenerateGlobalPlan(PlannerHNS::WayPoint& startPoint, PlannerHNS::WayPoint& goalPoint, std::vector<std::vector<PlannerHNS::WayPoint> >& generatedTotalPaths);
-  	void VisualizeAndSend(const std::vector<std::vector<PlannerHNS::WayPoint> > generatedTotalPaths);
-  	void VisualizeDestinations(std::vector<PlannerHNS::WayPoint>& destinations, const int& iSelected);
-  	void SaveSimulationData();
-  	int LoadSimulationData();
-  	void ClearOldCostFromMap();
-
-
-  	//Mapping Section
-
-  	UtilityHNS::MapRaw m_MapRaw;
-
-	ros::Subscriber sub_lanes;
-	ros::Subscriber sub_points;
-	ros::Subscriber sub_dt_lanes;
-	ros::Subscriber sub_intersect;
-	ros::Subscriber sup_area;
-	ros::Subscriber sub_lines;
-	ros::Subscriber sub_stop_line;
-	ros::Subscriber sub_signals;
-	ros::Subscriber sub_vectors;
-	ros::Subscriber sub_curbs;
-	ros::Subscriber sub_edges;
-	ros::Subscriber sub_way_areas;
-	ros::Subscriber sub_cross_walk;
-	ros::Subscriber sub_nodes;
+    bool GenerateGlobalPlan(PlannerHNS::WayPoint& startPoint, PlannerHNS::WayPoint& goalPoint, std::vector<std::vector<PlannerHNS::WayPoint> >& generatedTotalPaths);
+    void VisualizeAndSend(const std::vector<std::vector<PlannerHNS::WayPoint> > generatedTotalPaths);
+    void VisualizeDestinations(std::vector<PlannerHNS::WayPoint>& destinations, const int& iSelected);
+    void SaveSimulationData();
+    int LoadSimulationData();
+    void ClearOldCostFromMap();
 
 
-	void callbackGetVMLanes(const vector_map_msgs::LaneArray& msg);
-	void callbackGetVMPoints(const vector_map_msgs::PointArray& msg);
-	void callbackGetVMdtLanes(const vector_map_msgs::DTLaneArray& msg);
-	void callbackGetVMIntersections(const vector_map_msgs::CrossRoadArray& msg);
-	void callbackGetVMAreas(const vector_map_msgs::AreaArray& msg);
-	void callbackGetVMLines(const vector_map_msgs::LineArray& msg);
-	void callbackGetVMStopLines(const vector_map_msgs::StopLineArray& msg);
-	void callbackGetVMSignal(const vector_map_msgs::SignalArray& msg);
-	void callbackGetVMVectors(const vector_map_msgs::VectorArray& msg);
-	void callbackGetVMCurbs(const vector_map_msgs::CurbArray& msg);
-	void callbackGetVMRoadEdges(const vector_map_msgs::RoadEdgeArray& msg);
-	void callbackGetVMWayAreas(const vector_map_msgs::WayAreaArray& msg);
-	void callbackGetVMCrossWalks(const vector_map_msgs::CrossWalkArray& msg);
-	void callbackGetVMNodes(const vector_map_msgs::NodeArray& msg);
+    //Mapping Section
+
+    UtilityHNS::MapRaw m_MapRaw;
+
+  ros::Subscriber sub_lanes;
+  ros::Subscriber sub_points;
+  ros::Subscriber sub_dt_lanes;
+  ros::Subscriber sub_intersect;
+  ros::Subscriber sup_area;
+  ros::Subscriber sub_lines;
+  ros::Subscriber sub_stop_line;
+  ros::Subscriber sub_signals;
+  ros::Subscriber sub_vectors;
+  ros::Subscriber sub_curbs;
+  ros::Subscriber sub_edges;
+  ros::Subscriber sub_way_areas;
+  ros::Subscriber sub_cross_walk;
+  ros::Subscriber sub_nodes;
+
+
+  void callbackGetVMLanes(const vector_map_msgs::LaneArray& msg);
+  void callbackGetVMPoints(const vector_map_msgs::PointArray& msg);
+  void callbackGetVMdtLanes(const vector_map_msgs::DTLaneArray& msg);
+  void callbackGetVMIntersections(const vector_map_msgs::CrossRoadArray& msg);
+  void callbackGetVMAreas(const vector_map_msgs::AreaArray& msg);
+  void callbackGetVMLines(const vector_map_msgs::LineArray& msg);
+  void callbackGetVMStopLines(const vector_map_msgs::StopLineArray& msg);
+  void callbackGetVMSignal(const vector_map_msgs::SignalArray& msg);
+  void callbackGetVMVectors(const vector_map_msgs::VectorArray& msg);
+  void callbackGetVMCurbs(const vector_map_msgs::CurbArray& msg);
+  void callbackGetVMRoadEdges(const vector_map_msgs::RoadEdgeArray& msg);
+  void callbackGetVMWayAreas(const vector_map_msgs::WayAreaArray& msg);
+  void callbackGetVMCrossWalks(const vector_map_msgs::CrossWalkArray& msg);
+  void callbackGetVMNodes(const vector_map_msgs::NodeArray& msg);
 
 };
 

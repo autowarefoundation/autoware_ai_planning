@@ -3,7 +3,6 @@ project(dp_planner)
 
 find_package(autoware_build_flags REQUIRED)
 
-find_package(vector_map_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 
 find_package(
@@ -26,21 +25,6 @@ find_package(
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS
-    autoware_can_msgs
-    geometry_msgs
-    jsk_recognition_msgs
-    libwaypoint_follower
-    map_file
-    op_planner
-    op_simu
-    op_utility
-    pcl_conversions
-    pcl_ros
-    roscpp
-    sensor_msgs
-    tf
-    vector_map_msgs
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall -Wno-unused-result -DROS ${CMAKE_CXX_FLAGS}")

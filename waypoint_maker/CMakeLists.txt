@@ -7,6 +7,7 @@ find_package(
   catkin REQUIRED COMPONENTS
     amathutils_lib
     autoware_msgs
+    autoware_config_msgs
     geometry_msgs
     gnss
     lane_planner
@@ -20,19 +21,7 @@ find_package(
 
 find_package(Boost REQUIRED)
 
-catkin_package(
-  CATKIN_DEPENDS
-    amathutils_lib
-    autoware_msgs
-    geometry_msgs
-    gnss
-    lane_planner
-    libwaypoint_follower
-    nav_msgs
-    std_msgs
-    tf
-    vector_map
-)
+catkin_package()
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 

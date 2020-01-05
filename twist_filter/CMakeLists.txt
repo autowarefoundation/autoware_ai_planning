@@ -10,21 +10,11 @@ find_package(
     autoware_msgs
     geometry_msgs
     roscpp
-    rostest
-    std_msgs
     roslint
+    std_msgs
 )
 
-catkin_package(
-  INCLUDE_DIRS
-  CATKIN_DEPENDS
-    autoware_config_msgs
-    autoware_health_checker
-    autoware_msgs
-    geometry_msgs
-    roscpp
-    std_msgs
-)
+catkin_package()
 
 set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
 roslint_cpp()
@@ -52,6 +42,5 @@ install(
 )
 
 if (CATKIN_ENABLE_TESTING)
-  find_package(rostest REQUIRED)
   roslint_add_test()
 endif ()

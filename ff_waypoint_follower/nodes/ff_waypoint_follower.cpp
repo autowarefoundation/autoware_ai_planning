@@ -18,8 +18,8 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "ff_waypoint_follower");
-	FFSteerControlNS::FFSteerControl controller_x;
-	controller_x.PlannerMainLoop();
-	return 0;
+  ros::init(argc, argv, "ff_waypoint_follower");
+  FFSteerControlNS::FFSteerControl controller_x;
+  controller_x.PlannerMainLoop();
+  return 0;
 }

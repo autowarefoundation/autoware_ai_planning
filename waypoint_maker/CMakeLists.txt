@@ -15,6 +15,7 @@ find_package(
     nav_msgs
     roscpp
     std_msgs
+    tablet_socket_msgs
     tf
     vector_map
 )

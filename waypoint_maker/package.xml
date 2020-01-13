@@ -19,6 +19,7 @@
   <depend>nav_msgs</depend>
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
+  <depend>tablet_socket_msgs</depend>
   <depend>tf</depend>
   <depend>vector_map</depend>
 </package>

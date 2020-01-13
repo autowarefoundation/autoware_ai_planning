@@ -6,6 +6,7 @@ find_package(autoware_build_flags REQUIRED)
 find_package(
   catkin REQUIRED COMPONENTS
     autoware_can_msgs
+    autoware_config_msgs
     gnss
     libwaypoint_follower
     pcl_conversions

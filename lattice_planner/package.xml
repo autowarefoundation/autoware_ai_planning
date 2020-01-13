@@ -11,6 +11,7 @@
 
   <depend>armadillo</depend>
   <depend>autoware_can_msgs</depend>
+  <depend>autoware_config_msgs</depend>
   <depend>gnss</depend>
   <depend>pcl_conversions</depend>
   <depend>pcl_ros</depend>

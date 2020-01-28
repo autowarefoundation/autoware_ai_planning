@@ -192,7 +192,7 @@ void VelocitySetPath::initializeNewWaypoints()
 double VelocitySetPath::calcInterval(const int begin, const int end) const
 {
   // check index
-  if (begin < 0 || begin >= getPrevWaypointsSize() || end < 0 || end >= getPrevWaypointsSize() || begin >= end)
+  if (begin < 0 || begin >= getPrevWaypointsSize() || end < 0 || end >= getPrevWaypointsSize() || begin > end)
   {
     ROS_WARN_THROTTLE(1, "Invalid input index range");
     return 0.0;

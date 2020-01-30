@@ -25,11 +25,11 @@ namespace lane_planner
 LaneSelectNode::LaneSelectNode()
   : private_nh_("~")
   , lane_array_id_(-1)
-  , prev_lane_array_id_(-1)
   , current_lane_idx_(-1)
   , prev_lane_idx_(-1)
   , right_lane_idx_(-1)
   , left_lane_idx_(-1)
+  , is_new_lane_array_(false)
   , is_lane_array_subscribed_(false)
   , is_current_pose_subscribed_(false)
   , is_current_velocity_subscribed_(false)
@@ -151,11 +151,11 @@ void LaneSelectNode::processing(const ros::TimerEvent& e)
     updateChangeFlag();
     createLaneForChange();
 
-    if (prev_lane_array_id_ != lane_array_id_ || prev_lane_idx_ != current_lane_idx_)
+    if (is_new_lane_array_ || prev_lane_idx_ != current_lane_idx_)
     {
       publishLane(std::get<0>(tuple_vec_.at(current_lane_idx_)));
-      prev_lane_array_id_ = lane_array_id_;
       prev_lane_idx_ = current_lane_idx_;
+      is_new_lane_array_ = false;
     }
     publishClosestWaypoint(std::get<1>(tuple_vec_.at(current_lane_idx_)));
     publishChangeFlag(std::get<2>(tuple_vec_.at(current_lane_idx_)));
@@ -619,6 +619,7 @@ void LaneSelectNode::callbackFromLaneArray(const autoware_msgs::LaneArrayConstPt
   current_lane_idx_ = -1;
   right_lane_idx_ = -1;
   left_lane_idx_ = -1;
+  is_new_lane_array_ = true;
   is_lane_array_subscribed_ = true;
 }
 

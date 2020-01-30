@@ -130,6 +130,11 @@ void VelocitySetPath::avoidSuddenDeceleration(double velocity_change_limit, doub
     return;
 
   const double& closest_vel = new_waypoints_.waypoints[closest_waypoint].twist.twist.linear.x;
+
+  // if accelerating, do not modify the speed profile.
+  if ((current_vel_ >= 0.0 && current_vel_ <= closest_vel) || (current_vel_ < 0.0 && current_vel_ > closest_vel))
+    return;
+
   // not avoid braking
   if (std::abs(current_vel_ - closest_vel) < velocity_change_limit)
     return;

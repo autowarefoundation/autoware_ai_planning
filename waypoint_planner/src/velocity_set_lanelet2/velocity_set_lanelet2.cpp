@@ -629,7 +629,7 @@ int main(int argc, char** argv)
 {
   g_loaded_lanelet_map = false;
 
-  ros::init(argc, argv, "lanelet_vs_node");
+  ros::init(argc, argv, "velocity_set");
   ros::NodeHandle rosnode;
 
   ros::NodeHandle private_rosnode("~");

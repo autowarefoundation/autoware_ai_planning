@@ -432,7 +432,7 @@ int main(int argc, char** argv)
 {
   g_loaded_lanelet_map = false;
 
-  ros::init(argc, argv, "lane_rule_lanelet2");
+  ros::init(argc, argv, "lane_rule");
   ros::NodeHandle rosnode;
   ros::NodeHandle pnh("~");
 

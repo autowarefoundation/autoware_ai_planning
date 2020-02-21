@@ -20,8 +20,6 @@ catkin_package(
   INCLUDE_DIRS include
 )
 
-SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
-
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}

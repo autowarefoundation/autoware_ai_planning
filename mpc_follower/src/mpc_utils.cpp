@@ -468,7 +468,21 @@ bool MPCUtils::calcNearestPoseInterp(const MPCTrajectory &traj, const geometry_m
   q.setRPY(0, 0, nearest_yaw);
   nearest_pose.orientation = tf2::toMsg(q);
   nearest_time = alpha * traj.relative_time[nearest_index] + (1 - alpha) * traj.relative_time[second_nearest_index];
-  min_dist_error = std::sqrt(b_sq - c_sq * alpha * alpha);
+
+  /* calcuate the perpendicular distance from ego position to the line joining
+     2 nearest way points. */
+  auto min_dist_err_sq = b_sq - c_sq * alpha * alpha;
+
+  /* If ego vehicle is very close to or on the line, min_dist_err_sq would be
+     very close to 0, any rounding error in the floating point arithmetic
+     could cause it to become negative. Hence its value is limited to 0
+     in order to perform sqrt. */
+  if (min_dist_err_sq < 0) {
+    min_dist_err_sq = 0;
+  }
+
+  min_dist_error = std::sqrt(min_dist_err_sq);
+
   nearest_yaw_error = amathutils::normalizeRadian(my_yaw - nearest_yaw);
   return true;
 }

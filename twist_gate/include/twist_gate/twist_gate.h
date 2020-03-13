@@ -33,6 +33,7 @@
 #include "autoware_msgs/ControlCommandStamped.h"
 #include "autoware_msgs/RemoteCmd.h"
 #include "autoware_msgs/VehicleCmd.h"
+#include "autoware_msgs/Gear.h"
 
 #include "tablet_socket_msgs/gear_cmd.h"
 #include "tablet_socket_msgs/mode_cmd.h"
@@ -40,11 +41,6 @@
 // headers in Autowae Health Checker
 #include <autoware_health_checker/health_checker/health_checker.h>
 
-#define CMD_GEAR_D 1
-#define CMD_GEAR_R 2
-#define CMD_GEAR_B 3
-#define CMD_GEAR_N 4
-#define CMD_GEAR_P 5
 
 class TwistGate
 {
@@ -58,23 +54,23 @@ public:
   ~TwistGate();
 
 private:
-  void check_state();
-  void watchdog_timer();
-  void remote_cmd_callback(const remote_msgs_t::ConstPtr& input_msg);
-  void auto_cmd_twist_cmd_callback(const geometry_msgs::TwistStamped::ConstPtr& input_msg);
-  void mode_cmd_callback(const tablet_socket_msgs::mode_cmd::ConstPtr& input_msg);
-  void gear_cmd_callback(const tablet_socket_msgs::gear_cmd::ConstPtr& input_msg);
-  void accel_cmd_callback(const autoware_msgs::AccelCmd::ConstPtr& input_msg);
-  void steer_cmd_callback(const autoware_msgs::SteerCmd::ConstPtr& input_msg);
-  void brake_cmd_callback(const autoware_msgs::BrakeCmd::ConstPtr& input_msg);
-  void lamp_cmd_callback(const autoware_msgs::LampCmd::ConstPtr& input_msg);
-  void ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg);
-  void state_callback(const std_msgs::StringConstPtr& input_msg);
-  void emergency_cmd_callback(const vehicle_cmd_msg_t::ConstPtr& input_msg);
-  void timer_callback(const ros::TimerEvent& e);
-  void config_callback(const autoware_config_msgs::ConfigTwistFilter& msg);
+  void checkState();
+  void watchdogTimer();
+  void remoteCmdCallback(const remote_msgs_t::ConstPtr& input_msg);
+  void autoCmdTwistCmdCallback(const geometry_msgs::TwistStamped::ConstPtr& input_msg);
+  void modeCmdCallback(const tablet_socket_msgs::mode_cmd::ConstPtr& input_msg);
+  void gearCmdCallback(const tablet_socket_msgs::gear_cmd::ConstPtr& input_msg);
+  void accelCmdCallback(const autoware_msgs::AccelCmd::ConstPtr& input_msg);
+  void steerCmdCallback(const autoware_msgs::SteerCmd::ConstPtr& input_msg);
+  void brakeCmdCallback(const autoware_msgs::BrakeCmd::ConstPtr& input_msg);
+  void lampCmdCallback(const autoware_msgs::LampCmd::ConstPtr& input_msg);
+  void ctrlCmdCallback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg);
+  void stateCallback(const std_msgs::StringConstPtr& input_msg);
+  void emergencyCmdCallback(const vehicle_cmd_msg_t::ConstPtr& input_msg);
+  void timerCallback(const ros::TimerEvent& e);
+  void configCallback(const autoware_config_msgs::ConfigTwistFilter& msg);
 
-  void reset_vehicle_cmd_msg();
+  void resetVehicleCmdMsg();
 
   // spinOnce for test
   void spinOnce() { ros::spinOnce(); }

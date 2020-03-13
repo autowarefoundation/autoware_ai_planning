@@ -50,22 +50,22 @@ TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_n
   health_checker_ptr_ = std::make_shared<autoware_health_checker::HealthChecker>(nh_, private_nh_);
   control_command_pub_ = nh_.advertise<std_msgs::String>("/ctrl_mode", 1);
   vehicle_cmd_pub_ = nh_.advertise<vehicle_cmd_msg_t>("/vehicle_cmd", 1, true);
-  remote_cmd_sub_ = nh_.subscribe("/remote_cmd", 1, &TwistGate::remote_cmd_callback, this);
-  config_sub_ = nh_.subscribe("config/twist_filter", 1, &TwistGate::config_callback, this);
+  remote_cmd_sub_ = nh_.subscribe("/remote_cmd", 1, &TwistGate::remoteCmdCallback, this);
+  config_sub_ = nh_.subscribe("config/twist_filter", 1, &TwistGate::configCallback, this);
 
-  timer_ = nh_.createTimer(ros::Duration(1.0 / loop_rate_), &TwistGate::timer_callback, this);
+  timer_ = nh_.createTimer(ros::Duration(1.0 / loop_rate_), &TwistGate::timerCallback, this);
 
-  auto_cmd_sub_stdmap_["twist_cmd"] = nh_.subscribe("/twist_cmd", 1, &TwistGate::auto_cmd_twist_cmd_callback, this);
-  auto_cmd_sub_stdmap_["mode_cmd"] = nh_.subscribe("/mode_cmd", 1, &TwistGate::mode_cmd_callback, this);
-  auto_cmd_sub_stdmap_["gear_cmd"] = nh_.subscribe("/gear_cmd", 1, &TwistGate::gear_cmd_callback, this);
-  auto_cmd_sub_stdmap_["accel_cmd"] = nh_.subscribe("/accel_cmd", 1, &TwistGate::accel_cmd_callback, this);
-  auto_cmd_sub_stdmap_["steer_cmd"] = nh_.subscribe("/steer_cmd", 1, &TwistGate::steer_cmd_callback, this);
-  auto_cmd_sub_stdmap_["brake_cmd"] = nh_.subscribe("/brake_cmd", 1, &TwistGate::brake_cmd_callback, this);
-  auto_cmd_sub_stdmap_["lamp_cmd"] = nh_.subscribe("/lamp_cmd", 1, &TwistGate::lamp_cmd_callback, this);
-  auto_cmd_sub_stdmap_["ctrl_cmd"] = nh_.subscribe("/ctrl_cmd", 1, &TwistGate::ctrl_cmd_callback, this);
-  auto_cmd_sub_stdmap_["state"] = nh_.subscribe("/decision_maker/state", 1, &TwistGate::state_callback, this);
+  auto_cmd_sub_stdmap_["twist_cmd"] = nh_.subscribe("/twist_cmd", 1, &TwistGate::autoCmdTwistCmdCallback, this);
+  auto_cmd_sub_stdmap_["mode_cmd"] = nh_.subscribe("/mode_cmd", 1, &TwistGate::modeCmdCallback, this);
+  auto_cmd_sub_stdmap_["gear_cmd"] = nh_.subscribe("/gear_cmd", 1, &TwistGate::gearCmdCallback, this);
+  auto_cmd_sub_stdmap_["accel_cmd"] = nh_.subscribe("/accel_cmd", 1, &TwistGate::accelCmdCallback, this);
+  auto_cmd_sub_stdmap_["steer_cmd"] = nh_.subscribe("/steer_cmd", 1, &TwistGate::steerCmdCallback, this);
+  auto_cmd_sub_stdmap_["brake_cmd"] = nh_.subscribe("/brake_cmd", 1, &TwistGate::brakeCmdCallback, this);
+  auto_cmd_sub_stdmap_["lamp_cmd"] = nh_.subscribe("/lamp_cmd", 1, &TwistGate::lampCmdCallback, this);
+  auto_cmd_sub_stdmap_["ctrl_cmd"] = nh_.subscribe("/ctrl_cmd", 1, &TwistGate::ctrlCmdCallback, this);
+  auto_cmd_sub_stdmap_["state"] = nh_.subscribe("/decision_maker/state", 1, &TwistGate::stateCallback, this);
   auto_cmd_sub_stdmap_["emergency_velocity"] =
-      nh_.subscribe("emergency_velocity", 1, &TwistGate::emergency_cmd_callback, this);
+      nh_.subscribe("emergency_velocity", 1, &TwistGate::emergencyCmdCallback, this);
 
   twist_gate_msg_.header.seq = 0;
   emergency_stop_msg_.data = false;
@@ -75,7 +75,7 @@ TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_n
   remote_cmd_time_ = ros::Time::now();
   emergency_handling_time_ = ros::Time::now();
   state_time_ = ros::Time::now();
-  watchdog_timer_thread_ = std::thread(&TwistGate::watchdog_timer, this);
+  watchdog_timer_thread_ = std::thread(&TwistGate::watchdogTimer, this);
   is_alive = true;
 }
 
@@ -85,12 +85,12 @@ TwistGate::~TwistGate()
   watchdog_timer_thread_.join();
 }
 
-void TwistGate::reset_vehicle_cmd_msg()
+void TwistGate::resetVehicleCmdMsg()
 {
   twist_gate_msg_.twist_cmd.twist.linear.x = 0;
   twist_gate_msg_.twist_cmd.twist.angular.z = 0;
   twist_gate_msg_.mode = 0;
-  twist_gate_msg_.gear = 0;
+  twist_gate_msg_.gear_cmd.gear = autoware_msgs::Gear::NONE;
   twist_gate_msg_.lamp_cmd.l = 0;
   twist_gate_msg_.lamp_cmd.r = 0;
   twist_gate_msg_.accel_cmd.accel = 0;
@@ -101,7 +101,7 @@ void TwistGate::reset_vehicle_cmd_msg()
   twist_gate_msg_.emergency = 0;
 }
 
-void TwistGate::check_state()
+void TwistGate::checkState()
 {
   const double state_msg_timeout = 0.5;
   double state_time_diff = ros::Time::now().toSec() - state_time_.toSec();
@@ -113,7 +113,7 @@ void TwistGate::check_state()
   }
 }
 
-void TwistGate::watchdog_timer()
+void TwistGate::watchdogTimer()
 {
   ShmVitalMonitor shm_vmon("TwistGate", 100);
 
@@ -166,7 +166,7 @@ void TwistGate::watchdog_timer()
   }
 }
 
-void TwistGate::remote_cmd_callback(const remote_msgs_t::ConstPtr& input_msg)
+void TwistGate::remoteCmdCallback(const remote_msgs_t::ConstPtr& input_msg)
 {
   remote_cmd_time_ = ros::Time::now();
   command_mode_ = static_cast<CommandMode>(input_msg->control_mode);
@@ -184,13 +184,13 @@ void TwistGate::remote_cmd_callback(const remote_msgs_t::ConstPtr& input_msg)
     twist_gate_msg_.accel_cmd = input_msg->vehicle_cmd.accel_cmd;
     twist_gate_msg_.brake_cmd = input_msg->vehicle_cmd.brake_cmd;
     twist_gate_msg_.steer_cmd = input_msg->vehicle_cmd.steer_cmd;
-    twist_gate_msg_.gear = input_msg->vehicle_cmd.gear;
+    twist_gate_msg_.gear_cmd.gear = input_msg->vehicle_cmd.gear_cmd.gear;
     twist_gate_msg_.lamp_cmd = input_msg->vehicle_cmd.lamp_cmd;
     twist_gate_msg_.mode = input_msg->vehicle_cmd.mode;
   }
 }
 
-void TwistGate::auto_cmd_twist_cmd_callback(const geometry_msgs::TwistStamped::ConstPtr& input_msg)
+void TwistGate::autoCmdTwistCmdCallback(const geometry_msgs::TwistStamped::ConstPtr& input_msg)
 {
   health_checker_ptr_->CHECK_RATE("topic_rate_twist_cmd_slow", 8, 5, 1, "topic twist_cmd subscribe rate slow.");
   health_checker_ptr_->CHECK_MAX_VALUE("twist_cmd_linear_high", input_msg->twist.linear.x,
@@ -203,18 +203,18 @@ void TwistGate::auto_cmd_twist_cmd_callback(const geometry_msgs::TwistStamped::C
     twist_gate_msg_.header.seq++;
     twist_gate_msg_.twist_cmd.twist = input_msg->twist;
 
-    check_state();
+    checkState();
   }
 }
 
-void TwistGate::mode_cmd_callback(const tablet_socket_msgs::mode_cmd::ConstPtr& input_msg)
+void TwistGate::modeCmdCallback(const tablet_socket_msgs::mode_cmd::ConstPtr& input_msg)
 {
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
     // TODO(unknown): check this if statement
     if (input_msg->mode == -1 || input_msg->mode == 0)
     {
-      reset_vehicle_cmd_msg();
+      resetVehicleCmdMsg();
     }
     twist_gate_msg_.header.frame_id = input_msg->header.frame_id;
     twist_gate_msg_.header.stamp = input_msg->header.stamp;
@@ -223,15 +223,15 @@ void TwistGate::mode_cmd_callback(const tablet_socket_msgs::mode_cmd::ConstPtr& 
   }
 }
 
-void TwistGate::gear_cmd_callback(const tablet_socket_msgs::gear_cmd::ConstPtr& input_msg)
+void TwistGate::gearCmdCallback(const tablet_socket_msgs::gear_cmd::ConstPtr& input_msg)
 {
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
-    twist_gate_msg_.gear = input_msg->gear;
+    twist_gate_msg_.gear_cmd.gear = input_msg->gear;
   }
 }
 
-void TwistGate::accel_cmd_callback(const autoware_msgs::AccelCmd::ConstPtr& input_msg)
+void TwistGate::accelCmdCallback(const autoware_msgs::AccelCmd::ConstPtr& input_msg)
 {
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
@@ -242,7 +242,7 @@ void TwistGate::accel_cmd_callback(const autoware_msgs::AccelCmd::ConstPtr& inpu
   }
 }
 
-void TwistGate::steer_cmd_callback(const autoware_msgs::SteerCmd::ConstPtr& input_msg)
+void TwistGate::steerCmdCallback(const autoware_msgs::SteerCmd::ConstPtr& input_msg)
 {
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
@@ -253,7 +253,7 @@ void TwistGate::steer_cmd_callback(const autoware_msgs::SteerCmd::ConstPtr& inpu
   }
 }
 
-void TwistGate::brake_cmd_callback(const autoware_msgs::BrakeCmd::ConstPtr& input_msg)
+void TwistGate::brakeCmdCallback(const autoware_msgs::BrakeCmd::ConstPtr& input_msg)
 {
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
@@ -264,7 +264,7 @@ void TwistGate::brake_cmd_callback(const autoware_msgs::BrakeCmd::ConstPtr& inpu
   }
 }
 
-void TwistGate::lamp_cmd_callback(const autoware_msgs::LampCmd::ConstPtr& input_msg)
+void TwistGate::lampCmdCallback(const autoware_msgs::LampCmd::ConstPtr& input_msg)
 {
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
@@ -276,7 +276,7 @@ void TwistGate::lamp_cmd_callback(const autoware_msgs::LampCmd::ConstPtr& input_
   }
 }
 
-void TwistGate::ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg)
+void TwistGate::ctrlCmdCallback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg)
 {
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
   {
@@ -285,11 +285,11 @@ void TwistGate::ctrl_cmd_callback(const autoware_msgs::ControlCommandStamped::Co
     twist_gate_msg_.header.seq++;
     twist_gate_msg_.ctrl_cmd = input_msg->cmd;
 
-    check_state();
+    checkState();
   }
 }
 
-void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
+void TwistGate::stateCallback(const std_msgs::StringConstPtr& input_msg)
 {
   state_time_ = ros::Time::now();
   if (command_mode_ == CommandMode::AUTO && !emergency_handling_active_)
@@ -297,12 +297,12 @@ void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
     // Set Parking Gear
     if (input_msg->data.find("WaitOrder") != std::string::npos)
     {
-      twist_gate_msg_.gear = CMD_GEAR_P;
+      twist_gate_msg_.gear_cmd.gear = autoware_msgs::Gear::PARK;
     }
     // Set Drive Gear
     else
     {
-      twist_gate_msg_.gear = CMD_GEAR_D;
+      twist_gate_msg_.gear_cmd.gear = autoware_msgs::Gear::DRIVE;
     }
 
     // get drive state
@@ -324,19 +324,19 @@ void TwistGate::state_callback(const std_msgs::StringConstPtr& input_msg)
   }
 }
 
-void TwistGate::emergency_cmd_callback(const vehicle_cmd_msg_t::ConstPtr& input_msg)
+void TwistGate::emergencyCmdCallback(const vehicle_cmd_msg_t::ConstPtr& input_msg)
 {
   emergency_handling_time_ = ros::Time::now();
   emergency_handling_active_ = true;
   twist_gate_msg_ = *input_msg;
 }
 
-void TwistGate::timer_callback(const ros::TimerEvent& e)
+void TwistGate::timerCallback(const ros::TimerEvent& e)
 {
   vehicle_cmd_pub_.publish(twist_gate_msg_);
 }
 
-void TwistGate::config_callback(const autoware_config_msgs::ConfigTwistFilter& msg)
+void TwistGate::configCallback(const autoware_config_msgs::ConfigTwistFilter& msg)
 {
   use_decision_maker_ = msg.use_decision_maker;
 }

@@ -47,7 +47,7 @@ TEST_F(TwistGateTestSuite, resetVehicelCmd)
   ASSERT_EQ(d_value, msg.twist_cmd.twist.linear.x);
   ASSERT_EQ(d_value, msg.twist_cmd.twist.angular.z);
   ASSERT_EQ(i_value, msg.mode);
-  ASSERT_EQ(i_value, msg.gear);
+  ASSERT_EQ(i_value, msg.gear_cmd.gear);
   ASSERT_EQ(i_value, msg.lamp_cmd.l);
   ASSERT_EQ(i_value, msg.lamp_cmd.r);
   ASSERT_EQ(i_value, msg.accel_cmd.accel);
@@ -63,7 +63,7 @@ TEST_F(TwistGateTestSuite, resetVehicelCmd)
   ASSERT_EQ(0, msg.twist_cmd.twist.linear.x);
   ASSERT_EQ(0, msg.twist_cmd.twist.angular.z);
   ASSERT_EQ(0, msg.mode);
-  ASSERT_EQ(0, msg.gear);
+  ASSERT_EQ(0, msg.gear_cmd.gear);
   ASSERT_EQ(0, msg.lamp_cmd.l);
   ASSERT_EQ(0, msg.lamp_cmd.r);
   ASSERT_EQ(0, msg.accel_cmd.accel);
@@ -124,7 +124,7 @@ TEST_F(TwistGateTestSuite, remoteCmdCallback)
   remote_cmd.vehicle_cmd.accel_cmd.accel = 10;
   remote_cmd.vehicle_cmd.brake_cmd.brake = 20;
   remote_cmd.vehicle_cmd.steer_cmd.steer = 30;
-  remote_cmd.vehicle_cmd.gear = CMD_GEAR_P;
+  remote_cmd.vehicle_cmd.gear_cmd.gear = autoware_msgs::Gear::PARK;
   remote_cmd.vehicle_cmd.lamp_cmd.l = 1;
   remote_cmd.vehicle_cmd.lamp_cmd.r = 1;
   remote_cmd.vehicle_cmd.mode = 6;
@@ -160,8 +160,8 @@ TEST_F(TwistGateTestSuite, remoteCmdCallback)
       , test_obj_.cb_vehicle_cmd.brake_cmd.brake);
   ASSERT_EQ(remote_cmd.vehicle_cmd.steer_cmd.steer
       , test_obj_.cb_vehicle_cmd.steer_cmd.steer);
-  ASSERT_EQ(remote_cmd.vehicle_cmd.gear
-      , test_obj_.cb_vehicle_cmd.gear);
+  ASSERT_EQ(remote_cmd.vehicle_cmd.gear_cmd.gear
+      , test_obj_.cb_vehicle_cmd.gear_cmd.gear);
   ASSERT_EQ(remote_cmd.vehicle_cmd.lamp_cmd.l
       , test_obj_.cb_vehicle_cmd.lamp_cmd.l);
   ASSERT_EQ(remote_cmd.vehicle_cmd.lamp_cmd.r
@@ -189,7 +189,7 @@ TEST_F(TwistGateTestSuite, modeCmdCallback)
 
 TEST_F(TwistGateTestSuite, gearCmdCallback)
 {
-  int gear = CMD_GEAR_D;
+  int gear = autoware_msgs::Gear::DRIVE;
 
   test_obj_.publishGearCmd(gear);
   ros::WallDuration(0.1).sleep();
@@ -201,7 +201,7 @@ TEST_F(TwistGateTestSuite, gearCmdCallback)
   }
 
 
-  ASSERT_EQ(gear, test_obj_.cb_vehicle_cmd.gear);
+  ASSERT_EQ(gear, test_obj_.cb_vehicle_cmd.gear_cmd.gear);
 }
 
 TEST_F(TwistGateTestSuite, accelCmdCallback)
@@ -330,7 +330,7 @@ TEST_F(TwistGateTestSuite, stateCallback)
   ros::spinOnce();
 
   autoware_msgs::VehicleCmd tg_msg = test_obj_.getTwistGateMsg();
-  ASSERT_EQ(CMD_GEAR_P, tg_msg.gear);
+  ASSERT_EQ(autoware_msgs::Gear::PARK, tg_msg.gear_cmd.gear);
   ASSERT_EQ(false, test_obj_.getIsStateDriveFlag());
 
   test_obj_.publishDecisionMakerState("VehicleReady\nDriving\nDrive\n");
@@ -339,7 +339,7 @@ TEST_F(TwistGateTestSuite, stateCallback)
   ros::spinOnce();
 
   tg_msg = test_obj_.getTwistGateMsg();
-  ASSERT_EQ(CMD_GEAR_D, tg_msg.gear);
+  ASSERT_EQ(autoware_msgs::Gear::DRIVE, tg_msg.gear_cmd.gear);
   ASSERT_EQ(true, test_obj_.getIsStateDriveFlag());
 }
 

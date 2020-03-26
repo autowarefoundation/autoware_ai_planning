@@ -171,7 +171,7 @@ int findClosestCrosswalk(const lanelet::ConstLanelets& crosswalks, const int clo
 // return EControl::Keep otherwise
 EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& points,
                             const lanelet::ConstLanelets& closest_crosswalks,
-                            const geometry_msgs::PoseStamped& localizer_pose, const int points_threshold,
+                            const geometry_msgs::Pose localizer_pose, const int points_threshold,
                             ObstaclePoints* obstacle_points)
 {
   for (auto lli = closest_crosswalks.begin(); lli != closest_crosswalks.end(); lli++)
@@ -184,7 +184,7 @@ EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& points,
     {
       geometry_msgs::Point point_geom, transformed_point_geom;
       lanelet::utils::conversion::toGeomMsgPt(point, &point_geom);
-      transformed_point_geom = calcRelativeCoordinate(point_geom, localizer_pose.pose);
+      transformed_point_geom = calcRelativeCoordinate(point_geom, localizer_pose);
       lanelet::BasicPoint2d transformed_point2d(transformed_point_geom.x, transformed_point_geom.y);
       transformed_poly2d.push_back(transformed_point2d);
     }
@@ -202,7 +202,7 @@ EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& points,
         point_temp.x = p.x;
         point_temp.y = p.y;
         point_temp.z = p.z;
-        obstacle_points->setStopPoint(calcAbsoluteCoordinate(point_temp, localizer_pose.pose));
+        obstacle_points->setStopPoint(calcAbsoluteCoordinate(point_temp, localizer_pose));
       }
       if (stop_count > points_threshold)
       {
@@ -219,7 +219,7 @@ EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& points,
 // same as velocity_set.cpp - except for no reference to vector maps or crosswalk
 int detectStopObstacle(const pcl::PointCloud<pcl::PointXYZ>& points, const int closest_waypoint, int detection_waypoint,
                        const autoware_msgs::Lane& lane, const lanelet::ConstLanelets& closest_crosswalks,
-                       double stop_range, double points_threshold, const geometry_msgs::PoseStamped& localizer_pose,
+                       double stop_range, double points_threshold, const geometry_msgs::Pose localizer_pose,
                        ObstaclePoints* obstacle_points, EObstacleType* obstacle_type,
                        const int wpidx_detection_result_by_other_nodes)
 {
@@ -255,7 +255,7 @@ int detectStopObstacle(const pcl::PointCloud<pcl::PointXYZ>& points, const int c
     }
 
     // waypoint seen by localizer
-    geometry_msgs::Point waypoint = calcRelativeCoordinate(lane.waypoints[i].pose.pose.position, localizer_pose.pose);
+    geometry_msgs::Point waypoint = calcRelativeCoordinate(lane.waypoints[i].pose.pose.position, localizer_pose);
     tf::Vector3 tf_waypoint = point2vector(waypoint);
     tf_waypoint.setZ(0);
 
@@ -273,7 +273,7 @@ int detectStopObstacle(const pcl::PointCloud<pcl::PointXYZ>& points, const int c
         point_temp.x = p.x;
         point_temp.y = p.y;
         point_temp.z = p.z;
-        obstacle_points->setStopPoint(calcAbsoluteCoordinate(point_temp, localizer_pose.pose));
+        obstacle_points->setStopPoint(calcAbsoluteCoordinate(point_temp, localizer_pose));
       }
     }
 
@@ -296,7 +296,7 @@ int detectStopObstacle(const pcl::PointCloud<pcl::PointXYZ>& points, const int c
 //  same as velocity_set.cpp - expect for no reference to vector maps
 int detectDecelerateObstacle(const pcl::PointCloud<pcl::PointXYZ>& points, const int closest_waypoint,
                              const autoware_msgs::Lane& lane, const double stop_range, const double deceleration_range,
-                             const double points_threshold, const geometry_msgs::PoseStamped& localizer_pose,
+                             const double points_threshold, const geometry_msgs::Pose localizer_pose,
                              ObstaclePoints* obstacle_points)
 {
   int decelerate_obstacle_waypoint = -1;
@@ -308,7 +308,7 @@ int detectDecelerateObstacle(const pcl::PointCloud<pcl::PointXYZ>& points, const
       break;
 
     // waypoint seen by localizer
-    geometry_msgs::Point waypoint = calcRelativeCoordinate(lane.waypoints[i].pose.pose.position, localizer_pose.pose);
+    geometry_msgs::Point waypoint = calcRelativeCoordinate(lane.waypoints[i].pose.pose.position, localizer_pose);
     tf::Vector3 tf_waypoint = point2vector(waypoint);
     tf_waypoint.setZ(0);
 
@@ -326,7 +326,7 @@ int detectDecelerateObstacle(const pcl::PointCloud<pcl::PointXYZ>& points, const
         point_temp.x = p.x;
         point_temp.y = p.y;
         point_temp.z = p.z;
-        obstacle_points->setDeceleratePoint(calcAbsoluteCoordinate(point_temp, localizer_pose.pose));
+        obstacle_points->setDeceleratePoint(calcAbsoluteCoordinate(point_temp, localizer_pose));
       }
     }
 
@@ -660,14 +660,16 @@ int main(int argc, char** argv)
   // velocity set info subscriber
   ros::Subscriber config_sub = rosnode.subscribe("config/velocity_set", 1, &VelocitySetInfo::configCallback, &vs_info);
   ros::Subscriber points_sub = rosnode.subscribe(points_topic, 1, &VelocitySetInfo::pointsCallback, &vs_info);
-  ros::Subscriber localizer_sub =
-      rosnode.subscribe("localizer_pose", 1, &VelocitySetInfo::localizerPoseCallback, &vs_info);
   ros::Subscriber control_pose_sub =
       rosnode.subscribe("current_pose", 1, &VelocitySetInfo::controlPoseCallback, &vs_info);
   ros::Subscriber detectionresult_sub =
       rosnode.subscribe("state/stopline_wpidx", 1, &VelocitySetInfo::detectionCallback, &vs_info);
 
-  // publisher
+  // TF Listener
+  tf2_ros::Buffer tfBuffer;
+  tf2_ros::TransformListener tfListener(tfBuffer);
+
+    // publisher
   ros::Publisher detection_range_pub = rosnode.advertise<visualization_msgs::MarkerArray>("detection_range", 1);
   ros::Publisher obstacle_pub = rosnode.advertise<visualization_msgs::Marker>("obstacle", 1);
   ros::Publisher obstacle_waypoint_pub = rosnode.advertise<std_msgs::Int32>("obstacle_waypoint", 1, true);
@@ -680,6 +682,19 @@ int main(int argc, char** argv)
   while (ros::ok())
   {
     ros::spinOnce();
+
+    geometry_msgs::TransformStamped map_to_lidar_tf;
+
+    try
+    {
+        map_to_lidar_tf = tfBuffer.lookupTransform("map", "lidar", ros::Time::now(), ros::Duration(2.0));
+        vs_info.setLocalizerPose(&map_to_lidar_tf);
+    }
+    catch(tf2::TransformException &ex)
+    {
+        ROS_WARN("%s", ex.what());
+        continue;
+    }
 
     int closest_waypoint = 0;
 

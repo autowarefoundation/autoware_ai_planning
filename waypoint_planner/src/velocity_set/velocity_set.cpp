@@ -18,6 +18,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <std_msgs/ColorRGBA.h>
 #include <iostream>
+#include <tf2_ros/transform_listener.h>
 
 #include <waypoint_planner/velocity_set/libvelocity_set.h>
 #include <waypoint_planner/velocity_set/velocity_set_info.h>
@@ -211,7 +212,7 @@ void displayDetectionRange(const autoware_msgs::Lane& lane, const CrossWalk& cro
 
 // obstacle detection for crosswalk
 EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, const CrossWalk& crosswalk,
-                            const geometry_msgs::PoseStamped& localizer_pose, const int points_threshold,
+                            const geometry_msgs::Pose localizer_pose, const int points_threshold,
                             ObstaclePoints* obstacle_points)
 {
   int crosswalk_id = crosswalk.getDetectionCrossWalkID();
@@ -222,7 +223,7 @@ EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, co
   {
     for (const auto& p : crosswalk.getDetectionPoints(c_id).points)
     {
-      geometry_msgs::Point detection_point = calcRelativeCoordinate(p, localizer_pose.pose);
+      geometry_msgs::Point detection_point = calcRelativeCoordinate(p, localizer_pose);
       tf::Vector3 detection_vector = point2vector(detection_point);
       detection_vector.setZ(0.0);
 
@@ -238,7 +239,7 @@ EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, co
           point_temp.x = p.x;
           point_temp.y = p.y;
           point_temp.z = p.z;
-          obstacle_points->setStopPoint(calcAbsoluteCoordinate(point_temp, localizer_pose.pose));
+          obstacle_points->setStopPoint(calcAbsoluteCoordinate(point_temp, localizer_pose));
         }
         if (stop_count > points_threshold)
           return EControl::STOP;
@@ -254,7 +255,7 @@ EControl crossWalkDetection(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, co
 
 int detectStopObstacle(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, const int closest_waypoint,
                        const autoware_msgs::Lane& lane, const CrossWalk& crosswalk, double stop_range,
-                       double points_threshold, const geometry_msgs::PoseStamped& localizer_pose,
+                       double points_threshold, const geometry_msgs::Pose localizer_pose,
                        ObstaclePoints* obstacle_points, EObstacleType* obstacle_type,
                        const int wpidx_detection_result_by_other_nodes)
 {
@@ -288,7 +289,7 @@ int detectStopObstacle(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, const i
     }
 
     // waypoint in lidar point cloud frame
-    geometry_msgs::Point waypoint = calcRelativeCoordinate(lane.waypoints[i].pose.pose.position, localizer_pose.pose);
+    geometry_msgs::Point waypoint = calcRelativeCoordinate(lane.waypoints[i].pose.pose.position, localizer_pose);
     tf::Vector3 tf_waypoint = point2vector(waypoint);
     tf_waypoint.setZ(0);
 
@@ -306,7 +307,7 @@ int detectStopObstacle(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, const i
         point_temp.x = p.x;
         point_temp.y = p.y;
         point_temp.z = p.z;
-        obstacle_points->setStopPoint(calcAbsoluteCoordinate(point_temp, localizer_pose.pose));
+        obstacle_points->setStopPoint(calcAbsoluteCoordinate(point_temp, localizer_pose));
       }
     }
 
@@ -326,7 +327,7 @@ int detectStopObstacle(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, const i
 
 int detectDecelerateObstacle(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, const int closest_waypoint,
                              const autoware_msgs::Lane& lane, const double stop_range, const double deceleration_range,
-                             const double points_threshold, const geometry_msgs::PoseStamped& localizer_pose,
+                             const double points_threshold, const geometry_msgs::Pose localizer_pose,
                              ObstaclePoints* obstacle_points)
 {
   int decelerate_obstacle_waypoint = -1;
@@ -334,7 +335,7 @@ int detectDecelerateObstacle(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, c
   for (int i = closest_waypoint; i < closest_waypoint + DECELERATION_SEARCH_DISTANCE && i < static_cast<int>(lane.waypoints.size()); i++)
   {
     // waypoint seen by localizer
-    geometry_msgs::Point waypoint = calcRelativeCoordinate(lane.waypoints[i].pose.pose.position, localizer_pose.pose);
+    geometry_msgs::Point waypoint = calcRelativeCoordinate(lane.waypoints[i].pose.pose.position, localizer_pose);
     tf::Vector3 tf_waypoint = point2vector(waypoint);
     tf_waypoint.setZ(0);
 
@@ -352,7 +353,7 @@ int detectDecelerateObstacle(const pcl::PointCloud<pcl::PointXYZ>& pcl_points, c
         point_temp.x = p.x;
         point_temp.y = p.y;
         point_temp.z = p.z;
-        obstacle_points->setDeceleratePoint(calcAbsoluteCoordinate(point_temp, localizer_pose.pose));
+        obstacle_points->setDeceleratePoint(calcAbsoluteCoordinate(point_temp, localizer_pose));
       }
     }
 
@@ -544,7 +545,6 @@ int main(int argc, char** argv)
   // point clouds subscriber and only points within ROI are kept in callback function.
   ros::Subscriber points_sub = nh.subscribe(points_topic, 1, &VelocitySetInfo::pointsCallback, &vs_info);
   // localizer_pose represents the lidar's pose.
-  ros::Subscriber lidar_pose_sub = nh.subscribe("localizer_pose", 1, &VelocitySetInfo::localizerPoseCallback, &vs_info);
   // current_pose represents the ego-vehicle's pose at the center of rear axle.
   ros::Subscriber control_pose_sub = nh.subscribe("current_pose", 1, &VelocitySetInfo::controlPoseCallback, &vs_info);
   ros::Subscriber detectionresult_sub = nh.subscribe("/state/stopline_wpidx", 1, &VelocitySetInfo::detectionCallback, &vs_info);
@@ -560,6 +560,10 @@ int main(int argc, char** argv)
     ros::Subscriber sub_point = nh.subscribe("vector_map_info/point", 1, &CrossWalk::pointCallback, &crosswalk);
   }
 
+  // TF Listener
+  tf2_ros::Buffer tfBuffer;
+  tf2_ros::TransformListener tfListener(tfBuffer);
+
   // publisher
   ros::Publisher detection_range_markers_pub = nh.advertise<visualization_msgs::MarkerArray>("detection_range", 1);
   ros::Publisher obstacle_marker_pub = nh.advertise<visualization_msgs::Marker>("obstacle", 1);
@@ -571,6 +575,19 @@ int main(int argc, char** argv)
   while (ros::ok())
   {
     ros::spinOnce();
+
+    geometry_msgs::TransformStamped map_to_lidar_tf;
+
+    try
+    {
+        map_to_lidar_tf = tfBuffer.lookupTransform("map", "lidar", ros::Time::now(), ros::Duration(2.0));
+        vs_info.setLocalizerPose(&map_to_lidar_tf);
+    }
+    catch(tf2::TransformException &ex)
+    {
+        ROS_WARN("%s", ex.what());
+        continue;
+    }
 
     // Since the index 0 of safety_waypoints from astar_avoid node holds the closest waypoint, it is set to 0.
     int32_t current_closest_waypoint = 0;

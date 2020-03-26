@@ -110,9 +110,17 @@ void VelocitySetInfo::controlPoseCallback(const geometry_msgs::PoseStampedConstP
     set_pose_ = true;
 }
 
-void VelocitySetInfo::localizerPoseCallback(const geometry_msgs::PoseStampedConstPtr &msg)
+void VelocitySetInfo::setLocalizerPose(geometry_msgs::TransformStamped *map_to_lidar_tf)
 {
-  health_checker_ptr_->NODE_ACTIVATE();
-  health_checker_ptr_->CHECK_RATE("topic_rate_localizer_pose_slow", 8, 5, 1, "topic localizer_pose subscribe rate slow.");
-  localizer_pose_ = *msg;
+    geometry_msgs::Pose lidarPose;
+    geometry_msgs::Point lidarPoint;
+
+    lidarPoint.x = map_to_lidar_tf->transform.translation.x;
+    lidarPoint.y = map_to_lidar_tf->transform.translation.y;
+    lidarPoint.z = map_to_lidar_tf->transform.translation.z;
+
+    lidarPose.position = lidarPoint;
+    lidarPose.orientation = map_to_lidar_tf->transform.rotation;
+
+    localizer_pose_ = lidarPose;
 }

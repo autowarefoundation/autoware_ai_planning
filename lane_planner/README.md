@@ -12,7 +12,8 @@ This package has following nodes.
 
 ### lane_rule_lanelet2
 #### Overview:<br>
-`lane_rule_lanelet2` detects stoplines that intersect with waypoints, and changes velocity of waypoints so that vehicle can stop before stopline when traffic_light is red. (It actually publishes both green_waypoints and red_waypoints, and `lane_stop` will choose which waypoint to use according to the recognized traffic_light color)
+`lane_rule_lanelet2` detects stoplines asociated with traffic lights that intersect with waypoints, and changes velocity of waypoints so that vehicle can stop before stopline when traffic_light is red. (It actually publishes both green_waypoints and red_waypoints, and `lane_stop` will choose which waypoint to use according to the recognized traffic_light color).
+Stop sign stoplines are not considered.
 
 #### Subscribed Topics
 |topic| type | Description|

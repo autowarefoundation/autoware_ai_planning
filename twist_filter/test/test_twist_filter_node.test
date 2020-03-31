@@ -1,0 +1,5 @@
+<launch>
+
+  <test test-name="test_twist_filter_node" pkg="twist_filter" type="test_twist_filter_node" name="test" time-limit="300.0"/>
+
+</launch>

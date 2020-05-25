@@ -33,6 +33,7 @@ double PurePursuit::calcCurvature(const geometry_msgs::Point& target) const
   double denominator = pt.x * pt.x + pt.y * pt.y;
   double numerator = 2.0 * pt.y;
   if (denominator != 0.0)
+  {
     kappa = numerator / denominator;
   }
   else

@@ -97,7 +97,7 @@ void WaypointReplanner::replanLaneWaypointVel(autoware_msgs::Lane& lane)
     // set minimum speed for each waypoint except for the last waypoint. 
     raiseVelocityByRange(0, last - 1, config_.velocity_min, lane);
     // smooth it out again
-    limitVelocityByRange(0, 0, config_.velocity_min, lane);
+    limitVelocityByRange(0, last, config_.velocity_max, lane);
   }
 
   if (dir == LaneDirection::Backward)

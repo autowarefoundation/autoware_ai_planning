@@ -95,14 +95,14 @@ public:
 private:
   // constant
   static constexpr double RADIUS_MAX_ = 9e10;
-  static constexpr double KAPPA_MIN_ = 1.0/9e10;
+  static constexpr double KAPPA_MIN_ = 1.0 / 9e10;
 
   // variables
-  bool is_linear_interpolation_{false};
-  int next_waypoint_number_ {-1};
-  double lookahead_distance_{0.0};
-  double minimum_lookahead_distance_{6.0};
-  double current_linear_velocity_{0.0};
+  bool is_linear_interpolation_{ false };
+  int next_waypoint_number_{ -1 };
+  double lookahead_distance_{ 0.0 };
+  double minimum_lookahead_distance_{ 6.0 };
+  double current_linear_velocity_{ 0.0 };
   geometry_msgs::Pose current_pose_{};
   geometry_msgs::Point next_target_position_{};
   std::vector<autoware_msgs::Waypoint> current_waypoints_{};

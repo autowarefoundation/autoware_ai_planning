@@ -1,0 +1,24 @@
+<package format="2">
+  <name>ll2_global_planner</name>
+  <version>0.0.1</version>
+  <description>Global planner for generating autoware routes based on Lanelet2 maps</description>
+  <author email="ian.colwell@hexagon.com">Ian Colwell</author>
+  <maintainer email="ian.colwell@hexagon.com">Ian Colwell</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>autoware_lanelet2_msgs</depend>
+  <depend>autoware_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>lanelet2_extension</depend>
+  <depend>nodelet</depend>
+  <depend>roscpp</depend>
+  <depend>roslib</depend>
+  <depend>roslint</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2</depend>
+
+  <export>
+    <nodelet plugin="${prefix}/nodelets.xml"/>
+  </export>
+</package>

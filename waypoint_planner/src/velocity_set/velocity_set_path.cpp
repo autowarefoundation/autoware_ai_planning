@@ -177,10 +177,9 @@ void VelocitySetPath::changeWaypointsForStopping(int stop_waypoint, int obstacle
     updated_waypoints_.waypoints[index].twist.twist.linear.x = sgn * std::min(std::abs(prev_vel), changed_vel);
   }
 
-  // fill velocity with 0 for stopping
-  for (int i = stop_waypoint; i <= obstacle_waypoint; i++)
-  {
-    updated_waypoints_.waypoints[i].twist.twist.linear.x = 0;
+  // fill velocity with 0 for stopping waypoint and the rest.
+  for(auto it = updated_waypoints_.waypoints.begin() + stop_waypoint; it != updated_waypoints_.waypoints.end(); ++it) {
+    it->twist.twist.linear.x = 0.0;
   }
 }
 

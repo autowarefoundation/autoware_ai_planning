@@ -324,6 +324,10 @@ void AstarAvoid::mergeAvoidWaypoints(const nav_msgs::Path& path, int& end_of_avo
 
   // add waypoints before start index
   int closest_waypoint_index = getLocalClosestWaypoint(current_waypoints, current_pose_global_.pose, closest_search_size_);
+  if (closest_waypoint_index == -1) {
+    return;
+  }
+
   for (int i = 0; i < closest_waypoint_index; ++i)
   {
     avoid_waypoints_.waypoints.push_back(current_waypoints.waypoints.at(i));
@@ -415,28 +419,33 @@ tf::Transform AstarAvoid::getTransform(const std::string& from, const std::strin
   return stf;
 }
 
-int AstarAvoid::getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose, const int& search_size)
+int AstarAvoid::getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose,
+                                        const int& search_size)
 {
-  static autoware_msgs::Lane local_waypoints;  // around self-vehicle
-  const int prev_index = closest_local_index_;
-
   // search in all waypoints if lane_select judges you're not on waypoints
   if (closest_local_index_ == -1)
   {
     closest_local_index_ = getClosestWaypoint(waypoints, pose);
   }
-  // search in limited area based on prev_index
   else
   {
-    // get neighborhood waypoints around prev_index
-    int start_index = std::max(0, prev_index - search_size / 2);
-    int end_index = std::min(prev_index + search_size / 2, (int)waypoints.waypoints.size());
-    auto start_itr = waypoints.waypoints.begin() + start_index;
-    auto end_itr = waypoints.waypoints.begin() + end_index;
-    local_waypoints.waypoints = std::vector<autoware_msgs::Waypoint>(start_itr, end_itr);
+    // search within a limited area around closest_local_index_ found in the previous loop.
+    const int start_index = std::max(0, closest_local_index_ - search_size / 2);
+    const int end_index = std::min(closest_local_index_ + search_size / 2, static_cast<int>(waypoints.waypoints.size()));
 
-    // get closest waypoint in neighborhood waypoints
-    closest_local_index_ = start_index + getClosestWaypoint(local_waypoints, pose);
+    // consists of search_size/2 waypoints before and after ego-vehicle.
+    autoware_msgs::Lane local_waypoints;
+    local_waypoints.waypoints = std::vector<autoware_msgs::Waypoint>(waypoints.waypoints.begin() + start_index,
+                                                                     waypoints.waypoints.begin() + end_index);
+    const int closest_local_index = getClosestWaypoint(local_waypoints, pose);
+    if (closest_local_index != -1)
+    {
+      closest_local_index_ += start_index;
+    }
+    else
+    {
+      closest_local_index_ = -1;
+    }
   }
 
   return closest_local_index_;

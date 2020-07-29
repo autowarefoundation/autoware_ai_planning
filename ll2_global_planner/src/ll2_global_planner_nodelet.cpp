@@ -14,6 +14,8 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_msgs/LaneArray.h>
 
+#include <lanelet2_core/primitives/GPSPoint.h>
+#include <lanelet2_extension/projection/mgrs_projector.h>
 #include <lanelet2_extension/utility/message_conversion.h>
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_traffic_rules/TrafficRules.h>
@@ -40,6 +42,7 @@ void Ll2GlobalPlannerNl::onInit()
   // Subscribers
   lanelet_sub_ = nh_.subscribe("lanelet_map_bin", 1, &Ll2GlobalPlannerNl::laneletMapCb, this);
   posegoal_sub_ = nh_.subscribe("move_base_simple/goal", 1, &Ll2GlobalPlannerNl::poseGoalCb, this);
+  llh_sub_ = pnh_.subscribe("llh_goal", 1, &Ll2GlobalPlannerNl::llhGoalCb, this);
 }
 
 void Ll2GlobalPlannerNl::loadParams()
@@ -63,16 +66,28 @@ void Ll2GlobalPlannerNl::poseGoalCb(const geometry_msgs::PoseStamped::ConstPtr& 
     return;
   }
 
-  planRoute(pose_msg->pose.position);
+  BasicPoint2d goal_point(pose_msg->pose.position.x, pose_msg->pose.position.y);
+  planRoute(goal_point);
 }
 
-void Ll2GlobalPlannerNl::planRoute(const geometry_msgs::Point& goal_point)
+void Ll2GlobalPlannerNl::llhGoalCb(const sensor_msgs::NavSatFix::ConstPtr& llh_msg)
+{
+  GPSPoint gps_point;
+  gps_point.lat = llh_msg->latitude;
+  gps_point.lon = llh_msg->longitude;
+  gps_point.ele = llh_msg->altitude;
+  projection::MGRSProjector projector;
+  BasicPoint3d goal_point_3d = projector.forward(gps_point);
+  BasicPoint2d goal_point(goal_point_3d.x(), goal_point_3d.y());
+  planRoute(goal_point);
+}
+
+void Ll2GlobalPlannerNl::planRoute(const BasicPoint2d& goal_point)
 {
   const float duplicate_dist_threshold = 0.1;
 
   // Find the nearest lanelet to the goal point
-  BasicPoint2d local_point(goal_point.x, goal_point.y);
-  Lanelet goal_lanelet = getNearestLanelet(local_point);
+  Lanelet goal_lanelet = getNearestLanelet(goal_point);
 
   // Get the current vehicle position
   geometry_msgs::TransformStamped tf_msg;
@@ -186,7 +201,7 @@ void Ll2GlobalPlannerNl::planRoute(const geometry_msgs::Point& goal_point)
     }
 
     // Calculate distance to goal point
-    float goal_dist = std::hypot(std::hypot(goal_point.x - pose.position.x, goal_point.y - pose.position.y), goal_point.z - pose.position.z);
+    float goal_dist = std::hypot(goal_point.x() - pose.position.x, goal_point.y() - pose.position.y);
     if (goal_dist < smallest_goal_dist)
     {
       smallest_goal_dist = goal_dist;

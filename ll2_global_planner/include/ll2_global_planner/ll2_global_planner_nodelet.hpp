@@ -18,7 +18,7 @@
 
 #include <autoware_lanelet2_msgs/MapBin.h>
 #include <geometry_msgs/PoseStamped.h>
-
+#include <sensor_msgs/NavSatFix.h>
 
 namespace ll2_global_planner {
 
@@ -34,10 +34,11 @@ class Ll2GlobalPlannerNl : public nodelet::Nodelet {
   // Subscriber callbacks
   void laneletMapCb(const autoware_lanelet2_msgs::MapBin& map_msg);
   void poseGoalCb(const geometry_msgs::PoseStamped::ConstPtr& pose_msg);
+  void llhGoalCb(const sensor_msgs::NavSatFix::ConstPtr& llh_msg);
 
   // Utility functions
   lanelet::Lanelet getNearestLanelet(const lanelet::BasicPoint2d& point);
-  void planRoute(const geometry_msgs::Point& goal_point);
+  void planRoute(const lanelet::BasicPoint2d& goal_point);
 
   // Nodehandles, both public and private
   ros::NodeHandle nh_, pnh_;
@@ -48,6 +49,7 @@ class Ll2GlobalPlannerNl : public nodelet::Nodelet {
   // Subscribers
   ros::Subscriber lanelet_sub_;
   ros::Subscriber posegoal_sub_;
+  ros::Subscriber llh_sub_;
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 

@@ -304,7 +304,7 @@ void MotionPrediction::VisualizePrediction()
 //  for(unsigned int i=0; i< m_PredictBeh.m_PredictedObjects.size(); i++)
 //    m_all_pred_paths.insert(m_all_pred_paths.begin(), m_PredictBeh.m_PredictedObjects.at(i).predTrajectories.begin(), m_PredictBeh.m_PredictedObjects.at(i).predTrajectories.end());
 //
-//  PlannerHNS::ROSHelpers::ConvertPredictedTrqajectoryMarkers(m_all_pred_paths, m_PredictedTrajectoriesActual, m_PredictedTrajectoriesDummy);
+//  PlannerHNS::ROSHelpers::ConvertPredictedTrajectoriesMarkers(m_all_pred_paths, m_PredictedTrajectoriesActual, m_PredictedTrajectoriesDummy);
 //  pub_PredictedTrajectoriesRviz.publish(m_PredictedTrajectoriesActual);
 //
   PlannerHNS::ROSHelpers::ConvertCurbsMarkers(curr_curbs_obstacles, m_CurbsActual, m_CurbsDummy);
@@ -388,7 +388,7 @@ void MotionPrediction::VisualizePrediction()
   pub_ParticlesRviz.publish(m_PredictedParticlesActual);
 
   //std::cout << "Start Tracking of Trajectories : " <<  m_all_pred_paths.size() << endl;
-  PlannerHNS::ROSHelpers::ConvertPredictedTrqajectoryMarkers(m_all_pred_paths, m_PredictedTrajectoriesActual, m_PredictedTrajectoriesDummy);
+  PlannerHNS::ROSHelpers::ConvertPredictedTrajectoriesMarkers(m_all_pred_paths, m_PredictedTrajectoriesActual, m_PredictedTrajectoriesDummy);
   pub_PredictedTrajectoriesRviz.publish(m_PredictedTrajectoriesActual);
 
   UtilityHNS::UtilityH::GetTickCount(m_VisualizationTimer);

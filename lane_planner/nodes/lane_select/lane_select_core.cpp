@@ -82,19 +82,19 @@ bool LaneSelectNode::isAllTopicsSubscribed()
   bool ret = true;
   if (!is_current_pose_subscribed_)
   {
-    ROS_WARN_THROTTLE(1, "Topic current_pose is missing.");
+    ROS_WARN_THROTTLE(5, "Topic current_pose is missing.");
     ret = false;
   }
 
   if (!is_lane_array_subscribed_)
   {
-    ROS_WARN_THROTTLE(1, "Topic traffic_waypoints_array is missing.");
+    ROS_WARN_THROTTLE(5, "Topic traffic_waypoints_array is missing.");
     ret = false;
   }
 
   if (!is_current_velocity_subscribed_)
   {
-    ROS_WARN_THROTTLE(1, "Topic current_velocity is missing.");
+    ROS_WARN_THROTTLE(5, "Topic current_velocity is missing.");
     ret = false;
   }
   return ret;
@@ -191,7 +191,7 @@ void LaneSelectNode::processing()
     }
     catch (std::out_of_range)
     {
-      ROS_WARN("Failed to get closest waypoint num\n");
+      ROS_WARN_THROTTLE(2, "Failed to get closest waypoint num");
     }
   }
   else
@@ -235,7 +235,7 @@ void LaneSelectNode::createLaneForChange()
   ROS_INFO("num_lane_change: %d", num_lane_change);
   if (num_lane_change < 0 || num_lane_change >= static_cast<int32_t>(cur_lane.waypoints.size()))
   {
-    ROS_DEBUG_THROTTLE(1, "current lane doesn't have change flag");
+    ROS_DEBUG_THROTTLE(2, "current lane doesn't have change flag");
     return;
   }
 
@@ -244,7 +244,7 @@ void LaneSelectNode::createLaneForChange()
       (static_cast<ChangeFlag>(cur_lane.waypoints.at(num_lane_change).change_flag) == ChangeFlag::left &&
        left_lane_idx_ < 0))
   {
-    ROS_DEBUG_THROTTLE(1, "current lane doesn't have the lane for lane change");
+    ROS_DEBUG_THROTTLE(2, "current lane doesn't have the lane for lane change");
     return;
   }
 
@@ -350,7 +350,7 @@ bool LaneSelectNode::getClosestWaypointNumberForEachLanes()
   }
   if (accum == (-1) * static_cast<int32_t>(tuple_vec_.size()))
   {
-    ROS_WARN("Cannot get closest waypoints. All closest waypoints are changed to -1...");
+    ROS_WARN_THROTTLE(2, "Cannot get closest waypoints. All closest waypoints are changed to -1 ...");
     return false;
   }
 
@@ -808,7 +808,7 @@ int32_t getClosestWaypointNumber(const autoware_msgs::Lane &current_lane, const 
     if (distance_threshold <
         getTwoDimensionalDistance(current_lane.waypoints.at(previous_number).pose.pose.position, current_pose.position))
     {
-      ROS_WARN("Current_pose is far away from previous closest waypoint. Initilized...");
+      ROS_WARN_THROTTLE(2, "current_pose is far away from previous closest waypoint.");
       return -1;
     }
     range_min = static_cast<uint32_t>(previous_number);
@@ -858,7 +858,7 @@ bool getLinearEquation(geometry_msgs::Point start, geometry_msgs::Point end, dou
 
   if (sub_x < error && sub_y < error)
   {
-    ROS_INFO("two points are the same point!!");
+    ROS_WARN("Two points are the same point!!");
     return false;
   }
 

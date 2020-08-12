@@ -198,13 +198,13 @@ bool AstarSearch::makePlan(const geometry_msgs::Pose& start_pose, const geometry
 {
   if (!setStartNode(start_pose))
   {
-    // ROS_WARN_STREAM("Invalid start pose");
+    ROS_DEBUG("Invalid start pose");
     return false;
   }
 
   if (!setGoalNode(goal_pose))
   {
-    // ROS_WARN_STREAM("Invalid goal pose");
+    ROS_DEBUG("Invalid goal pose");
     return false;
   }
 
@@ -285,7 +285,7 @@ bool AstarSearch::setGoalNode(const geometry_msgs::Pose& goal_pose)
 
     if (!wavefront_result)
     {
-      // ROS_WARN("Reachable is false...");
+      ROS_DEBUG("Reachable is false...");
       return false;
     }
   }
@@ -345,7 +345,7 @@ bool AstarSearch::search()
     double msec = (now - begin).toSec() * 1000.0;
     if (msec > time_limit_)
     {
-      // ROS_WARN("Exceed time limit of %lf [ms]", time_limit_);
+      ROS_DEBUG("Exceed time limit of %lf [ms]", time_limit_);
       return false;
     }
 
@@ -360,7 +360,7 @@ bool AstarSearch::search()
     // Goal check
     if (isGoal(current_an->x, current_an->y, current_an->theta))
     {
-      // ROS_INFO("Search time: %lf [msec]", (now - begin).toSec() * 1000.0);
+      ROS_DEBUG("Search time: %lf [msec]", (now - begin).toSec() * 1000.0);
       setPath(top_sn);
       return true;
     }
@@ -455,7 +455,7 @@ bool AstarSearch::search()
   }
 
   // Failed to find path
-  // ROS_INFO("Open list is empty...");
+  ROS_DEBUG("Open list is empty...");
   return false;
 }
 

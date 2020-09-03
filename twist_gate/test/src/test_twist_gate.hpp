@@ -28,12 +28,6 @@ public:
         nh.advertise<autoware_msgs::ControlCommandStamped>("ctrl_cmd", 0);
     decision_maker_state_publisher =
         nh.advertise<std_msgs::String>("decision_maker/state", 0);
-    remote_cmd_publisher = nh.advertise<autoware_msgs::RemoteCmd>("remote_cmd", 0);
-    mode_cmd_publisher = nh.advertise<tablet_socket_msgs::mode_cmd>("mode_cmd", 0);
-    gear_cmd_publisher = nh.advertise<tablet_socket_msgs::gear_cmd>("gear_cmd", 0);
-    accel_cmd_publisher = nh.advertise<autoware_msgs::AccelCmd>("accel_cmd", 0);
-    steer_cmd_publisher = nh.advertise<autoware_msgs::SteerCmd>("steer_cmd", 0);
-    brake_cmd_publisher = nh.advertise<autoware_msgs::BrakeCmd>("brake_cmd", 0);
     lamp_cmd_publisher = nh.advertise<autoware_msgs::LampCmd>("lamp_cmd", 0);
     emergency_vehicle_cmd_publisher = nh.advertise<autoware_msgs::VehicleCmd>("emergency_velocity", 0);
     vehicle_cmd_subscriber = nh.subscribe(
@@ -49,26 +43,24 @@ public:
 
   void tgSpinOnce() { tg->spinOnce(); }
 
-  void tgResetVehicleCmdMsg() { tg->resetVehicleCmdMsg(); }
-
   autoware_msgs::VehicleCmd setTgTwistGateMsg(double d_value, int i_value) {
-    tg->twist_gate_msg_.twist_cmd.twist.linear.x = d_value;
-    tg->twist_gate_msg_.twist_cmd.twist.angular.z = d_value;
-    tg->twist_gate_msg_.mode = i_value;
-    tg->twist_gate_msg_.gear_cmd.gear = i_value;
-    tg->twist_gate_msg_.lamp_cmd.l = i_value;
-    tg->twist_gate_msg_.lamp_cmd.r = i_value;
-    tg->twist_gate_msg_.accel_cmd.accel = i_value;
-    tg->twist_gate_msg_.brake_cmd.brake = i_value;
-    tg->twist_gate_msg_.steer_cmd.steer = i_value;
-    tg->twist_gate_msg_.ctrl_cmd.linear_velocity = i_value;
-    tg->twist_gate_msg_.ctrl_cmd.steering_angle = i_value;
-    tg->twist_gate_msg_.emergency = i_value;
+    tg->output_msg_.twist_cmd.twist.linear.x = d_value;
+    tg->output_msg_.twist_cmd.twist.angular.z = d_value;
+    tg->output_msg_.mode = i_value;
+    tg->output_msg_.gear_cmd.gear = i_value;
+    tg->output_msg_.lamp_cmd.l = i_value;
+    tg->output_msg_.lamp_cmd.r = i_value;
+    tg->output_msg_.accel_cmd.accel = i_value;
+    tg->output_msg_.brake_cmd.brake = i_value;
+    tg->output_msg_.steer_cmd.steer = i_value;
+    tg->output_msg_.ctrl_cmd.linear_velocity = i_value;
+    tg->output_msg_.ctrl_cmd.steering_angle = i_value;
+    tg->output_msg_.emergency = i_value;
 
-    return tg->twist_gate_msg_;
+    return tg->output_msg_;
   }
 
-  autoware_msgs::VehicleCmd getTgTwistGateMsg() {return tg->twist_gate_msg_;}
+  autoware_msgs::VehicleCmd getTgTwistGateMsg() {return tg->output_msg_;}
 
   void publishTwistCmd(double linear_x, double angular_z) {
     geometry_msgs::TwistStamped msg;
@@ -90,50 +82,6 @@ public:
     control_cmd_publisher.publish(msg);
   }
 
-  void publishRemoteCmd(autoware_msgs::RemoteCmd remote_cmd){
-    remote_cmd_publisher.publish(remote_cmd);
-  }
-
-  void publishModeCmd(int mode){
-    tablet_socket_msgs::mode_cmd msg;
-    msg.header.stamp = ros::Time::now();
-    msg.mode = mode;
-
-    mode_cmd_publisher.publish(msg);
-  }
-
-  void publishGearCmd(int gear){
-    tablet_socket_msgs::gear_cmd msg;
-    msg.header.stamp = ros::Time::now();
-    msg.gear = gear;
-
-    gear_cmd_publisher.publish(msg);
-  }
-
-  void publishAccelCmd(int accel){
-    autoware_msgs::AccelCmd msg;
-    msg.header.stamp = ros::Time::now();
-    msg.accel = accel;
-
-    accel_cmd_publisher.publish(msg);
-  }
-
-  void publishSteerCmd(int steer){
-    autoware_msgs::SteerCmd msg;
-    msg.header.stamp = ros::Time::now();
-    msg.steer = steer;
-
-    steer_cmd_publisher.publish(msg);
-  }
-
-  void publishBrakeCmd(int brake){
-    autoware_msgs::BrakeCmd msg;
-    msg.header.stamp = ros::Time::now();
-    msg.brake = brake;
-
-    brake_cmd_publisher.publish(msg);
-  }
-
   void publishLampCmd(int lamp_l, int lamp_r){
     autoware_msgs::LampCmd msg;
     msg.header.stamp = ros::Time::now();
@@ -143,10 +91,11 @@ public:
     lamp_cmd_publisher.publish(msg);
   }
 
-  void publishEmergencyVehicleCmd(int emergency){
+  void publishEmergencyVehicleCmd(int emergency, double linear_vel){
     autoware_msgs::VehicleCmd msg;
     msg.header.stamp = ros::Time::now();
     msg.emergency = emergency;
+    msg.ctrl_cmd.linear_velocity = linear_vel;
 
     emergency_vehicle_cmd_publisher.publish(msg);
   }
@@ -162,7 +111,7 @@ public:
     cb_vehicle_cmd = msg;
   }
 
-  autoware_msgs::VehicleCmd getTwistGateMsg() { return tg->twist_gate_msg_; }
+  autoware_msgs::VehicleCmd getTwistGateMsg() { return tg->output_msg_; }
 
   bool getIsStateDriveFlag() { return tg->is_state_drive_; }
 };

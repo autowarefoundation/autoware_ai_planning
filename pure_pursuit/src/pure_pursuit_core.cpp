@@ -23,7 +23,7 @@ namespace waypoint_follower
 PurePursuitNode::PurePursuitNode()
   : private_nh_("~")
   , pp_()
-  , LOOP_RATE_(30)
+  , update_rate_(30.0)
   , is_waypoint_set_(false)
   , is_pose_set_(false)
   , is_velocity_set_(false)
@@ -63,6 +63,7 @@ void PurePursuitNode::initForROS()
   private_nh_.param("lookahead_ratio", lookahead_distance_ratio_, 2.0);
   private_nh_.param(
     "minimum_lookahead_distance", minimum_lookahead_distance_, 6.0);
+  private_nh_.param("update_rate", update_rate_, 30.0);
   nh_.param("vehicle_info/wheel_base", wheel_base_, 2.7);
 
   // setup subscriber
@@ -95,7 +96,7 @@ void PurePursuitNode::initForROS()
 void PurePursuitNode::run()
 {
   ROS_INFO_STREAM("pure pursuit start");
-  ros::Rate loop_rate(LOOP_RATE_);
+  ros::Rate loop_rate(update_rate_);
   while (ros::ok())
   {
     ros::spinOnce();

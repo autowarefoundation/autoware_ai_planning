@@ -254,53 +254,50 @@ int CrossWalk::findClosestCrosswalk(const int closest_waypoint, const autoware_m
   if (!set_points || closest_waypoint < 0)
     return -1;
 
-  double find_distance = 2.0 * 2.0;      // meter
-  double ignore_distance = 20.0 * 20.0;  // meter
-  static std::vector<int> bdid = getBDID();
+  static constexpr double find_distance = 2.0 * 2.0;      // meter
+  static constexpr double ignore_distance = 20.0 * 20.0;  // meter
 
-  int _return_val = 0;
+  bool is_found = false;
+  // keep the first crosswalks waypoint index if found
+  int closest_crosswalk_waypoint_idx = -1;
+  detection_crosswalk_id_ = -1;
+  detection_crosswalk_array_.clear(); // for multiple
 
-  initDetectionCrossWalkIDs();  // for multiple
-
-  // Find near cross walk
-  for (int num = closest_waypoint; num < closest_waypoint + search_distance && num < (int)lane.waypoints.size(); num++)
+  // Find crosswalks within search distance
+  for (int wp_idx = closest_waypoint; wp_idx < closest_waypoint + search_distance && wp_idx < (int)lane.waypoints.size(); wp_idx++)
   {
-    geometry_msgs::Point waypoint = lane.waypoints[num].pose.pose.position;
+    geometry_msgs::Point waypoint = lane.waypoints[wp_idx].pose.pose.position;
     waypoint.z = 0.0;  // ignore Z axis
-    for (const auto &i : bdid)
+    for (const int &id : bdID_)
     {
       // ignore far crosswalk
-      geometry_msgs::Point crosswalk_center = getDetectionPoints(i).center;
+      const auto& crosswalk = detection_points_.at(id);
+      geometry_msgs::Point crosswalk_center = crosswalk.center;
       crosswalk_center.z = 0.0;
       if (calcSquareOfLength(crosswalk_center, waypoint) > ignore_distance)
         continue;
 
-      for (auto p : getDetectionPoints(i).points)
+      for (auto p : crosswalk.points)
       {
         p.z = waypoint.z;
         if (calcSquareOfLength(p, waypoint) < find_distance)
         {
-          addDetectionCrossWalkIDs(i);
-          if (!this->isMultipleDetection())
-          {
-            setDetectionCrossWalkID(i);
-            return num;
+          if (!is_found) {
+            closest_crosswalk_waypoint_idx = wp_idx;
+            detection_crosswalk_id_ = id;
+            is_found = true;
           }
-          else if (!_return_val)
-          {
-            setDetectionCrossWalkID(i);
-            _return_val = num;
+          addDetectionCrossWalkIDs(id);
+          if (!enable_multiple_crosswalk_detection_)
+          { 
+            return closest_crosswalk_waypoint_idx;
           }
         }
       }
     }
   }
 
-  if (_return_val)
-    return _return_val;
-
-  setDetectionCrossWalkID(-1);
-  return -1;  // no near crosswalk
+  return closest_crosswalk_waypoint_idx;
 }
 
 geometry_msgs::Point ObstaclePoints::getObstaclePoint(const EControl &kind) const

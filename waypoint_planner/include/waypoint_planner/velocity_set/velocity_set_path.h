@@ -23,21 +23,21 @@
 class VelocitySetPath
 {
  private:
-  autoware_msgs::Lane prev_waypoints_;
-  autoware_msgs::Lane new_waypoints_;
+  autoware_msgs::Lane original_waypoints_;
+  autoware_msgs::Lane updated_waypoints_;
   autoware_msgs::Lane temporal_waypoints_;
-  bool set_path_;
-  double current_vel_;
+  bool set_path_{false};
+  double current_vel_{0.0};
 
   // ROS param
   double velocity_offset_; // m/s
   double decelerate_vel_min_; // m/s
 
-  bool checkWaypoint(int num, const char *name) const;
+  bool checkWaypoint(int num) const;
 
  public:
   VelocitySetPath();
-  ~VelocitySetPath();
+  ~VelocitySetPath() = default;
 
   double calcChangedVelocity(const double& current_vel, const double& accel, const std::array<int, 2>& range) const;
   void changeWaypointsForStopping(int stop_waypoint, int obstacle_waypoint, int closest_waypoint, double deceleration);
@@ -56,12 +56,12 @@ class VelocitySetPath
 
   autoware_msgs::Lane getPrevWaypoints() const
   {
-    return prev_waypoints_;
+    return original_waypoints_;
   }
 
   autoware_msgs::Lane getNewWaypoints() const
   {
-    return new_waypoints_;
+    return updated_waypoints_;
   }
 
   autoware_msgs::Lane getTemporalWaypoints() const
@@ -81,12 +81,12 @@ class VelocitySetPath
 
   int getPrevWaypointsSize() const
   {
-    return prev_waypoints_.waypoints.size();
-  }
+    return original_waypoints_.waypoints.size();
+  }  
 
   int getNewWaypointsSize() const
   {
-    return new_waypoints_.waypoints.size();
+    return updated_waypoints_.waypoints.size();
   }
 };
 

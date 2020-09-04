@@ -56,7 +56,7 @@ class VelocitySetInfo
 
  public:
   VelocitySetInfo();
-  ~VelocitySetInfo();
+  ~VelocitySetInfo() = default;
 
   // ROS Callback
   void configCallback(const autoware_config_msgs::ConfigVelocitySetConstPtr &msg);

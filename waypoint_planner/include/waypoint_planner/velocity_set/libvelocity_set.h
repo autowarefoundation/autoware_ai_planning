@@ -85,7 +85,7 @@ public:
   {
     return bdID_;
   }
-  CrossWalkPoints getDetectionPoints(const int &id) const
+  const CrossWalkPoints& getDetectionPoints(const int &id) const
   {
     return detection_points_.at(id);
   }
@@ -113,7 +113,7 @@ public:
   void addDetectionCrossWalkIDs(const int &id)
   {
     auto itr = std::find(detection_crosswalk_array_.begin(), detection_crosswalk_array_.end(), id);
-    if (detection_crosswalk_array_.empty() || itr == detection_crosswalk_array_.end())
+    if (itr == detection_crosswalk_array_.end())
     {
       detection_crosswalk_array_.push_back(id);
     }
@@ -134,6 +134,7 @@ public:
   CrossWalk()
     : detection_waypoint_(-1)
     , detection_crosswalk_id_(-1)
+    , enable_multiple_crosswalk_detection_(false)
     , loaded_crosswalk(false)
     , loaded_area(false)
     , loaded_line(false)

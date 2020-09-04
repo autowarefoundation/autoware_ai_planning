@@ -141,7 +141,6 @@ void PurePursuitNode::run()
 
     is_pose_set_ = false;
     is_velocity_set_ = false;
-    is_waypoint_set_ = false;
 
     loop_rate.sleep();
   }

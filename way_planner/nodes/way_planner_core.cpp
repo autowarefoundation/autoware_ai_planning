@@ -56,11 +56,17 @@ way_planner_core::way_planner_core()
   nh.getParam("/way_planner/enableRvizInput"     , m_params.bEnableRvizInput);
   nh.getParam("/way_planner/enableReplan"     , m_params.bEnableReplanning);
   nh.getParam("/way_planner/enableHMI"       , m_params.bEnableHMI);
+  nh.getParam("/way_planner/fallbackMinGoalDistanceTh" , m_params.fallbackMinGoalDistanceTh);
   nh.getParam("/way_planner/planningMaxAttempt", m_params.planningMaxAttempt);
 
   // The planning max attempt feature parameter cannot be below zero
   if (m_params.planningMaxAttempt < 0) {
     m_params.planningMaxAttempt = 0;
+  }
+
+  // The fallback min goal distance threshold feature parameter cannot be below zero
+  if (m_params.fallbackMinGoalDistanceTh < 0) {
+    m_params.fallbackMinGoalDistanceTh = 0;
   }
 
   int iSource = 0;
@@ -381,7 +387,8 @@ bool way_planner_core::GenerateGlobalPlan(PlannerHNS::WayPoint& startPoint, Plan
   std::vector<int> predefinedLanesIds;
   double ret = m_PlannerH.PlanUsingDP(startPoint, goalPoint,
       MAX_GLOBAL_PLAN_DISTANCE, m_params.bEnableLaneChange, predefinedLanesIds,
-      m_Map, generatedTotalPaths, &m_PlanningVisualizeTree);
+      m_Map, generatedTotalPaths, &m_PlanningVisualizeTree,
+      m_params.fallbackMinGoalDistanceTh);
 
   m_pCurrGoal = PlannerHNS::MappingHelpers::GetClosestWaypointFromMap(goalPoint, m_Map);
 
@@ -391,7 +398,8 @@ bool way_planner_core::GenerateGlobalPlan(PlannerHNS::WayPoint& startPoint, Plan
   double ret = m_PlannerH.PlanUsingDP(startPoint, goalPoint,
           MAX_GLOBAL_PLAN_DISTANCE, m_params.bEnableLaneChange,
           predefinedLanesIds,
-          m_Map, generatedTotalPaths);
+          m_Map, generatedTotalPaths, nullptr,
+          m_params.fallbackMinGoalDistanceTh);
 #endif
 
 if(m_params.bEnableHMI)

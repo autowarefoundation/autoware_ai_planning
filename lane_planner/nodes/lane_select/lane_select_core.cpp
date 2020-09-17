@@ -805,12 +805,7 @@ int32_t getClosestWaypointNumber(const autoware_msgs::Lane &current_lane, const 
   }
   else
   {
-    if (distance_threshold <
-        getTwoDimensionalDistance(current_lane.waypoints.at(previous_number).pose.pose.position, current_pose.position))
-    {
-      ROS_WARN("Current_pose is far away from previous closest waypoint. Initilized...");
-      return -1;
-    }
+    // start searching for closest waypoint from range_min (previous waypoint)
     range_min = static_cast<uint32_t>(previous_number);
     double ratio = 3;
     double dt = std::max(current_velocity.linear.x * ratio, static_cast<double>(search_closest_waypoint_minimum_dt));
@@ -839,12 +834,20 @@ int32_t getClosestWaypointNumber(const autoware_msgs::Lane &current_lane, const 
   dist_vec.reserve(idx_vec.size());
   for (const auto &el : idx_vec)
   {
-    double dt = getTwoDimensionalDistance(current_pose.position, current_lane.waypoints.at(el).pose.pose.position);
-    dist_vec.push_back(dt);
+    double distance = getTwoDimensionalDistance(
+      current_pose.position, current_lane.waypoints.at(el).pose.pose.position);
+    dist_vec.push_back(distance);
   }
+
+  // Check distance
   std::vector<double>::iterator itr = std::min_element(dist_vec.begin(), dist_vec.end());
-  int32_t found_number = idx_vec.at(static_cast<uint32_t>(std::distance(dist_vec.begin(), itr)));
-  return found_number;
+  if (*itr > distance_threshold)
+  {
+    return -1;
+  }
+
+  int32_t closest_waypoint_idx = idx_vec.at(static_cast<uint32_t>(std::distance(dist_vec.begin(), itr)));
+  return closest_waypoint_idx;
 }
 
 // let the linear equation be "ax + by + c = 0"

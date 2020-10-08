@@ -105,6 +105,7 @@ public:
   bool       bEnableRvizInput;
   bool       bEnableReplanning;
   double       pathDensity;
+  double     fallbackMinGoalDistanceTh;
   int        planningMaxAttempt;
   MAP_SOURCE_TYPE  mapSource;
 
@@ -117,6 +118,7 @@ public:
     bEnableLaneChange   = false;
     bEnableRvizInput   = true;
     pathDensity      = 0.5;
+    fallbackMinGoalDistanceTh = 0.0;
     planningMaxAttempt = 0;
     mapSource       = MAP_KML_FILE;
   }

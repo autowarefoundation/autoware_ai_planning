@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Autoware Foundation. All rights reserved.
+ * Copyright 2016-2020 Autoware Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,12 @@ way_planner_core::way_planner_core()
   nh.getParam("/way_planner/enableRvizInput"     , m_params.bEnableRvizInput);
   nh.getParam("/way_planner/enableReplan"     , m_params.bEnableReplanning);
   nh.getParam("/way_planner/enableHMI"       , m_params.bEnableHMI);
+  nh.getParam("/way_planner/planningMaxAttempt", m_params.planningMaxAttempt);
+
+  // The planning max attempt feature parameter cannot be below zero
+  if (m_params.planningMaxAttempt < 0) {
+    m_params.planningMaxAttempt = 0;
+  }
 
   int iSource = 0;
   nh.getParam("/way_planner/mapSource"       , iSource);
@@ -655,6 +661,7 @@ void way_planner_core::PlannerMainLoop()
   ros::Rate loop_rate(10);
   timespec animation_timer;
   UtilityHNS::UtilityH::GetTickCount(animation_timer);
+  int newPlanTry = 0;
 
   while (ros::ok())
   {
@@ -729,9 +736,16 @@ void way_planner_core::PlannerMainLoop()
       {
 
           bool bNewPlan = GenerateGlobalPlan(startPoint, goalPoint, m_GeneratedTotalPaths);
+          // If the maximum attempt feature is enabled, increase the counter
+          if (m_params.planningMaxAttempt != 0)
+          {
+            newPlanTry++;
+          }
 
           if(bNewPlan)
           {
+            //Reset the newPlanTry as we have found the path
+            newPlanTry = 0;
             bMakeNewPlan = false;
             VisualizeAndSend(m_GeneratedTotalPaths);
 #ifdef ENABLE_VISUALIZE_PLAN
@@ -747,6 +761,25 @@ void way_planner_core::PlannerMainLoop()
               }
             }
 #endif
+          }
+          else
+          {
+            // If we retried enough, remove the goal from the queue
+            if(newPlanTry >= m_params.planningMaxAttempt)
+            {
+
+              ROS_WARN("%s (tried %d times), %s",
+                "way_planner: Unable to plan the path",
+                m_params.planningMaxAttempt,
+                "removing the goal");
+              m_GoalsPos.erase(m_GoalsPos.begin() + m_iCurrentGoalIndex);
+              newPlanTry = 0;
+            }
+            else
+            {
+              // Retry for m_params.planningMaxAttempt times
+              ROS_WARN("way_planner: Unable to plan the requested goal path, will retry");
+            }
           }
       }
 

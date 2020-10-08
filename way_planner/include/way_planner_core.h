@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Autoware Foundation. All rights reserved.
+ * Copyright 2016-2020 Autoware Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,6 +105,7 @@ public:
   bool       bEnableRvizInput;
   bool       bEnableReplanning;
   double       pathDensity;
+  int        planningMaxAttempt;
   MAP_SOURCE_TYPE  mapSource;
 
 
@@ -116,6 +117,7 @@ public:
     bEnableLaneChange   = false;
     bEnableRvizInput   = true;
     pathDensity      = 0.5;
+    planningMaxAttempt = 0;
     mapSource       = MAP_KML_FILE;
   }
 };

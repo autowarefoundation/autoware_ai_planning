@@ -20,6 +20,7 @@ find_package(
     std_msgs
     tf
     vector_map_msgs
+    roslint
 )
 
 catkin_package(
@@ -34,6 +35,8 @@ include_directories(
   include/plannerh
   ${catkin_INCLUDE_DIRS}
 )
+
+roslint_cpp()
 
 add_executable(
   way_planner
@@ -51,7 +54,7 @@ install(
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-        
+
 install(
   DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch

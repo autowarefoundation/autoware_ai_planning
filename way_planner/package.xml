@@ -9,6 +9,7 @@
 
   <buildtool_depend>autoware_build_flags</buildtool_depend>
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roslint</build_depend>
 
   <depend>autoware_can_msgs</depend>
   <depend>geometry_msgs</depend>

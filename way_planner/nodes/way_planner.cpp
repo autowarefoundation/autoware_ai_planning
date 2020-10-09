@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Autoware Foundation. All rights reserved.
+ * Copyright 2016-2020 Autoware Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
  */
 
 #include <ros/ros.h>
-#include "way_planner_core.h"
+#include <way_planner_core.h>
 
 int main(int argc, char **argv)
 {

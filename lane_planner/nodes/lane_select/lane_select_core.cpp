@@ -58,7 +58,7 @@ void LaneSelectNode::initForROS()
   pose_twist_sync_.reset(new PoseTwistSync(PoseTwistSyncPolicy(10), sub2_, sub3_));
   pose_twist_sync_->getPolicy()->setMaxIntervalDuration(ros::Duration(0.1));
   pose_twist_sync_->registerCallback(boost::bind(&LaneSelectNode::callbackFromPoseTwistStamped, this, _1, _2));
-  
+
   // setup publisher
   pub1_ = nh_.advertise<autoware_msgs::Lane>("base_waypoints", 1, true);
   pub2_ = nh_.advertise<std_msgs::Int32>("closest_waypoint", 1);
@@ -83,12 +83,25 @@ void LaneSelectNode::initForROS()
 
 bool LaneSelectNode::isAllTopicsSubscribed()
 {
-  if (!is_current_pose_subscribed_ || !is_lane_array_subscribed_ || !is_current_velocity_subscribed_)
+  bool ret = true;
+  if (!is_current_pose_subscribed_)
   {
-    ROS_WARN_THROTTLE(1, "Necessary topics are not subscribed yet. Waiting...");
-    return false;
+    ROS_WARN_THROTTLE(1, "Topic current_pose is missing.");
+    ret = false;
   }
-  return true;
+
+  if (!is_lane_array_subscribed_)
+  {
+    ROS_WARN_THROTTLE(1, "Topic traffic_waypoints_array is missing.");
+    ret = false;
+  }
+
+  if (!is_current_velocity_subscribed_)
+  {
+    ROS_WARN_THROTTLE(1, "Topic current_velocity is missing.");
+    ret = false;
+  }
+  return ret;
 }
 
 void LaneSelectNode::resetLaneIdx()
@@ -192,7 +205,7 @@ void LaneSelectNode::createLaneForChange()
   int32_t num_lane_change = getClosestLaneChangeWaypointNumber(cur_lane.waypoints, clst_wp);
   if (num_lane_change < 0 || num_lane_change >= static_cast<int32_t>(cur_lane.waypoints.size()))
   {
-    ROS_WARN_THROTTLE(1, "current lane doesn't have change flag");
+    ROS_DEBUG_THROTTLE(1, "current lane doesn't have change flag");
     return;
   }
 
@@ -201,7 +214,7 @@ void LaneSelectNode::createLaneForChange()
       (static_cast<ChangeFlag>(cur_lane.waypoints.at(num_lane_change).change_flag) == ChangeFlag::left &&
        left_lane_idx_ < 0))
   {
-    ROS_WARN_THROTTLE(1, "current lane doesn't have the lane for lane change");
+    ROS_DEBUG_THROTTLE(1, "current lane doesn't have the lane for lane change");
     return;
   }
 
@@ -722,7 +735,7 @@ int32_t getClosestWaypointNumber(const autoware_msgs::Lane &current_lane, const 
   std::vector<uint32_t> idx_vec;
   // if previous number is -1, search closest waypoint from waypoints in front of current pose
   uint32_t range_min = 0;
-  uint32_t range_max = current_lane.waypoints.size();
+  uint32_t range_max = current_lane.waypoints.size() - 1;
   if (previous_number == -1)
   {
     idx_vec.reserve(current_lane.waypoints.size());
@@ -745,7 +758,7 @@ int32_t getClosestWaypointNumber(const autoware_msgs::Lane &current_lane, const 
   }
   const LaneDirection dir = getLaneDirection(current_lane);
   const int sgn = (dir == LaneDirection::Forward) ? 1 : (dir == LaneDirection::Backward) ? -1 : 0;
-  for (uint32_t i = range_min; i < range_max; i++)
+  for (uint32_t i = range_min; i <= range_max; i++)
   {
     geometry_msgs::Point converted_p =
       convertPointIntoRelativeCoordinate(current_lane.waypoints.at(i).pose.pose.position, current_pose);

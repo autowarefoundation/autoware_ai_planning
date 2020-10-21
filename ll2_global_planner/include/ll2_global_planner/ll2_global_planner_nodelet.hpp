@@ -35,21 +35,25 @@ class Ll2GlobalPlannerNl : public nodelet::Nodelet {
   void laneletMapCb(const autoware_lanelet2_msgs::MapBin& map_msg);
   void poseGoalCb(const geometry_msgs::PoseStamped::ConstPtr& pose_msg);
 
+  // Utility functions
+  lanelet::Lanelet getNearestLanelet(const lanelet::BasicPoint2d& point);
+  void planRoute(const geometry_msgs::Point& goal_point);
+
   // Nodehandles, both public and private
-  ros::NodeHandle nh, pnh;
+  ros::NodeHandle nh_, pnh_;
 
   // Publishers
-  ros::Publisher waypoints_pub;
+  ros::Publisher waypoints_pub_;
 
   // Subscribers
-  ros::Subscriber lanelet_sub;
-  ros::Subscriber posegoal_sub;
-  tf2_ros::Buffer tf_buffer;
-  tf2_ros::TransformListener tf_listener;
+  ros::Subscriber lanelet_sub_;
+  ros::Subscriber posegoal_sub_;
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 
   // Internal state
-  bool initialized = false;
-  lanelet::LaneletMapPtr lanelet_map = nullptr;
+  bool initialized_ = false;
+  lanelet::LaneletMapPtr lanelet_map_ = nullptr;
 };
 
 }  // namespace ll2_global_planner

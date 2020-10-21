@@ -1,0 +1,9 @@
+<library path="lib/libll2_global_planner_nodelet">
+  <class name="ll2_global_planner/ll2_global_planner_nodelet"
+         type="ll2_global_planner::Ll2GlobalPlannerNl"
+         base_class_type="nodelet::Nodelet">
+    <description>
+      Global planner based on Lanelet2 maps.
+    </description>
+  </class>
+</library>

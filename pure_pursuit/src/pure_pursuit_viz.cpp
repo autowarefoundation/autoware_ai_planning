@@ -102,15 +102,15 @@ visualization_msgs::Marker displayExpandWaypoints(const std::vector<autoware_msg
 double calcRadius(geometry_msgs::Point target, geometry_msgs::Pose current_pose)
 {
   double radius;
-  double denominator = 2 * calcRelativeCoordinate(target, current_pose).y;
-  double numerator = pow(getPlaneDistance(target, current_pose.position), 2);
+  geometry_msgs::Point pt = calcRelativeCoordinate(target, current_pose);
+  const double numerator = pt.x * pt.x + pt.y * pt.y;
+  const double denominator = 2.0 * pt.y;
 
   if (denominator != 0)
     radius = numerator / denominator;
   else
     radius = 0;
 
-  // ROS_INFO("radius : %lf", radius);
   return radius;
 }
 

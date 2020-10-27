@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
 #include <ros/console.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <ros/ros.h>
 #include <std_msgs/Int32.h>
 #include <tf/transform_datatypes.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "libwaypoint_follower/libwaypoint_follower.h"
-#include "autoware_msgs/LaneArray.h"
 #include "autoware_config_msgs/ConfigLaneStop.h"
+#include "autoware_msgs/LaneArray.h"
 #include "autoware_msgs/TrafficLight.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 
 namespace
 {
@@ -71,7 +71,8 @@ void setLifetime(double sec, visualization_msgs::MarkerArray* marker_array)
   }
 }
 
-void publishMarkerArray(const visualization_msgs::MarkerArray& marker_array, const ros::Publisher& publisher, bool delete_markers=false)
+void publishMarkerArray(const visualization_msgs::MarkerArray& marker_array, const ros::Publisher& publisher,
+                        bool delete_markers = false)
 {
   visualization_msgs::MarkerArray msg;
 
@@ -88,8 +89,6 @@ void publishMarkerArray(const visualization_msgs::MarkerArray& marker_array, con
 
   publisher.publish(msg);
 }
-
-
 
 void createGlobalLaneArrayVelocityMarker(const autoware_msgs::LaneArray& lane_waypoints_array)
 {
@@ -309,22 +308,22 @@ void createGlobalLaneArrayTurnMarker(const autoware_msgs::LaneArray& lane_waypoi
       uint8_t steering_state = lane.waypoints[i].wpstate.steering_state;
 
       if (steering_state == autoware_msgs::WaypointState::STR_LEFT ||
-        steering_state == autoware_msgs::WaypointState::STR_RIGHT)
+          steering_state == autoware_msgs::WaypointState::STR_RIGHT)
       {
         lane_waypoint_marker.id = i;
         lane_waypoint_marker.pose = lane.waypoints[i].pose.pose;
 
-        tf2::Quaternion directional_offset(0,0,0);
+        tf2::Quaternion directional_offset(0, 0, 0);
         tf2::Quaternion wp_orientation;
         tf2::convert(lane_waypoint_marker.pose.orientation, wp_orientation);
 
         if (steering_state == autoware_msgs::WaypointState::STR_LEFT)
         {
-          directional_offset.setRPY(0, 0, M_PI/2);
+          directional_offset.setRPY(0, 0, M_PI / 2);
         }
         else if (steering_state == autoware_msgs::WaypointState::STR_RIGHT)
         {
-          directional_offset.setRPY(0, 0, -M_PI/2);
+          directional_offset.setRPY(0, 0, -M_PI / 2);
         }
         wp_orientation *= directional_offset;
         wp_orientation.normalize();
@@ -336,8 +335,8 @@ void createGlobalLaneArrayTurnMarker(const autoware_msgs::LaneArray& lane_waypoi
     count++;
   }
 
-  g_global_marker_array.markers.insert(g_global_marker_array.markers.end(),
-    tmp_marker_array.markers.begin(), tmp_marker_array.markers.end());
+  g_global_marker_array.markers.insert(g_global_marker_array.markers.end(), tmp_marker_array.markers.begin(),
+                                       tmp_marker_array.markers.end());
 }
 
 void createLocalPathMarker(std_msgs::ColorRGBA color, const autoware_msgs::Lane& lane_waypoint)
@@ -466,7 +465,7 @@ void closestCallback(const std_msgs::Int32ConstPtr& msg)
 {
   _closest_waypoint = msg->data;
 }
-}
+}  // namespace
 
 int main(int argc, char** argv)
 {

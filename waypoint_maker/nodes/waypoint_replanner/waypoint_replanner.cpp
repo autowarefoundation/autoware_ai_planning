@@ -409,7 +409,7 @@ void WaypointReplanner::limitAccelDecel(const unsigned long idx, autoware_msgs::
       // maximum speed based on max_accel_limit or max_decel_limit
       v = sqrt(2 * acc[j] * dist + v * v);
       // cap it in case it is larger than the current velocity or velocity_max.
-      v = std::fmin(v, std::fmin(lane.waypoints[next].twist.twist.linear.x, config_.velocity_max));
+      v = std::min({v, lane.waypoints[next].twist.twist.linear.x, config_.velocity_max});
       lane.waypoints[next].twist.twist.linear.x = v;
     }
   }

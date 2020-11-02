@@ -64,7 +64,7 @@ class VelocitySetInfo
   void pointsCallback(const sensor_msgs::PointCloud2ConstPtr &msg);
   void controlPoseCallback(const geometry_msgs::PoseStampedConstPtr &msg);
   void detectionCallback(const std_msgs::Int32 &msg);
-  void setLocalizerPose(geometry_msgs::TransformStamped *transformStamped);
+  void setLocalizerPose(const geometry_msgs::TransformStamped &map_to_lidar_tf);
 
   void clearPoints();
 

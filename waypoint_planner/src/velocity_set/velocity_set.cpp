@@ -576,16 +576,15 @@ int main(int argc, char** argv)
   {
     ros::spinOnce();
 
-    geometry_msgs::TransformStamped map_to_lidar_tf;
-
     try
     {
-        map_to_lidar_tf = tfBuffer.lookupTransform("map", "lidar", ros::Time::now(), ros::Duration(2.0));
-        vs_info.setLocalizerPose(&map_to_lidar_tf);
+      geometry_msgs::TransformStamped map_to_lidar_tf = tfBuffer.lookupTransform(
+        "map", "velodyne", ros::Time::now(), ros::Duration(2.0));
+      vs_info.setLocalizerPose(map_to_lidar_tf);
     }
     catch(tf2::TransformException &ex)
     {
-        ROS_WARN("%s", ex.what());
+        ROS_WARN("Failed to get map->lidar transform. skip computation: %s", ex.what());
         continue;
     }
 

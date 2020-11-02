@@ -110,17 +110,10 @@ void VelocitySetInfo::controlPoseCallback(const geometry_msgs::PoseStampedConstP
     set_pose_ = true;
 }
 
-void VelocitySetInfo::setLocalizerPose(geometry_msgs::TransformStamped *map_to_lidar_tf)
+void VelocitySetInfo::setLocalizerPose(const geometry_msgs::TransformStamped &map_to_lidar_tf)
 {
-    geometry_msgs::Pose lidarPose;
-    geometry_msgs::Point lidarPoint;
-
-    lidarPoint.x = map_to_lidar_tf->transform.translation.x;
-    lidarPoint.y = map_to_lidar_tf->transform.translation.y;
-    lidarPoint.z = map_to_lidar_tf->transform.translation.z;
-
-    lidarPose.position = lidarPoint;
-    lidarPose.orientation = map_to_lidar_tf->transform.rotation;
-
-    localizer_pose_ = lidarPose;
+    localizer_pose_.position.x = map_to_lidar_tf.transform.translation.x;
+    localizer_pose_.position.y = map_to_lidar_tf.transform.translation.y;
+    localizer_pose_.position.z = map_to_lidar_tf.transform.translation.z;
+    localizer_pose_.orientation = map_to_lidar_tf.transform.rotation;
 }

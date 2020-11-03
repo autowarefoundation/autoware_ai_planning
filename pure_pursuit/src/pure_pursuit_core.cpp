@@ -67,8 +67,35 @@ void PurePursuitNode::initForROS()
   private_nh_.param("update_rate", update_rate_, 30.0);
   private_nh_.param("out_twist_name", out_twist, std::string("twist_raw"));
   private_nh_.param("out_ctrl_cmd_name", out_ctrl_cmd, std::string("ctrl_raw"));
-  private_nh_.param("output_interface", output_interface_, std::string("all"));
   nh_.param("vehicle_info/wheel_base", wheel_base_, 2.7);
+
+  // Output type, use old parameter name only if it is set
+  if (private_nh_.hasParam("publishes_for_steering_robot"))
+  {
+    bool publishes_for_steering_robot;
+    private_nh_.param(
+      "publishes_for_steering_robot", publishes_for_steering_robot, false);
+    if (publishes_for_steering_robot)
+    {
+      output_interface_ = "ctrl_cmd";
+    }
+    else
+    {
+      output_interface_ = "twist";
+    }
+  }
+  else
+  {
+    private_nh_.param(
+      "output_interface", output_interface_, std::string("all"));
+  }
+
+  if (output_interface_ != "twist" && output_interface_ != "ctrl_cmd" &&
+      output_interface_ != "all")
+  {
+    ROS_ERROR("Control command interface type is not valid");
+    ros::shutdown();
+  }
 
   // setup subscriber
   sub1_ = nh_.subscribe("final_waypoints", 10,
@@ -164,10 +191,6 @@ void PurePursuitNode::publishControlCommands(
   {
     publishTwistStamped(can_get_curvature, kappa);
     publishCtrlCmdStamped(can_get_curvature, kappa);
-  }
-  else
-  {
-    ROS_WARN("[pure_pursuit] control command interface is not appropriate");
   }
 }
 

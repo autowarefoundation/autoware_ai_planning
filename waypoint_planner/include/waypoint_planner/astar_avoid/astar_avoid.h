@@ -46,7 +46,7 @@ public:
   } State;
 
   AstarAvoid();
-  ~AstarAvoid();
+  ~AstarAvoid() = default;
   void run();
 
 private:
@@ -61,6 +61,7 @@ private:
   ros::Subscriber obstacle_waypoint_sub_;
   ros::Subscriber state_sub_;
   ros::Rate *rate_;
+  ros::Timer timer_;
   tf::TransformListener tf_listener_;
 
   // params
@@ -79,16 +80,10 @@ private:
   AstarSearch astar_;
   State state_;
 
-  // threads
-  std::thread publish_thread_;
-  std::mutex mutex_;
-
   // variables
-  bool terminate_thread_;
   bool found_avoid_path_;
   int closest_waypoint_index_;
   int obstacle_waypoint_index_;
-  int closest_local_index_;
   nav_msgs::OccupancyGrid costmap_;
   autoware_msgs::Lane base_waypoints_;
   autoware_msgs::Lane avoid_waypoints_;
@@ -116,9 +111,10 @@ private:
   bool checkInitialized();
   bool planAvoidWaypoints(int& end_of_avoid_index);
   void mergeAvoidWaypoints(const nav_msgs::Path& path, int& end_of_avoid_index);
-  void publishWaypoints();
   tf::Transform getTransform(const std::string& from, const std::string& to);
   int getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose, const int& search_size);
+  // publish safety waypoints using a timer
+  void publishWaypoints(const ros::TimerEvent& e);
 };
 
 #endif

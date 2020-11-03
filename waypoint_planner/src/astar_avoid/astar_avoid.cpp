@@ -380,7 +380,7 @@ int AstarAvoid::getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, co
   // search in all waypoints if lane_select judges you're not on waypoints
   if (closest_waypoint_index_ == -1)
   {
-    prev_index = -1;
+    closest_local_index_ = -1;
     return getClosestWaypoint(waypoints, pose);
   }
   else

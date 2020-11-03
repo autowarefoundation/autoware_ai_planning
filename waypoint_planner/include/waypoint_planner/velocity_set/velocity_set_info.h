@@ -21,6 +21,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/Int32.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <autoware_config_msgs/ConfigVelocitySet.h>
 
@@ -48,7 +49,7 @@ class VelocitySetInfo
   double remove_points_upto_;
 
   pcl::PointCloud<pcl::PointXYZ> points_;
-  geometry_msgs::PoseStamped localizer_pose_;  // pose of sensor
+  geometry_msgs::Pose localizer_pose_;  // pose of sensor
   geometry_msgs::PoseStamped control_pose_;    // pose of base_link
   bool set_pose_;
 
@@ -56,14 +57,14 @@ class VelocitySetInfo
 
  public:
   VelocitySetInfo();
-  ~VelocitySetInfo();
+  ~VelocitySetInfo() = default;
 
   // ROS Callback
   void configCallback(const autoware_config_msgs::ConfigVelocitySetConstPtr &msg);
   void pointsCallback(const sensor_msgs::PointCloud2ConstPtr &msg);
   void controlPoseCallback(const geometry_msgs::PoseStampedConstPtr &msg);
-  void localizerPoseCallback(const geometry_msgs::PoseStampedConstPtr &msg);
   void detectionCallback(const std_msgs::Int32 &msg);
+  void setLocalizerPose(const geometry_msgs::TransformStamped &map_to_lidar_tf);
 
   void clearPoints();
 
@@ -138,7 +139,7 @@ class VelocitySetInfo
     return control_pose_;
   }
 
-  geometry_msgs::PoseStamped getLocalizerPose() const
+  const geometry_msgs::Pose& getLocalizerPose() const
   {
     return localizer_pose_;
   }

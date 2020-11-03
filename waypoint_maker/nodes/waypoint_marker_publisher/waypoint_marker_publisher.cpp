@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
 #include <ros/console.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <ros/ros.h>
 #include <std_msgs/Int32.h>
 #include <tf/transform_datatypes.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "libwaypoint_follower/libwaypoint_follower.h"
-#include "autoware_msgs/LaneArray.h"
 #include "autoware_config_msgs/ConfigLaneStop.h"
+#include "autoware_msgs/LaneArray.h"
 #include "autoware_msgs/TrafficLight.h"
+#include "libwaypoint_follower/libwaypoint_follower.h"
 
 namespace
 {
@@ -70,7 +71,8 @@ void setLifetime(double sec, visualization_msgs::MarkerArray* marker_array)
   }
 }
 
-void publishMarkerArray(const visualization_msgs::MarkerArray& marker_array, const ros::Publisher& publisher, bool delete_markers=false)
+void publishMarkerArray(const visualization_msgs::MarkerArray& marker_array, const ros::Publisher& publisher,
+                        bool delete_markers = false)
 {
   visualization_msgs::MarkerArray msg;
 
@@ -87,8 +89,6 @@ void publishMarkerArray(const visualization_msgs::MarkerArray& marker_array, con
 
   publisher.publish(msg);
 }
-
-
 
 void createGlobalLaneArrayVelocityMarker(const autoware_msgs::LaneArray& lane_waypoints_array)
 {
@@ -107,7 +107,7 @@ void createGlobalLaneArrayVelocityMarker(const autoware_msgs::LaneArray& lane_wa
   velocity_marker.frame_locked = true;
 
   int count = 1;
-  for (auto lane : lane_waypoints_array.lanes)
+  for (const auto& lane : lane_waypoints_array.lanes)
   {
     velocity_marker.ns = "global_velocity_lane_" + std::to_string(count);
     for (int i = 0; i < static_cast<int>(lane.waypoints.size()); i++)
@@ -148,7 +148,7 @@ void createGlobalLaneArrayChangeFlagMarker(const autoware_msgs::LaneArray& lane_
   marker.frame_locked = true;
 
   int count = 1;
-  for (auto lane : lane_waypoints_array.lanes)
+  for (const auto& lane : lane_waypoints_array.lanes)
   {
     marker.ns = "global_change_flag_lane_" + std::to_string(count);
     for (int i = 0; i < static_cast<int>(lane.waypoints.size()); i++)
@@ -233,12 +233,12 @@ void createGlobalLaneArrayMarker(std_msgs::ColorRGBA color, const autoware_msgs:
   lane_waypoint_marker.frame_locked = true;
 
   int count = 0;
-  for (auto lane : lane_waypoints_array.lanes)
+  for (const auto& lane : lane_waypoints_array.lanes)
   {
     lane_waypoint_marker.points.clear();
     lane_waypoint_marker.id = count;
 
-    for (auto el : lane.waypoints)
+    for (const auto& el : lane.waypoints)
     {
       geometry_msgs::Point point;
       point = el.pose.pose.position;
@@ -265,7 +265,7 @@ void createGlobalLaneArrayOrientationMarker(const autoware_msgs::LaneArray& lane
   lane_waypoint_marker.frame_locked = true;
 
   int count = 1;
-  for (auto lane : lane_waypoints_array.lanes)
+  for (const auto& lane : lane_waypoints_array.lanes)
   {
     lane_waypoint_marker.ns = "global_lane_waypoint_orientation_marker_" + std::to_string(count);
 
@@ -274,6 +274,63 @@ void createGlobalLaneArrayOrientationMarker(const autoware_msgs::LaneArray& lane
       lane_waypoint_marker.id = i;
       lane_waypoint_marker.pose = lane.waypoints[i].pose.pose;
       tmp_marker_array.markers.push_back(lane_waypoint_marker);
+    }
+    count++;
+  }
+
+  g_global_marker_array.markers.insert(g_global_marker_array.markers.end(), tmp_marker_array.markers.begin(),
+                                       tmp_marker_array.markers.end());
+}
+
+void createGlobalLaneArrayTurnMarker(const autoware_msgs::LaneArray& lane_waypoints_array)
+{
+  visualization_msgs::MarkerArray tmp_marker_array;
+  visualization_msgs::Marker lane_waypoint_marker;
+  lane_waypoint_marker.header.frame_id = "map";
+  lane_waypoint_marker.header.stamp = ros::Time::now();
+  lane_waypoint_marker.type = visualization_msgs::Marker::ARROW;
+  lane_waypoint_marker.action = visualization_msgs::Marker::ADD;
+  lane_waypoint_marker.scale.x = 0.25;
+  lane_waypoint_marker.scale.y = 0.05;
+  lane_waypoint_marker.scale.z = 0.05;
+  lane_waypoint_marker.color.r = 1.0;
+  lane_waypoint_marker.color.g = 1.0;
+  lane_waypoint_marker.color.a = 1.0;
+  lane_waypoint_marker.frame_locked = true;
+
+  int count = 1;
+  for (const auto& lane : lane_waypoints_array.lanes)
+  {
+    lane_waypoint_marker.ns = "global_lane_waypoint_turn_marker_" + std::to_string(count);
+
+    for (int i = 0; i < static_cast<int>(lane.waypoints.size()); i++)
+    {
+      uint8_t steering_state = lane.waypoints[i].wpstate.steering_state;
+
+      if (steering_state == autoware_msgs::WaypointState::STR_LEFT ||
+          steering_state == autoware_msgs::WaypointState::STR_RIGHT)
+      {
+        lane_waypoint_marker.id = i;
+        lane_waypoint_marker.pose = lane.waypoints[i].pose.pose;
+
+        tf2::Quaternion directional_offset(0, 0, 0);
+        tf2::Quaternion wp_orientation;
+        tf2::convert(lane_waypoint_marker.pose.orientation, wp_orientation);
+
+        if (steering_state == autoware_msgs::WaypointState::STR_LEFT)
+        {
+          directional_offset.setRPY(0, 0, M_PI / 2);
+        }
+        else if (steering_state == autoware_msgs::WaypointState::STR_RIGHT)
+        {
+          directional_offset.setRPY(0, 0, -M_PI / 2);
+        }
+        wp_orientation *= directional_offset;
+        wp_orientation.normalize();
+
+        tf2::convert(wp_orientation, lane_waypoint_marker.pose.orientation);
+        tmp_marker_array.markers.push_back(lane_waypoint_marker);
+      }
     }
     count++;
   }
@@ -389,6 +446,7 @@ void laneArrayCallback(const autoware_msgs::LaneArrayConstPtr& msg)
   createGlobalLaneArrayVelocityMarker(*msg);
   createGlobalLaneArrayOrientationMarker(*msg);
   createGlobalLaneArrayChangeFlagMarker(*msg);
+  createGlobalLaneArrayTurnMarker(*msg);
   publishMarkerArray(g_global_marker_array, g_global_mark_pub);
 }
 
@@ -407,7 +465,7 @@ void closestCallback(const std_msgs::Int32ConstPtr& msg)
 {
   _closest_waypoint = msg->data;
 }
-}
+}  // namespace
 
 int main(int argc, char** argv)
 {

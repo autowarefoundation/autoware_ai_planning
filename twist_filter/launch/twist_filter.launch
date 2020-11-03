@@ -7,24 +7,26 @@
   <arg name="lowpass_gain_linear_x" default="0.0" />
   <arg name="lowpass_gain_angular_z" default="0.0" />
   <arg name="lowpass_gain_steering_angle" default="0.0" />
+  <arg name="enable_smoothing" default="false" />
+  <arg name="enable_debug" default="false" />
 
   <param name="vehicle_info/wheel_base" value="$(arg wheel_base)" />
 
   <!-- For twist_gate -->
-  <arg name="loop_rate" default="30.0" />
   <arg name="use_decision_maker" default="false" />
 
   <!-- rosrun waypoint_follower twist_filter -->
-  <node pkg="twist_filter" type="twist_filter" name="twist_filter" output="log">
+  <node pkg="twist_filter" type="twist_filter" name="twist_filter" output="screen">
     <param name="lateral_accel_limit" value="$(arg lateral_accel_limit)" />
     <param name="lateral_jerk_limit" value="$(arg lateral_jerk_limit)" />
     <param name="lowpass_gain_linear_x" value="$(arg lowpass_gain_linear_x)" />
     <param name="lowpass_gain_angular_z" value="$(arg lowpass_gain_angular_z)" />
     <param name="lowpass_gain_steering_angle" value="$(arg lowpass_gain_steering_angle)" />
+    <param name="enable_smoothing" value="$(arg enable_smoothing)" />
+    <param name="enable_debug" value="$(arg enable_debug)" />
   </node>
 
-  <node pkg="twist_gate" type="twist_gate" name="twist_gate" output="log">
-    <param name="loop_rate" value="$(arg loop_rate)" />
+  <node pkg="twist_gate" type="twist_gate" name="twist_gate" output="screen">
     <param name="use_decision_maker" value="$(arg use_decision_maker)" />
   </node>
 </launch>

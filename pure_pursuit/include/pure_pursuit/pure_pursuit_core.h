@@ -78,8 +78,8 @@ private:
   // subscriber
   ros::Subscriber sub1_, sub2_, sub3_, sub4_;
 
-  // constant
-  const int LOOP_RATE_;  // processing frequency
+  // control loop update rate
+  double update_rate_;
 
   // variables
   bool is_linear_interpolation_, publishes_for_steering_robot_,

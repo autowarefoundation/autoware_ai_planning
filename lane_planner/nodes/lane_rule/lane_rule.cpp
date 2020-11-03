@@ -200,8 +200,25 @@ autoware_msgs::Lane apply_stopline_acceleration(const autoware_msgs::Lane& lane,
 std::vector<vector_map::Point> create_stop_points(const lane_planner::vmap::VectorMap& vmap)
 {
   std::vector<vector_map::Point> stop_points;
+  // find all lane points that belong to each stopline's LinkID
   for (const vector_map::StopLine& s : vmap.stoplines)
   {
+    bool match_stopsign = false;
+    // skip if stopline belongs to a stop sign
+    for (const vector_map::RoadSign& r : vmap.roadsigns)
+    {
+      if (s.signid == r.id)
+      {
+        if (r.type != 0)
+          match_stopsign = true;
+        continue;
+      }
+    }
+    if (match_stopsign)
+    {
+      continue;
+    }
+
     for (const vector_map::Lane& l : vmap.lanes)
     {
       if (l.lnid != s.linkid)
@@ -392,7 +409,7 @@ void create_waypoint(const autoware_msgs::LaneArray& msg)
   for (const autoware_msgs::Lane& l : msg.lanes)
     cached_waypoint.lanes.push_back(create_new_lane(l, header));
   if (all_vmap.points.empty() || all_vmap.lanes.empty() || all_vmap.nodes.empty() || all_vmap.stoplines.empty() ||
-      all_vmap.dtlanes.empty())
+      all_vmap.roadsigns.empty() || all_vmap.dtlanes.empty())
   {
     traffic_pub.publish(cached_waypoint);
     return;
@@ -487,7 +504,7 @@ void create_waypoint(const autoware_msgs::LaneArray& msg)
 void update_values()
 {
   if (all_vmap.points.empty() || all_vmap.lanes.empty() || all_vmap.nodes.empty() || all_vmap.stoplines.empty() ||
-      all_vmap.dtlanes.empty())
+      all_vmap.roadsigns.empty() || all_vmap.dtlanes.empty())
     return;
 
   lane_vmap = lane_planner::vmap::create_lane_vmap(all_vmap, lane_planner::vmap::LNO_ALL);
@@ -560,6 +577,12 @@ void cache_node(const vector_map::NodeArray& msg)
 void cache_stopline(const vector_map::StopLineArray& msg)
 {
   all_vmap.stoplines = msg.data;
+  update_values();
+}
+
+void cache_roadsign(const vector_map::RoadSignArray& msg)
+{
+  all_vmap.roadsigns = msg.data;
   update_values();
 }
 
@@ -644,6 +667,7 @@ int main(int argc, char** argv)
   ros::Subscriber lane_sub = n.subscribe("/vector_map_info/lane", sub_vmap_queue_size, cache_lane);
   ros::Subscriber node_sub = n.subscribe("/vector_map_info/node", sub_vmap_queue_size, cache_node);
   ros::Subscriber stopline_sub = n.subscribe("/vector_map_info/stop_line", sub_vmap_queue_size, cache_stopline);
+  ros::Subscriber roadsign_sub = n.subscribe("/vector_map_info/road_sign", sub_vmap_queue_size, cache_roadsign);
   ros::Subscriber dtlane_sub = n.subscribe("/vector_map_info/dtlane", sub_vmap_queue_size, cache_dtlane);
   ros::Subscriber config_sub = n.subscribe("/config/lane_rule", sub_config_queue_size, config_parameter);
 

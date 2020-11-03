@@ -70,7 +70,8 @@ bool PurePursuit::interpolateNextTarget(
   bool found = false;
   tf::Vector3 final_goal;
   // Draw a circle centered at p_C with a radius of search_radius
-  if (dist_CD > search_radius) {
+  if (dist_CD > search_radius)
+  {
     // no intersection in between the circle and AB
     found = false;
   }
@@ -105,7 +106,8 @@ bool PurePursuit::interpolateNextTarget(
     }
   }
 
-  if (found) {
+  if (found)
+  {
     next_target->x = final_goal.x();
     next_target->y = final_goal.y();
     next_target->z = current_pose_.position.z;

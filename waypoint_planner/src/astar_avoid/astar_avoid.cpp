@@ -21,6 +21,7 @@ AstarAvoid::AstarAvoid()
   , private_nh_("~")
   , closest_waypoint_index_(-1)
   , obstacle_waypoint_index_(-1)
+  , closest_local_index_(-1)
   , costmap_initialized_(false)
   , current_pose_initialized_(false)
   , current_velocity_initialized_(false)
@@ -378,10 +379,9 @@ int AstarAvoid::getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, co
                                         const int& search_size)
 {
   // search in all waypoints if lane_select judges you're not on waypoints
-  if (closest_waypoint_index_ == -1)
+  if (closest_local_index_ == -1)
   {
-    closest_local_index_ = -1;
-    return getClosestWaypoint(waypoints, pose);
+    closest_local_index_ = getClosestWaypoint(waypoints, pose);
   }
   else
   {
@@ -402,7 +402,7 @@ int AstarAvoid::getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, co
     {
       closest_local_index_ = -1;
     }
-
-    return closest_local_index;
   }
+
+  return closest_local_index_;
 }

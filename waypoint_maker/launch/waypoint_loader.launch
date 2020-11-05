@@ -7,17 +7,13 @@
   <arg name="resample_mode" default="True" />
   <arg name="resample_interval" default="1.0" />
   <arg name="replan_curve_mode" default="False" />
-  <arg name="overwrite_vmax_mode" default="False" />
   <arg name="replan_endpoint_mode" default="True" />
   <arg name="velocity_max" default="20" />
-  <arg name="radius_thresh" default="20" />
   <arg name="radius_min" default="6" />
   <arg name="velocity_min" default="4" />
   <arg name="accel_limit" default="0.5" />
   <arg name="decel_limit" default="0.3" />
-  <arg name="velocity_offset" default="4" />
-  <arg name="braking_distance" default="5" />
-  <arg name="end_point_offset" default="1" />
+  <arg name="lateral_accel_limit" default="2.0" />
   <arg name="use_decision_maker" default="false" />
 
   <!-- rosrun waypoint_maker waypoint_loader _multi_lane_csv:="path file" -->
@@ -30,17 +26,13 @@
     <param name="resample_mode" value="$(arg resample_mode)" />
     <param name="resample_interval" value="$(arg resample_interval)" />
     <param name="replan_curve_mode" value="$(arg replan_curve_mode)" />
-    <param name="overwrite_vmax_mode" value="$(arg overwrite_vmax_mode)" />
     <param name="replan_endpoint_mode" value="$(arg replan_endpoint_mode)" />
     <param name="velocity_max" value="$(arg velocity_max)" />
-    <param name="radius_thresh" value="$(arg radius_thresh)" />
     <param name="radius_min" value="$(arg radius_min)" />
     <param name="velocity_min" value="$(arg velocity_min)" />
     <param name="accel_limit" value="$(arg accel_limit)" />
     <param name="decel_limit" value="$(arg decel_limit)" />
-    <param name="velocity_offset" value="$(arg velocity_offset)" />
-    <param name="braking_distance" value="$(arg braking_distance)" />
-    <param name="end_point_offset" value="$(arg end_point_offset)" />
+    <param name="lateral_accel_limit" value="$(arg lateral_accel_limit)" />
     <param name="use_decision_maker" value="$(arg use_decision_maker)" />
   </node>
   <node pkg="waypoint_maker" type="waypoint_marker_publisher" name="waypoint_marker_publisher" />

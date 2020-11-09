@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="ll2_global_planner" type="ll2_global_planner_node" name="ll2_global_planner" output="screen">
+    <rosparam command="load" file="$(find ll2_global_planner)/config/params.yaml" />
+  </node>
+</launch>

@@ -54,51 +54,54 @@ void DecisionMakerNode::updateDriveState(cstring_t& state_name, int status)
   }
 }
 
+// Iterate every waypoint in received /final_waypoints and find the first
+// stop sign waypoint within certain search distance. If it is found, its
+// gid and stop sign state (either TYPE_STOPLINE or TYPE_STOP) is returned
+// as a std::pair. Otherwise, a pair of (NULLSTATE, -1) is returned.
 std::pair<uint8_t, int> DecisionMakerNode::getStopSignStateFromWaypoint(void)
 {
-  static const size_t ignore_idx = 0;
   static const double mu = 0.7;  // dry ground/ asphalt/ normal tire
   static const double g = 9.80665;
   static const double margin = 5;
   static const double reaction_time = 0.3 + margin;  // system delay(sec)
-  static const size_t reset_count = stopline_reset_count_;
+
   const double velocity = amathutils::kmph2mps(current_status_.velocity);
 
   const double free_running_distance = reaction_time * velocity;
   const double braking_distance = velocity * velocity / (2 * g * mu);
   const double distance_to_target = (free_running_distance + braking_distance) * 2 /* safety margin*/;
 
-  std::pair<uint8_t, int> ret(0, -1);
+  std::pair<uint8_t, int> ret(autoware_msgs::WaypointState::NULLSTATE, -1);
 
   double distance = 0.0;
   geometry_msgs::Pose prev_pose = current_status_.pose;
-  uint8_t state = 0;
 
-  if (ignore_idx > current_status_.finalwaypoints.waypoints.size() ||
-      3 > current_status_.finalwaypoints.waypoints.size())
+  // Index 0 holds ego-vehicle's current pose
+  if (current_status_.finalwaypoints.waypoints.size() < 3)
   {
     return ret;
   }
 
-  // reset previous stop
+  // reset previous stop sign waypoint
   if (current_status_.finalwaypoints.waypoints.at(1).gid > current_status_.prev_stopped_wpidx ||
       (unsigned int)(current_status_.prev_stopped_wpidx - current_status_.finalwaypoints.waypoints.at(1).gid) >
-          reset_count)
+          stopline_reset_count_)
   {
     current_status_.prev_stopped_wpidx = -1;
   }
 
-  for (unsigned int idx = 0; idx < current_status_.finalwaypoints.waypoints.size() - 1; idx++)
+  // start from index 1 since index 0 holds ego-vehicle's current pose.
+  for (size_t idx = 1; idx < current_status_.finalwaypoints.waypoints.size() - 1; ++idx)
   {
-    distance += amathutils::find_distance(prev_pose, current_status_.finalwaypoints.waypoints.at(idx).pose.pose);
-    state = current_status_.finalwaypoints.waypoints.at(idx).wpstate.stop_state;
+    const autoware_msgs::Waypoint &current_wpt = current_status_.finalwaypoints.waypoints.at(idx);
+    distance += amathutils::find_distance(prev_pose, current_wpt.pose.pose);
 
-    if (state)
+    if (current_wpt.wpstate.stop_state != autoware_msgs::WaypointState::NULLSTATE)
     {
-      if (current_status_.prev_stopped_wpidx != current_status_.finalwaypoints.waypoints.at(idx).gid)
+      if (current_status_.prev_stopped_wpidx != current_wpt.gid)
       {
-        ret.first = state;
-        ret.second = current_status_.finalwaypoints.waypoints.at(idx).gid;
+        ret.first = current_wpt.wpstate.stop_state;
+        ret.second = current_wpt.gid;
         break;
       }
     }
@@ -108,7 +111,7 @@ std::pair<uint8_t, int> DecisionMakerNode::getStopSignStateFromWaypoint(void)
       break;
     }
 
-    prev_pose = current_status_.finalwaypoints.waypoints.at(idx).pose.pose;
+    prev_pose = current_wpt.pose.pose;
   }
   return ret;
 }

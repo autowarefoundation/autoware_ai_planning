@@ -47,9 +47,10 @@ TEST_F(LaneSelectTestSuite, publishVehicleLocation) {
     test_obj_.publishTrafficWaypointsArray(dir.second);
     test_obj_.publishCurrentPose(-0.5 * dir.second, 0.0, 0.0);
     test_obj_.publishCurrentVelocity(0);
+    ros::WallDuration(0.1).sleep();
     ros::spinOnce();
     ros::WallDuration(0.1).sleep();
-    test_obj_.lsnSpinOnce();
+    ros::spinOnce();
     ros::WallDuration(0.1).sleep();
     ros::spinOnce();
 
@@ -63,9 +64,10 @@ TEST_F(LaneSelectTestSuite, publishVehicleLocation) {
 
     test_obj_.publishCurrentPose(0.5 * dir.second, 0.0, 0.0);
     test_obj_.publishCurrentVelocity(0);
+    ros::WallDuration(0.1).sleep();
     ros::spinOnce();
     ros::WallDuration(0.1).sleep();
-    test_obj_.lsnSpinOnce();
+    ros::spinOnce();
     ros::WallDuration(0.1).sleep();
     ros::spinOnce();
 

@@ -83,7 +83,7 @@ void WaypointReplanner::replanLaneWaypointVel(autoware_msgs::Lane& lane)
     setVelocityByRange(0, last, config_.velocity_max, lane);
     for (unsigned long i = 0; i < curve_radius.size(); i++)
     {
-      lane.waypoints[i].twist.twist.linear.x = std::fmin(lane.waypoints[i].twist.twist.linear.x, 
+      lane.waypoints[i].twist.twist.linear.x = std::fmin(lane.waypoints[i].twist.twist.linear.x,
                                                         std::sqrt(config_.lateral_accel_limit * std::fmax(curve_radius[i], config_.radius_min)));
     }
     limitVelocityByRange(0, last, config_.velocity_max, lane);
@@ -94,10 +94,10 @@ void WaypointReplanner::replanLaneWaypointVel(autoware_msgs::Lane& lane)
   {
     // set last waypoint speed to zero
     setVelocityByRange(last - 1, last, 0.0, lane);
-    // set minimum speed for each waypoint except for the last waypoint. 
+    // set minimum speed for each waypoint except for the last waypoint.
     raiseVelocityByRange(0, last - 1, config_.velocity_min, lane);
     // smooth it out again
-    limitVelocityByRange(0, 0, config_.velocity_min, lane);
+    limitVelocityByRange(0, last, config_.velocity_max, lane);
   }
 
   if (dir == LaneDirection::Backward)

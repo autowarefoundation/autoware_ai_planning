@@ -83,7 +83,7 @@ void WaypointReplanner::replanLaneWaypointVel(autoware_msgs::Lane& lane)
     setVelocityByRange(0, last, config_.velocity_max, lane);
     for (unsigned long i = 0; i < curve_radius.size(); i++)
     {
-      lane.waypoints[i].twist.twist.linear.x = std::fmin(lane.waypoints[i].twist.twist.linear.x, 
+      lane.waypoints[i].twist.twist.linear.x = std::fmin(lane.waypoints[i].twist.twist.linear.x,
                                                         std::sqrt(config_.lateral_accel_limit * std::fmax(curve_radius[i], config_.radius_min)));
     }
     limitVelocityByRange(0, last, config_.velocity_max, lane);
@@ -94,7 +94,7 @@ void WaypointReplanner::replanLaneWaypointVel(autoware_msgs::Lane& lane)
   {
     // set last waypoint speed to zero
     setVelocityByRange(last - 1, last, 0.0, lane);
-    // set minimum speed for each waypoint except for the last waypoint. 
+    // set minimum speed for each waypoint except for the last waypoint.
     raiseVelocityByRange(0, last - 1, config_.velocity_min, lane);
     // smooth it out again
     limitVelocityByRange(0, last, config_.velocity_max, lane);
@@ -341,11 +341,10 @@ void WaypointReplanner::limitAccelDecel(const unsigned long idx, autoware_msgs::
       const geometry_msgs::Point& p0 = lane.waypoints[next - sgn[j]].pose.pose.position;
       const geometry_msgs::Point& p1 = lane.waypoints[next].pose.pose.position;
       const double dist = std::hypot(p0.x - p1.x, p0.y - p1.y);
+      // maximum speed based on max_accel_limit or max_decel_limit
       v = sqrt(2 * acc[j] * dist + v * v);
-      if (v > config_.velocity_max || v > lane.waypoints[next].twist.twist.linear.x)
-      {
-        break;
-      }
+      // cap it in case it is larger than the current velocity or velocity_max.
+      v = std::min({v, lane.waypoints[next].twist.twist.linear.x, config_.velocity_max});
       lane.waypoints[next].twist.twist.linear.x = v;
     }
   }

@@ -46,7 +46,7 @@ public:
   } State;
 
   AstarAvoid();
-  ~AstarAvoid();
+  ~AstarAvoid() = default;
   void run();
 
 private:
@@ -61,6 +61,7 @@ private:
   ros::Subscriber obstacle_waypoint_sub_;
   ros::Subscriber state_sub_;
   ros::Rate *rate_;
+  ros::Timer timer_;
   tf::TransformListener tf_listener_;
 
   // params
@@ -79,30 +80,30 @@ private:
   AstarSearch astar_;
   State state_;
 
-  // threads
-  std::thread publish_thread_;
-  std::mutex mutex_;
-
   // variables
-  bool terminate_thread_;
   bool found_avoid_path_;
-  int closest_waypoint_index_;
-  int obstacle_waypoint_index_;
-  int closest_local_index_;
+
+  // Index of the closest waypoint in the current_waypoints_ Lane.
+  // Not the same as the waypoint gid. This value can change suddenly if the
+  // current_waypoints_ switches between base_waypoints_ and avoid_waypoints_.
+  int closest_waypoint_index_ = -1;
+
+  // Index of the obstacle relative to closest_waypoint_index_.
+  int obstacle_waypoint_index_ = -1;
   nav_msgs::OccupancyGrid costmap_;
   autoware_msgs::Lane base_waypoints_;
   autoware_msgs::Lane avoid_waypoints_;
-  autoware_msgs::Lane safety_waypoints_;
+  autoware_msgs::Lane current_waypoints_;
   geometry_msgs::PoseStamped current_pose_local_, current_pose_global_;
   geometry_msgs::PoseStamped goal_pose_local_, goal_pose_global_;
   geometry_msgs::TwistStamped current_velocity_;
   tf::Transform local2costmap_;  // local frame (e.g. velodyne) -> costmap origin
 
-  bool costmap_initialized_;
-  bool current_pose_initialized_;
-  bool current_velocity_initialized_;
-  bool base_waypoints_initialized_;
-  bool closest_waypoint_initialized_;
+  bool costmap_initialized_ = false;
+  bool current_pose_initialized_ = false;
+  bool current_velocity_initialized_ = false;
+  bool base_waypoints_initialized_ = false;
+  bool closest_waypoint_initialized_ = false;
 
   // functions, callback
   void costmapCallback(const nav_msgs::OccupancyGrid& msg);
@@ -116,9 +117,12 @@ private:
   bool checkInitialized();
   bool planAvoidWaypoints(int& end_of_avoid_index);
   void mergeAvoidWaypoints(const nav_msgs::Path& path, int& end_of_avoid_index);
-  void publishWaypoints();
   tf::Transform getTransform(const std::string& from, const std::string& to);
-  int getLocalClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose, const int& search_size);
+
+  // Find closest waypoint index within a search_size around the previous closest waypoint
+  void updateClosestWaypoint(const autoware_msgs::Lane& waypoints, const geometry_msgs::Pose& pose, const int& search_size);
+  // publish safety waypoints using a timer
+  void publishWaypoints(const ros::TimerEvent& e);
 };
 
 #endif

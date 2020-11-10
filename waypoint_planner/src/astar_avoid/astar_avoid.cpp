@@ -102,7 +102,6 @@ void AstarAvoid::run()
     {
       break;
     }
-    ROS_WARN("Waiting for subscribing topics...");
     ros::Duration(1.0).sleep();
   }
 
@@ -204,15 +203,41 @@ void AstarAvoid::run()
 
 bool AstarAvoid::checkInitialized()
 {
-  bool initialized = false;
-
   // check for relay mode
-  initialized = (current_pose_initialized_ && closest_waypoint_initialized_ && base_waypoints_initialized_);
+  bool initialized = current_pose_initialized_ && closest_waypoint_initialized_ && base_waypoints_initialized_;
+
+  if (!initialized)
+  {
+    if (!current_pose_initialized_)
+    {
+      ROS_WARN_THROTTLE(5, "Waiting for current_pose topic ...");
+    }
+    if (!closest_waypoint_initialized_)
+    {
+      ROS_WARN_THROTTLE(5, "Waiting for closest_waypoint topic ...");
+    }
+    if (!base_waypoints_initialized_)
+    {
+      ROS_WARN_THROTTLE(5, "Waiting for base_waypoints topic ...");
+    }
+  }
 
   // check for avoidance mode, additionally
   if (enable_avoidance_)
   {
-    initialized = (initialized && (current_velocity_initialized_ && costmap_initialized_));
+    initialized = initialized && current_velocity_initialized_ && costmap_initialized_;
+
+    if (!initialized)
+    {
+      if (!current_velocity_initialized_)
+      {
+        ROS_WARN_THROTTLE(5, "Waiting for current_velocity topic ...");
+      }
+      if (!costmap_initialized_)
+      {
+        ROS_WARN_THROTTLE(5, "Waiting for costmap topic ...");
+      }
+    }
   }
 
   return initialized;

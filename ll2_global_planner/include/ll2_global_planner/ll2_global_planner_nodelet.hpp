@@ -16,6 +16,7 @@
 #include <tf2_ros/buffer.h>
 #include <lanelet2_core/LaneletMap.h>
 
+#include <autoware_msgs/LaneArray.h>
 #include <autoware_lanelet2_msgs/MapBin.h>
 #include <lanelet2_routing/RoutingGraph.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -37,8 +38,10 @@ class Ll2GlobalPlannerNl : public nodelet::Nodelet {
   void poseGoalCb(const geometry_msgs::PoseStamped::ConstPtr& pose_msg);
 
   // Utility functions
-  lanelet::Lanelet getNearestLanelet(const lanelet::BasicPoint2d& point);
   void planRoute(const geometry_msgs::Point& goal_point);
+  std::vector<autoware_msgs::Waypoint> generateAutowareWaypoints(
+    const lanelet::LaneletSequence& continuous_lane, const geometry_msgs::Point& goal_point);
+  lanelet::Lanelet getNearestLanelet(const lanelet::BasicPoint2d& point);
 
   // Nodehandles, both public and private
   ros::NodeHandle nh_, pnh_;

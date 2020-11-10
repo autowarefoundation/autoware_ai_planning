@@ -70,7 +70,8 @@ bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point*
   bool found = false;
   tf::Vector3 final_goal;
   // Draw a circle centered at p_C with a radius of search_radius
-  if (dist_CD > search_radius) {
+  if (dist_CD > search_radius)
+  {
     // no intersection in between the circle and AB
     found = false;
   }
@@ -105,7 +106,8 @@ bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point*
     }
   }
 
-  if (found) {
+  if (found)
+  {
     next_target->x = final_goal.x();
     next_target->y = final_goal.y();
     next_target->z = current_pose_.position.z;
@@ -186,7 +188,7 @@ bool PurePursuit::canGetCurvature(double* output_kappa)
 
   if (!interpolation)
   {
-    ROS_INFO_STREAM("lost target! ");
+    ROS_INFO("lost target!");
     return false;
   }
 

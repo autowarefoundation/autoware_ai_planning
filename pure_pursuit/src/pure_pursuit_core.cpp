@@ -60,8 +60,36 @@ void PurePursuitNode::initForROS()
   private_nh_.param("update_rate", update_rate_, 30.0);
   private_nh_.param("out_twist_name", out_twist, std::string("twist_raw"));
   private_nh_.param("out_ctrl_cmd_name", out_ctrl_cmd, std::string("ctrl_raw"));
-  private_nh_.param("output_interface", output_interface_, std::string("all"));
+  private_nh_.param("output_interface", output_interface_, std::string("ctrl_cmd"));
   nh_.param("vehicle_info/wheel_base", wheel_base_, 2.7);
+
+  // Output type, use old parameter name only if it is set
+  if (private_nh_.hasParam("publishes_for_steering_robot"))
+  {
+    bool publishes_for_steering_robot;
+    private_nh_.param(
+      "publishes_for_steering_robot", publishes_for_steering_robot, false);
+    if (publishes_for_steering_robot)
+    {
+      output_interface_ = "ctrl_cmd";
+    }
+    else
+    {
+      output_interface_ = "twist";
+    }
+  }
+  else
+  {
+    private_nh_.param(
+      "output_interface", output_interface_, std::string("all"));
+  }
+
+  if (output_interface_ != "twist" && output_interface_ != "ctrl_cmd" &&
+      output_interface_ != "all")
+  {
+    ROS_ERROR("Control command interface type is not valid");
+    ros::shutdown();
+  }
 
   // setup subscriber
   sub1_ = nh_.subscribe("final_waypoints", 10, &PurePursuitNode::callbackFromWayPoints, this);
@@ -85,14 +113,25 @@ void PurePursuitNode::initForROS()
 
 void PurePursuitNode::run()
 {
-  ROS_INFO_STREAM("pure pursuit start");
   ros::Rate loop_rate(update_rate_);
   while (ros::ok())
   {
     ros::spinOnce();
     if (!is_pose_set_ || !is_waypoint_set_ || !is_velocity_set_)
     {
-      ROS_WARN("Necessary topics are not subscribed yet ... ");
+      if (!is_pose_set_)
+      {
+        ROS_WARN_THROTTLE(5, "Waiting for current_pose topic ...");
+      }
+      if (!is_waypoint_set_)
+      {
+        ROS_WARN_THROTTLE(5, "Waiting for final_waypoints topic ...");
+      }
+      if (!is_velocity_set_)
+      {
+        ROS_WARN_THROTTLE(5, "Waiting for current_velocity topic ...");
+      }
+
       loop_rate.sleep();
       continue;
     }

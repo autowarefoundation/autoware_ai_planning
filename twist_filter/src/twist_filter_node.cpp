@@ -18,34 +18,41 @@
 
 namespace twist_filter_node
 {
-TwistFilterNode::TwistFilterNode() : nh_(), private_nh_("~"), health_checker_(nh_, private_nh_)
+TwistFilterNode::TwistFilterNode() : nh_(), pnh_("~"), health_checker_(nh_, pnh_)
 {
-  // Subscribe
+  // Parameters
+  twist_filter::Configuration twist_filter_config;
+  nh_.param("vehicle_info/wheel_base", twist_filter_config.wheel_base, 2.7);
+  pnh_.param("lateral_accel_limit", twist_filter_config.lateral_accel_limit, 5.0);
+  pnh_.param("lateral_jerk_limit", twist_filter_config.lateral_jerk_limit, 5.0);
+  pnh_.param("lowpass_gain_linear_x", twist_filter_config.lowpass_gain_linear_x, 0.0);
+  pnh_.param("lowpass_gain_angular_z", twist_filter_config.lowpass_gain_angular_z, 0.0);
+  pnh_.param("lowpass_gain_steering_angle", twist_filter_config.lowpass_gain_steering_angle, 0.0);
+  pnh_.param("enable_smoothing", enable_smoothing_, false);
+  pnh_.param("enable_debug", enable_debug_, false);
+
+  twist_filter_ptr_ = std::make_unique<twist_filter::TwistFilter>(twist_filter_config);
+
+  // Subscribers
   twist_sub_ = nh_.subscribe("twist_raw", 1, &TwistFilterNode::twistCmdCallback, this);
   ctrl_sub_ = nh_.subscribe("ctrl_raw", 1, &TwistFilterNode::ctrlCmdCallback, this);
   config_sub_ = nh_.subscribe("config/twist_filter", 10, &TwistFilterNode::configCallback, this);
 
-  // Publish
+  // Publishers
   twist_pub_ = nh_.advertise<geometry_msgs::TwistStamped>("twist_cmd", 5);
   ctrl_pub_ = nh_.advertise<autoware_msgs::ControlCommandStamped>("ctrl_cmd", 5);
-  twist_lacc_limit_debug_pub_ = private_nh_.advertise<std_msgs::Float32>("limitation_debug/twist/lateral_accel", 5);
-  twist_ljerk_limit_debug_pub_ = private_nh_.advertise<std_msgs::Float32>("limitation_debug/twist/lateral_jerk", 5);
-  ctrl_lacc_limit_debug_pub_ = private_nh_.advertise<std_msgs::Float32>("limitation_debug/ctrl/lateral_accel", 5);
-  ctrl_ljerk_limit_debug_pub_ = private_nh_.advertise<std_msgs::Float32>("limitation_debug/ctrl/lateral_jerk", 5);
-  twist_lacc_result_pub_ = private_nh_.advertise<std_msgs::Float32>("result/twist/lateral_accel", 5);
-  twist_ljerk_result_pub_ = private_nh_.advertise<std_msgs::Float32>("result/twist/lateral_jerk", 5);
-  ctrl_lacc_result_pub_ = private_nh_.advertise<std_msgs::Float32>("result/ctrl/lateral_accel", 5);
-  ctrl_ljerk_result_pub_ = private_nh_.advertise<std_msgs::Float32>("result/ctrl/lateral_jerk", 5);
 
-  // Parameters
-  twist_filter::Configuration twist_filter_config;
-  nh_.param("vehicle_info/wheel_base", twist_filter_config.wheel_base, 2.7);
-  nh_.param("twist_filter/lateral_accel_limit", twist_filter_config.lateral_accel_limit, 5.0);
-  nh_.param("twist_filter/lateral_jerk_limit", twist_filter_config.lateral_jerk_limit, 5.0);
-  nh_.param("twist_filter/lowpass_gain_linear_x", twist_filter_config.lowpass_gain_linear_x, 0.0);
-  nh_.param("twist_filter/lowpass_gain_angular_z", twist_filter_config.lowpass_gain_angular_z, 0.0);
-  nh_.param("twist_filter/lowpass_gain_steering_angle", twist_filter_config.lowpass_gain_steering_angle, 0.0);
-  twist_filter_ptr_ = std::make_shared<twist_filter::TwistFilter>(twist_filter_config);
+  if (enable_debug_)
+  {
+    twist_lacc_limit_debug_pub_ = pnh_.advertise<std_msgs::Float32>("limitation_debug/twist/lateral_accel", 5);
+    twist_ljerk_limit_debug_pub_ = pnh_.advertise<std_msgs::Float32>("limitation_debug/twist/lateral_jerk", 5);
+    ctrl_lacc_limit_debug_pub_ = pnh_.advertise<std_msgs::Float32>("limitation_debug/ctrl/lateral_accel", 5);
+    ctrl_ljerk_limit_debug_pub_ = pnh_.advertise<std_msgs::Float32>("limitation_debug/ctrl/lateral_jerk", 5);
+    twist_lacc_result_pub_ = pnh_.advertise<std_msgs::Float32>("result/twist/lateral_accel", 5);
+    twist_ljerk_result_pub_ = pnh_.advertise<std_msgs::Float32>("result/twist/lateral_jerk", 5);
+    ctrl_lacc_result_pub_ = pnh_.advertise<std_msgs::Float32>("result/ctrl/lateral_accel", 5);
+    ctrl_ljerk_result_pub_ = pnh_.advertise<std_msgs::Float32>("result/ctrl/lateral_jerk", 5);
+  }
 
   // Enable health checker
   health_checker_.ENABLE();
@@ -84,45 +91,54 @@ void TwistFilterNode::twistCmdCallback(const geometry_msgs::TwistStampedConstPtr
     twist_out = twist_limit_result.get();
   }
 
-  // Publish lateral accel and jerk before smoothing
-  auto lacc_no_smoothed_result = twist_filter_ptr_->calcLaccWithAngularZ(twist);
-  if (lacc_no_smoothed_result)
+  if (enable_debug_)
   {
-    std_msgs::Float32 lacc_msg_debug;
-    lacc_msg_debug.data = lacc_no_smoothed_result.get();
-    twist_lacc_limit_debug_pub_.publish(lacc_msg_debug);
-  }
-  auto ljerk_no_smoothed_result = twist_filter_ptr_->calcLjerkWithAngularZ(twist, twist_prev, time_elapsed);
-  if (ljerk_no_smoothed_result)
-  {
-    std_msgs::Float32 ljerk_msg_debug;
-    ljerk_msg_debug.data = ljerk_no_smoothed_result.get();
-    twist_ljerk_limit_debug_pub_.publish(ljerk_msg_debug);
+    // Publish lateral accel and jerk before smoothing
+    auto lacc_no_smoothed_result = twist_filter_ptr_->calcLaccWithAngularZ(twist);
+    if (lacc_no_smoothed_result)
+    {
+      std_msgs::Float32 lacc_msg_debug;
+      lacc_msg_debug.data = lacc_no_smoothed_result.get();
+      twist_lacc_limit_debug_pub_.publish(lacc_msg_debug);
+    }
+    auto ljerk_no_smoothed_result = twist_filter_ptr_->calcLjerkWithAngularZ(twist, twist_prev, time_elapsed);
+    if (ljerk_no_smoothed_result)
+    {
+      std_msgs::Float32 ljerk_msg_debug;
+      ljerk_msg_debug.data = ljerk_no_smoothed_result.get();
+      twist_ljerk_limit_debug_pub_.publish(ljerk_msg_debug);
+    }
   }
 
-  // Smoothing
-  twist_out = twist_filter_ptr_->smoothTwist(twist_out);
+  if (enable_smoothing_)
+  {
+    // Smoothing
+    twist_out = twist_filter_ptr_->smoothTwist(twist_out);
+  }
 
-  // Smoothed value publish
+  // Publish filtered command
   geometry_msgs::TwistStamped out_msg = *msg;
   out_msg.twist.linear.x = twist_out.lx;
   out_msg.twist.angular.z = twist_out.az;
   twist_pub_.publish(out_msg);
 
-  // Publish lateral accel and jerk after smoothing
-  auto lacc_smoothed_result = twist_filter_ptr_->calcLaccWithAngularZ(twist_out);
-  if (lacc_smoothed_result)
+  if (enable_debug_)
   {
-    std_msgs::Float32 lacc_msg;
-    lacc_msg.data = lacc_smoothed_result.get();
-    twist_lacc_result_pub_.publish(lacc_msg);
-  }
-  auto ljerk_smoothed_result = twist_filter_ptr_->calcLjerkWithAngularZ(twist_out, twist_prev, time_elapsed);
-  if (ljerk_smoothed_result)
-  {
-    std_msgs::Float32 ljerk_msg;
-    ljerk_msg.data = ljerk_smoothed_result.get();
-    twist_ljerk_result_pub_.publish(ljerk_msg);
+    // Publish lateral accel and jerk after smoothing
+    auto lacc_smoothed_result = twist_filter_ptr_->calcLaccWithAngularZ(twist_out);
+    if (lacc_smoothed_result)
+    {
+      std_msgs::Float32 lacc_msg;
+      lacc_msg.data = lacc_smoothed_result.get();
+      twist_lacc_result_pub_.publish(lacc_msg);
+    }
+    auto ljerk_smoothed_result = twist_filter_ptr_->calcLjerkWithAngularZ(twist_out, twist_prev, time_elapsed);
+    if (ljerk_smoothed_result)
+    {
+      std_msgs::Float32 ljerk_msg;
+      ljerk_msg.data = ljerk_smoothed_result.get();
+      twist_ljerk_result_pub_.publish(ljerk_msg);
+    }
   }
 
   // Preserve value and time
@@ -152,45 +168,54 @@ void TwistFilterNode::ctrlCmdCallback(const autoware_msgs::ControlCommandStamped
     ctrl_out = ctrl_limit_result.get();
   }
 
-  // Publish lateral accel and jerk before smoothing
-  auto lacc_no_smoothed_result = twist_filter_ptr_->calcLaccWithSteeringAngle(ctrl);
-  if (lacc_no_smoothed_result)
+  if (enable_debug_)
   {
-    std_msgs::Float32 lacc_msg_debug;
-    lacc_msg_debug.data = lacc_no_smoothed_result.get();
-    ctrl_lacc_limit_debug_pub_.publish(lacc_msg_debug);
-  }
-  auto ljerk_no_smoothed_result = twist_filter_ptr_->calcLjerkWithSteeringAngle(ctrl, ctrl_prev, time_elapsed);
-  if (ljerk_no_smoothed_result)
-  {
-    std_msgs::Float32 ljerk_msg_debug;
-    ljerk_msg_debug.data = ljerk_no_smoothed_result.get();
-    ctrl_ljerk_limit_debug_pub_.publish(ljerk_msg_debug);
+    // Publish lateral accel and jerk before smoothing
+    auto lacc_no_smoothed_result = twist_filter_ptr_->calcLaccWithSteeringAngle(ctrl);
+    if (lacc_no_smoothed_result)
+    {
+      std_msgs::Float32 lacc_msg_debug;
+      lacc_msg_debug.data = lacc_no_smoothed_result.get();
+      ctrl_lacc_limit_debug_pub_.publish(lacc_msg_debug);
+    }
+    auto ljerk_no_smoothed_result = twist_filter_ptr_->calcLjerkWithSteeringAngle(ctrl, ctrl_prev, time_elapsed);
+    if (ljerk_no_smoothed_result)
+    {
+      std_msgs::Float32 ljerk_msg_debug;
+      ljerk_msg_debug.data = ljerk_no_smoothed_result.get();
+      ctrl_ljerk_limit_debug_pub_.publish(ljerk_msg_debug);
+    }
   }
 
-  // Smoothing
-  ctrl_out = twist_filter_ptr_->smoothCtrl(ctrl_out);
+  if (enable_smoothing_)
+  {
+    // Smoothing
+    ctrl_out = twist_filter_ptr_->smoothCtrl(ctrl_out);
+  }
 
-  // Smoothed value publish
+  // Publish filtered command
   autoware_msgs::ControlCommandStamped out_msg = *msg;
   out_msg.cmd.linear_velocity = ctrl_out.lv;
   out_msg.cmd.steering_angle = ctrl_out.sa;
   ctrl_pub_.publish(out_msg);
 
-  // Publish lateral accel and jerk after smoothing
-  auto lacc_smoothed_result = twist_filter_ptr_->calcLaccWithSteeringAngle(ctrl_out);
-  if (lacc_smoothed_result)
+  if (enable_debug_)
   {
-    std_msgs::Float32 lacc_msg;
-    lacc_msg.data = lacc_smoothed_result.get();
-    ctrl_lacc_result_pub_.publish(lacc_msg);
-  }
-  auto ljerk_smoothed_result = twist_filter_ptr_->calcLjerkWithSteeringAngle(ctrl_out, ctrl_prev, time_elapsed);
-  if (ljerk_smoothed_result)
-  {
-    std_msgs::Float32 ljerk_msg;
-    ljerk_msg.data = ljerk_smoothed_result.get();
-    ctrl_ljerk_result_pub_.publish(ljerk_msg);
+    // Publish lateral accel and jerk after smoothing
+    auto lacc_smoothed_result = twist_filter_ptr_->calcLaccWithSteeringAngle(ctrl_out);
+    if (lacc_smoothed_result)
+    {
+      std_msgs::Float32 lacc_msg;
+      lacc_msg.data = lacc_smoothed_result.get();
+      ctrl_lacc_result_pub_.publish(lacc_msg);
+    }
+    auto ljerk_smoothed_result = twist_filter_ptr_->calcLjerkWithSteeringAngle(ctrl_out, ctrl_prev, time_elapsed);
+    if (ljerk_smoothed_result)
+    {
+      std_msgs::Float32 ljerk_msg;
+      ljerk_msg.data = ljerk_smoothed_result.get();
+      ctrl_ljerk_result_pub_.publish(ljerk_msg);
+    }
   }
 
   // Preserve value and time

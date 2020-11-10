@@ -51,6 +51,10 @@ void Ll2GlobalPlannerNl::laneletMapCb(const autoware_lanelet2_msgs::MapBin& map_
 {
   lanelet_map_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(map_msg, lanelet_map_);
+
+  traffic_rules_ = traffic_rules::TrafficRulesFactory::instance().create(Locations::Germany, Participants::Vehicle);
+  routing_graph_ = routing::RoutingGraph::build(*lanelet_map_, *traffic_rules_);
+
   initialized_ = true;
   ROS_INFO("Loaded Lanelet map");
 }
@@ -92,9 +96,7 @@ void Ll2GlobalPlannerNl::planRoute(const geometry_msgs::Point& goal_point)
   const Lanelet& starting_lanelet = getNearestLanelet(starting_point);
 
   // Plan a route from current vehicle position
-  traffic_rules::TrafficRulesPtr traffic_rules{traffic_rules::TrafficRulesFactory::instance().create(Locations::Germany, Participants::Vehicle)};
-  routing::RoutingGraphUPtr graph = routing::RoutingGraph::build(*lanelet_map_, *traffic_rules);
-  Optional<routing::LaneletPath> shortest_path_opt = graph->shortestPath(starting_lanelet, goal_lanelet);
+  Optional<routing::LaneletPath> shortest_path_opt = routing_graph_->shortestPath(starting_lanelet, goal_lanelet);
   routing::LaneletPath shortest_path;
 
   if (!shortest_path_opt)
@@ -121,7 +123,7 @@ void Ll2GlobalPlannerNl::planRoute(const geometry_msgs::Point& goal_point)
   for (auto& lanelet : continuous_lane.lanelets())
   {
     const std::string turn_direction = lanelet.attributeOr("turn_direction", "straight");
-    traffic_rules::SpeedLimitInformation speed_limit = traffic_rules->speedLimit(lanelet);
+    traffic_rules::SpeedLimitInformation speed_limit = traffic_rules_->speedLimit(lanelet);
     ConstLineString3d centerline = lanelet.centerline();
     int wp_length = centerline.size() - 1;
 
@@ -218,6 +220,12 @@ void Ll2GlobalPlannerNl::planRoute(const geometry_msgs::Point& goal_point)
 Lanelet Ll2GlobalPlannerNl::getNearestLanelet(const lanelet::BasicPoint2d& point)
 {
   std::vector<std::pair<double, Lanelet>> closeLanelets = geometry::findNearest(lanelet_map_->laneletLayer, point, 1);
+
+  if (closeLanelets.size() > 1)
+  {
+    ROS_WARN("Vehicle is positioned inside multiple lanelets, choosing the first lanelet as the starting point");
+  }
+
   Lanelet nearest_lanelet = closeLanelets[0].second;
 
   return nearest_lanelet;

@@ -17,6 +17,7 @@
 #include <lanelet2_core/LaneletMap.h>
 
 #include <autoware_lanelet2_msgs/MapBin.h>
+#include <lanelet2_routing/RoutingGraph.h>
 #include <geometry_msgs/PoseStamped.h>
 
 
@@ -54,6 +55,8 @@ class Ll2GlobalPlannerNl : public nodelet::Nodelet {
   // Internal state
   bool initialized_ = false;
   lanelet::LaneletMapPtr lanelet_map_ = nullptr;
+  lanelet::traffic_rules::TrafficRulesPtr traffic_rules_ = nullptr;
+  lanelet::routing::RoutingGraphUPtr routing_graph_ = nullptr;
 };
 
 }  // namespace ll2_global_planner

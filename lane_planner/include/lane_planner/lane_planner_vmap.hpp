@@ -48,6 +48,7 @@ struct VectorMap {
   std::vector<vector_map::Lane> lanes;
   std::vector<vector_map::Node> nodes;
   std::vector<vector_map::StopLine> stoplines;
+  std::vector<vector_map::RoadSign> roadsigns;
   std::vector<vector_map::DTLane> dtlanes;
 };
 

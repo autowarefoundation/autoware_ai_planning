@@ -15,6 +15,8 @@
  */
 
 #include <vector>
+#include <string>
+
 #include <pure_pursuit/pure_pursuit_core.h>
 
 namespace waypoint_follower
@@ -52,10 +54,9 @@ PurePursuitNode::~PurePursuitNode()
 void PurePursuitNode::initForROS()
 {
   // ros parameter settings
+  std::string out_twist, out_ctrl_cmd;
   private_nh_.param("velocity_source", velocity_source_, 0);
   private_nh_.param("is_linear_interpolation", is_linear_interpolation_, true);
-  private_nh_.param(
-    "publishes_for_steering_robot", publishes_for_steering_robot_, false);
   private_nh_.param(
     "add_virtual_end_waypoints", add_virtual_end_waypoints_, false);
   private_nh_.param("const_lookahead_distance", const_lookahead_distance_, 4.0);
@@ -64,7 +65,37 @@ void PurePursuitNode::initForROS()
   private_nh_.param(
     "minimum_lookahead_distance", minimum_lookahead_distance_, 6.0);
   private_nh_.param("update_rate", update_rate_, 30.0);
+  private_nh_.param("out_twist_name", out_twist, std::string("twist_raw"));
+  private_nh_.param("out_ctrl_cmd_name", out_ctrl_cmd, std::string("ctrl_raw"));
   nh_.param("vehicle_info/wheel_base", wheel_base_, 2.7);
+
+  // Output type, use old parameter name only if it is set
+  if (private_nh_.hasParam("publishes_for_steering_robot"))
+  {
+    bool publishes_for_steering_robot;
+    private_nh_.param(
+      "publishes_for_steering_robot", publishes_for_steering_robot, false);
+    if (publishes_for_steering_robot)
+    {
+      output_interface_ = "ctrl_cmd";
+    }
+    else
+    {
+      output_interface_ = "twist";
+    }
+  }
+  else
+  {
+    private_nh_.param(
+      "output_interface", output_interface_, std::string("all"));
+  }
+
+  if (output_interface_ != "twist" && output_interface_ != "ctrl_cmd" &&
+      output_interface_ != "all")
+  {
+    ROS_ERROR("Control command interface type is not valid");
+    ros::shutdown();
+  }
 
   // setup subscriber
   sub1_ = nh_.subscribe("final_waypoints", 10,
@@ -76,9 +107,9 @@ void PurePursuitNode::initForROS()
   sub4_ = nh_.subscribe("current_velocity", 10,
     &PurePursuitNode::callbackFromCurrentVelocity, this);
 
-  // setup publisher
-  pub1_ = nh_.advertise<geometry_msgs::TwistStamped>("twist_raw", 10);
-  pub2_ = nh_.advertise<autoware_msgs::ControlCommandStamped>("ctrl_raw", 10);
+  // setup publishers
+  pub1_ = nh_.advertise<geometry_msgs::TwistStamped>(out_twist, 10);
+  pub2_ = nh_.advertise<autoware_msgs::ControlCommandStamped>(out_ctrl_cmd, 10);
   pub11_ = nh_.advertise<visualization_msgs::Marker>("next_waypoint_mark", 0);
   pub12_ = nh_.advertise<visualization_msgs::Marker>("next_target_mark", 0);
   pub13_ = nh_.advertise<visualization_msgs::Marker>("search_circle_mark", 0);
@@ -124,8 +155,7 @@ void PurePursuitNode::run()
     double kappa = 0;
     bool can_get_curvature = pp_.canGetCurvature(&kappa);
 
-    publishTwistStamped(can_get_curvature, kappa);
-    publishControlCommandStamped(can_get_curvature, kappa);
+    publishControlCommands(can_get_curvature, kappa);
     health_checker_ptr_->NODE_ACTIVATE();
     health_checker_ptr_->CHECK_RATE("topic_rate_vehicle_cmd_slow", 8, 5, 1,
       "topic vehicle_cmd publish rate slow.");
@@ -157,6 +187,24 @@ void PurePursuitNode::run()
   }
 }
 
+void PurePursuitNode::publishControlCommands(
+  const bool& can_get_curvature, const double& kappa) const
+{
+  if (output_interface_ == "twist")
+  {
+    publishTwistStamped(can_get_curvature, kappa);
+  }
+  else if (output_interface_ == "ctrl_cmd")
+  {
+    publishCtrlCmdStamped(can_get_curvature, kappa);
+  }
+  else if (output_interface_ == "all")
+  {
+    publishTwistStamped(can_get_curvature, kappa);
+    publishCtrlCmdStamped(can_get_curvature, kappa);
+  }
+}
+
 void PurePursuitNode::publishTwistStamped(
   const bool& can_get_curvature, const double& kappa) const
 {
@@ -167,14 +215,9 @@ void PurePursuitNode::publishTwistStamped(
   pub1_.publish(ts);
 }
 
-void PurePursuitNode::publishControlCommandStamped(
+void PurePursuitNode::publishCtrlCmdStamped(
   const bool& can_get_curvature, const double& kappa) const
 {
-  if (!publishes_for_steering_robot_)
-  {
-    return;
-  }
-
   autoware_msgs::ControlCommandStamped ccs;
   ccs.header.stamp = ros::Time::now();
   ccs.cmd.linear_velocity = can_get_curvature ? computeCommandVelocity() : 0;

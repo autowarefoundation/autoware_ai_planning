@@ -22,17 +22,15 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
-#include <visualization_msgs/Marker.h>
 
 // User defined includes
 #include <autoware_config_msgs/ConfigWaypointFollower.h>
 #include <autoware_msgs/ControlCommandStamped.h>
 #include <autoware_msgs/Lane.h>
-#include <pure_pursuit/pure_pursuit.h>
-#include <pure_pursuit/pure_pursuit_viz.h>
-
 #include <autoware_health_checker/health_checker/health_checker.h>
+#include <pure_pursuit/pure_pursuit.h>
 
+// C++ includes
 #include <vector>
 #include <memory>
 #include <string>
@@ -43,7 +41,6 @@ enum class Mode : int32_t
 {
   waypoint,
   dialog,
-
   unknown = -1,
 };
 
@@ -57,7 +54,7 @@ class PurePursuitNode
 {
 public:
   PurePursuitNode();
-  ~PurePursuitNode();
+  ~PurePursuitNode() = default;
 
   void run();
   friend class PurePursuitNodeTestSuite;
@@ -73,8 +70,7 @@ private:
   PurePursuit pp_;
 
   // publisher
-  ros::Publisher pub1_, pub2_,
-    pub11_, pub12_, pub13_, pub14_, pub15_, pub16_, pub17_, pub18_;
+  ros::Publisher pub1_, pub2_, pub11_, pub12_, pub13_, pub14_, pub15_, pub16_, pub17_, pub18_;
 
   // subscriber
   ros::Subscriber sub1_, sub2_, sub3_, sub4_;
@@ -98,11 +94,9 @@ private:
   std::string output_interface_;
 
   // callbacks
-  void callbackFromConfig(
-    const autoware_config_msgs::ConfigWaypointFollowerConstPtr& config);
+  void callbackFromConfig(const autoware_config_msgs::ConfigWaypointFollowerConstPtr& config);
   void callbackFromCurrentPose(const geometry_msgs::PoseStampedConstPtr& msg);
-  void callbackFromCurrentVelocity(
-    const geometry_msgs::TwistStampedConstPtr& msg);
+  void callbackFromCurrentVelocity(const geometry_msgs::TwistStampedConstPtr& msg);
   void callbackFromWayPoints(const autoware_msgs::LaneConstPtr& msg);
 
   // initializer
@@ -110,15 +104,11 @@ private:
 
   // functions
   void publishControlCommands(const bool& can_get_curvature, const double& kappa) const;
-  void publishTwistStamped(
-    const bool& can_get_curvature, const double& kappa) const;
-  void publishCtrlCmdStamped(
-    const bool& can_get_curvature, const double& kappa) const;
-  void publishDeviationCurrentPosition(
-    const geometry_msgs::Point& point,
-    const std::vector<autoware_msgs::Waypoint>& waypoints) const;
-  void connectVirtualLastWaypoints(
-    autoware_msgs::Lane* expand_lane, LaneDirection direction);
+  void publishTwistStamped(const bool& can_get_curvature, const double& kappa) const;
+  void publishCtrlCmdStamped(const bool& can_get_curvature, const double& kappa) const;
+  void publishDeviationCurrentPosition(const geometry_msgs::Point& point,
+                                       const std::vector<autoware_msgs::Waypoint>& waypoints) const;
+  void connectVirtualLastWaypoints(autoware_msgs::Lane* expand_lane, LaneDirection direction);
 
   int getSgn() const;
   double computeLookaheadDistance() const;
@@ -127,8 +117,7 @@ private:
   double computeAngularGravity(double velocity, double kappa) const;
 };
 
-double convertCurvatureToSteeringAngle(
-  const double& wheel_base, const double& kappa);
+double convertCurvatureToSteeringAngle(const double& wheel_base, const double& kappa);
 
 inline double kmph2mps(double velocity_kmph)
 {

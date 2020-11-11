@@ -29,9 +29,10 @@ namespace waypoint_follower
 double PurePursuit::calcCurvature(const geometry_msgs::Point& target) const
 {
   double kappa;
-  geometry_msgs::Point pt = calcRelativeCoordinate(target, current_pose_);
-  double denominator = pt.x * pt.x + pt.y * pt.y;
-  double numerator = 2.0 * pt.y;
+  const geometry_msgs::Point pt = calcRelativeCoordinate(target, current_pose_);
+  const double denominator = pt.x * pt.x + pt.y * pt.y;
+  const double numerator = 2.0 * pt.y;
+
   if (denominator != 0.0)
   {
     kappa = numerator / denominator;
@@ -45,27 +46,26 @@ double PurePursuit::calcCurvature(const geometry_msgs::Point& target) const
 }
 
 // linear interpolation of next target
-bool PurePursuit::interpolateNextTarget(
-  int next_waypoint, geometry_msgs::Point* next_target) const
+bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point* next_target) const
 {
-  int path_size = static_cast<int>(current_waypoints_.size());
+  const int path_size = static_cast<int>(current_waypoints_.size());
   if (next_waypoint == path_size - 1)
   {
     *next_target = current_waypoints_.back().pose.pose.position;
     return true;
   }
-  double search_radius = lookahead_distance_;
-  geometry_msgs::Point end = current_waypoints_.at(next_waypoint).pose.pose.position;
-  geometry_msgs::Point start = current_waypoints_.at(next_waypoint - 1).pose.pose.position;
+  const double search_radius = lookahead_distance_;
+  const geometry_msgs::Point end = current_waypoints_.at(next_waypoint).pose.pose.position;
+  const geometry_msgs::Point start = current_waypoints_.at(next_waypoint - 1).pose.pose.position;
 
   // project ego vehicle's current position at C onto the line at D in between two waypoints A and B.
-  tf::Vector3 p_A(start.x, start.y, 0.0);
-  tf::Vector3 p_B(end.x, end.y, 0.0);
-  tf::Vector3 p_C(current_pose_.position.x, current_pose_.position.y, 0.0);
-  tf::Vector3 AB = p_B - p_A;
-  tf::Vector3 AC = p_C - p_A;
-  tf::Vector3 p_D = p_A + AC.dot(AB) / AB.dot(AB) * AB;
-  double dist_CD = (p_D - p_C).length();
+  const tf::Vector3 p_A(start.x, start.y, 0.0);
+  const tf::Vector3 p_B(end.x, end.y, 0.0);
+  const tf::Vector3 p_C(current_pose_.position.x, current_pose_.position.y, 0.0);
+  const tf::Vector3 AB = p_B - p_A;
+  const tf::Vector3 AC = p_C - p_A;
+  const tf::Vector3 p_D = p_A + AC.dot(AB) / AB.dot(AB) * AB;
+  const double dist_CD = (p_D - p_C).length();
 
   bool found = false;
   tf::Vector3 final_goal;
@@ -118,7 +118,7 @@ bool PurePursuit::interpolateNextTarget(
 
 void PurePursuit::getNextWaypoint()
 {
-  int path_size = static_cast<int>(current_waypoints_.size());
+  const int path_size = static_cast<int>(current_waypoints_.size());
 
   // if waypoints are not given, do nothing.
   if (path_size == 0)
@@ -139,9 +139,7 @@ void PurePursuit::getNextWaypoint()
     }
 
     // if there exists an effective waypoint
-    if (getPlaneDistance(
-      current_waypoints_.at(i).pose.pose.position, current_pose_.position)
-      > lookahead_distance_)
+    if (getPlaneDistance(current_waypoints_.at(i).pose.pose.position, current_pose_.position) > lookahead_distance_)
     {
       next_waypoint_number_ = i;
       return;
@@ -166,8 +164,7 @@ bool PurePursuit::canGetCurvature(double* output_kappa)
   bool is_valid_curve = false;
   for (const auto& el : current_waypoints_)
   {
-    if (getPlaneDistance(el.pose.pose.position, current_pose_.position)
-      > minimum_lookahead_distance_)
+    if (getPlaneDistance(el.pose.pose.position, current_pose_.position) > minimum_lookahead_distance_)
     {
       is_valid_curve = true;
       break;
@@ -179,25 +176,21 @@ bool PurePursuit::canGetCurvature(double* output_kappa)
   }
   // if is_linear_interpolation_ is false or next waypoint is first or last
   if (!is_linear_interpolation_ || next_waypoint_number_ == 0 ||
-    next_waypoint_number_ == (static_cast<int>(current_waypoints_.size() - 1)))
+      next_waypoint_number_ == (static_cast<int>(current_waypoints_.size() - 1)))
   {
-    next_target_position_ =
-      current_waypoints_.at(next_waypoint_number_).pose.pose.position;
+    next_target_position_ = current_waypoints_.at(next_waypoint_number_).pose.pose.position;
     *output_kappa = calcCurvature(next_target_position_);
     return true;
   }
 
-  // linear interpolation
-  bool interpolation = interpolateNextTarget(next_waypoint_number_, &next_target_position_);
+  // linear interpolation and calculate angular velocity
+  const bool interpolation = interpolateNextTarget(next_waypoint_number_, &next_target_position_);
 
   if (!interpolation)
   {
     ROS_INFO("lost target!");
     return false;
   }
-
-  // ROS_INFO("next_target : ( %lf , %lf , %lf)",
-  //  next_target.x, next_target.y,next_target.z);
 
   *output_kappa = calcCurvature(next_target_position_);
   return true;

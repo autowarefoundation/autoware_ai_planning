@@ -38,22 +38,18 @@ namespace waypoint_follower
 visualization_msgs::Marker displayNextWaypoint(geometry_msgs::Point position);
 // display the next target by markers.
 visualization_msgs::Marker displayNextTarget(geometry_msgs::Point target);
-visualization_msgs::Marker displayExpandWaypoints(
-  const std::vector<autoware_msgs::Waypoint>& waypoints, int size);
+visualization_msgs::Marker displayExpandWaypoints(const std::vector<autoware_msgs::Waypoint>& waypoints, int size);
 
-double calcRadius(
-  geometry_msgs::Point target, geometry_msgs::Pose current_pose);
+double calcRadius(geometry_msgs::Point target, geometry_msgs::Pose current_pose);
 
 // generate the locus of pure pursuit
-std::vector<geometry_msgs::Point> generateTrajectoryCircle(
-  geometry_msgs::Point target, geometry_msgs::Pose current_pose);
+std::vector<geometry_msgs::Point> generateTrajectoryCircle(geometry_msgs::Point target,
+                                                           geometry_msgs::Pose current_pose);
 // display the locus of pure pursuit by markers.
-visualization_msgs::Marker displayTrajectoryCircle(
-  std::vector<geometry_msgs::Point> traj_circle_array);
+visualization_msgs::Marker displayTrajectoryCircle(std::vector<geometry_msgs::Point> traj_circle_array);
 
 // display the search radius by markers.
-visualization_msgs::Marker displaySearchRadius(
-  geometry_msgs::Point current_pose, double search_radius);
+visualization_msgs::Marker displaySearchRadius(geometry_msgs::Point current_pose, double search_radius);
 }  // namespace waypoint_follower
 
 #endif  // PURE_PURSUIT_PURE_PURSUIT_VIZ_H

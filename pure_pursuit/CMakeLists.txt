@@ -2,21 +2,20 @@ cmake_minimum_required(VERSION 2.8.3)
 project(pure_pursuit)
 
 find_package(autoware_build_flags REQUIRED)
+
 find_package(
   catkin REQUIRED COMPONENTS
-    amathutils_lib
     autoware_config_msgs
     autoware_health_checker
     autoware_msgs
     geometry_msgs
+    std_msgs
+    tf
     libwaypoint_follower
     roscpp
     roslint
     rostest
     rosunit
-    std_msgs
-    tf
-    tf2
 )
 
 catkin_package(

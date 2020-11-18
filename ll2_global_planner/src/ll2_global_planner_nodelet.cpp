@@ -136,6 +136,10 @@ std::vector<autoware_msgs::Waypoint> Ll2GlobalPlannerNl::generateAutowareWaypoin
   {
     const std::string turn_direction = lanelet.attributeOr("turn_direction", "straight");
     const traffic_rules::SpeedLimitInformation speed_limit = traffic_rules_->speedLimit(lanelet);
+
+    // centerline() will return a series of points spaced 1 meter apart thanks
+    // to Autoware.AI's lanelet2_map_loader. The loader rewrites the original
+    // centerline with a resampled centerline for easier use with autoware.
     const ConstLineString3d centerline = lanelet.centerline();
     const int wp_length = centerline.size() - 1;
 

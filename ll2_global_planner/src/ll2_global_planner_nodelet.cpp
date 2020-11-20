@@ -54,6 +54,10 @@ void Ll2GlobalPlannerNl::laneletMapCb(const autoware_lanelet2_msgs::MapBin& map_
 {
   lanelet_map_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(map_msg, lanelet_map_);
+
+  traffic_rules_ = traffic_rules::TrafficRulesFactory::instance().create(Locations::Germany, Participants::Vehicle);
+  routing_graph_ = routing::RoutingGraph::build(*lanelet_map_, *traffic_rules_);
+
   initialized_ = true;
   ROS_INFO("Loaded Lanelet map");
 }
@@ -84,8 +88,6 @@ void Ll2GlobalPlannerNl::llhGoalCb(const sensor_msgs::NavSatFix::ConstPtr& llh_m
 
 void Ll2GlobalPlannerNl::planRoute(const BasicPoint2d& goal_point)
 {
-  const float duplicate_dist_threshold = 0.1;
-
   // Find the nearest lanelet to the goal point
   Lanelet goal_lanelet = getNearestLanelet(goal_point);
 
@@ -107,9 +109,7 @@ void Ll2GlobalPlannerNl::planRoute(const BasicPoint2d& goal_point)
   const Lanelet& starting_lanelet = getNearestLanelet(starting_point);
 
   // Plan a route from current vehicle position
-  traffic_rules::TrafficRulesPtr traffic_rules{traffic_rules::TrafficRulesFactory::instance().create(Locations::Germany, Participants::Vehicle)};
-  routing::RoutingGraphUPtr graph = routing::RoutingGraph::build(*lanelet_map_, *traffic_rules);
-  Optional<routing::LaneletPath> shortest_path_opt = graph->shortestPath(starting_lanelet, goal_lanelet);
+  Optional<routing::LaneletPath> shortest_path_opt = routing_graph_->shortestPath(starting_lanelet, goal_lanelet);
   routing::LaneletPath shortest_path;
 
   if (!shortest_path_opt)
@@ -129,16 +129,34 @@ void Ll2GlobalPlannerNl::planRoute(const BasicPoint2d& goal_point)
 
   ROS_INFO("Found a path containing %lu lanelets", shortest_path.size());
 
-  // Convert to autoware waypoints
+  autoware_msgs::Lane lane_msg;
+  lane_msg.waypoints = generateAutowareWaypoints(continuous_lane, goal_point);
+  lane_msg.header.stamp = ros::Time(0);
+  lane_msg.header.frame_id = "map";
+  lane_msg.is_blocked = false;
+
+  autoware_msgs::LaneArray lane_array_msg;
+  lane_array_msg.lanes.push_back(lane_msg);
+  waypoints_pub_.publish(lane_array_msg);
+}
+
+std::vector<autoware_msgs::Waypoint> Ll2GlobalPlannerNl::generateAutowareWaypoints(
+  const LaneletSequence& continuous_lane, const BasicPoint2d& goal_point)
+{
+  const float duplicate_dist_threshold = 0.1;
   std::vector<autoware_msgs::Waypoint> waypoints;
 
   // Loop over each lanelet
   for (auto& lanelet : continuous_lane.lanelets())
   {
     const std::string turn_direction = lanelet.attributeOr("turn_direction", "straight");
-    traffic_rules::SpeedLimitInformation speed_limit = traffic_rules->speedLimit(lanelet);
-    ConstLineString3d centerline = lanelet.centerline();
-    int wp_length = centerline.size() - 1;
+    const traffic_rules::SpeedLimitInformation speed_limit = traffic_rules_->speedLimit(lanelet);
+
+    // centerline() will return a series of points spaced 1 meter apart thanks
+    // to Autoware.AI's lanelet2_map_loader. The loader rewrites the original
+    // centerline with a resampled centerline for easier use with autoware.
+    const ConstLineString3d centerline = lanelet.centerline();
+    const int wp_length = centerline.size() - 1;
 
     // Loop over each centerline point
     for (int i = 0; i <= wp_length; i++)
@@ -217,22 +235,21 @@ void Ll2GlobalPlannerNl::planRoute(const BasicPoint2d& goal_point)
   // Set orientation of the last waypoint
   processed_waypoints.back().pose.pose.orientation = processed_waypoints.end()[-2].pose.pose.orientation;
 
-  autoware_msgs::Lane lane_msg;
   // Trim waypoints to stop at goal point
-  std::move(processed_waypoints.begin(), processed_waypoints.begin() + smallest_goal_wp_id, std::back_inserter(lane_msg.waypoints));
+  processed_waypoints.resize(smallest_goal_wp_id);
 
-  lane_msg.header.stamp = ros::Time(0);
-  lane_msg.header.frame_id = "map";
-  lane_msg.is_blocked = false;
-
-  autoware_msgs::LaneArray lane_array_msg;
-  lane_array_msg.lanes.push_back(lane_msg);
-  waypoints_pub_.publish(lane_array_msg);
+  return processed_waypoints;
 }
 
 Lanelet Ll2GlobalPlannerNl::getNearestLanelet(const lanelet::BasicPoint2d& point)
 {
   std::vector<std::pair<double, Lanelet>> closeLanelets = geometry::findNearest(lanelet_map_->laneletLayer, point, 1);
+
+  if (closeLanelets.size() > 1)
+  {
+    ROS_WARN("Vehicle is positioned inside multiple lanelets, choosing the first lanelet as the starting point");
+  }
+
   Lanelet nearest_lanelet = closeLanelets[0].second;
 
   return nearest_lanelet;

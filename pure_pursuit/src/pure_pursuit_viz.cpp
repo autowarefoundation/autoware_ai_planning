@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#include <pure_pursuit/pure_pursuit_viz.h>
+
 #include <string>
 #include <vector>
-#include <pure_pursuit/pure_pursuit_viz.h>
 
 namespace waypoint_follower
 {
@@ -102,15 +103,15 @@ visualization_msgs::Marker displayExpandWaypoints(const std::vector<autoware_msg
 double calcRadius(geometry_msgs::Point target, geometry_msgs::Pose current_pose)
 {
   double radius;
-  double denominator = 2 * calcRelativeCoordinate(target, current_pose).y;
-  double numerator = pow(getPlaneDistance(target, current_pose.position), 2);
+  const geometry_msgs::Point pt = calcRelativeCoordinate(target, current_pose);
+  const double numerator = pt.x * pt.x + pt.y * pt.y;
+  const double denominator = 2.0 * pt.y;
 
   if (denominator != 0)
     radius = numerator / denominator;
   else
     radius = 0;
 
-  // ROS_INFO("radius : %lf", radius);
   return radius;
 }
 
@@ -119,9 +120,9 @@ std::vector<geometry_msgs::Point> generateTrajectoryCircle(geometry_msgs::Point 
                                                            geometry_msgs::Pose current_pose)
 {
   std::vector<geometry_msgs::Point> traj_circle_array;
-  double radius = calcRadius(target, current_pose);
-  double range = M_PI / 8;
-  double increment = 0.01;
+  const double radius = calcRadius(target, current_pose);
+  const double range = M_PI / 8;
+  const double increment = 0.01;
 
   for (double i = 0; i < range; i += increment)
   {
@@ -226,88 +227,5 @@ visualization_msgs::Marker displaySearchRadius(geometry_msgs::Point current_pose
   marker.frame_locked = true;
   return marker;
 }
-/*
-// debug tool for interpolateNextTarget
-void displayLinePoint(double a, double b, double c, geometry_msgs::Point target, geometry_msgs::Point target2,
-                      geometry_msgs::Point target3)
-{
-  visualization_msgs::Marker line;
-  line.header.frame_id = MAP_FRAME;
-  line.header.stamp = ros::Time();
-  line.ns = "line_marker";
-  line.id = 0;
-  line.type = visualization_msgs::Marker::LINE_STRIP;
-  line.action = visualization_msgs::Marker::ADD;
 
-  std_msgs::ColorRGBA white;
-  white.a = 1.0;
-  white.b = 1.0;
-  white.r = 1.0;
-  white.g = 1.0;
-
-  for (int i = -100000; i < 100000;)
-  {
-    geometry_msgs::Point p;
-    if (fabs(a) < ERROR)  // linear equation y = n
-    {
-      p.y = (-1) * c / b;
-      p.x = i;
-    }
-    else if (fabs(b) < ERROR)  // linear equation x = n
-    {
-      p.x = (-1) * c / a;
-      p.y = i;
-    }
-    else
-    {
-      p.x = i;
-      p.y = (-1) * (a * p.x + c) / b;
-    }
-    p.z = _current_pose.pose.position.z;
-    line.points.push_back(p);
-    i += 5000;
-  }
-
-  line.scale.x = 0.3;
-  line.color = white;
-  line.frame_locked = true;
-  _line_point_pub.publish(line);
-
-  visualization_msgs::Marker marker;
-  marker.header.frame_id = MAP_FRAME;
-  marker.header.stamp = ros::Time();
-  marker.ns = "target_marker";
-  marker.id = 0;
-  marker.type = visualization_msgs::Marker::SPHERE_LIST;
-  marker.action = visualization_msgs::Marker::ADD;
-  // marker.pose.position = target;
-  marker.points.push_back(target);
-  std_msgs::ColorRGBA green;
-  green.a = 1.0;
-  green.b = 0.0;
-  green.r = 0.0;
-  green.g = 1.0;
-  marker.colors.push_back(green);
-  marker.points.push_back(target2);
-  std_msgs::ColorRGBA yellow;
-  yellow.a = 1.0;
-  yellow.b = 0.0;
-  yellow.r = 1.0;
-  yellow.g = 1.0;
-  marker.colors.push_back(yellow);
-  marker.points.push_back(target3);
-  std_msgs::ColorRGBA color;
-  color.a = 1.0;
-  color.b = 1.0;
-  color.r = 0.0;
-  color.g = 1.0;
-  marker.colors.push_back(color);
-
-  marker.scale.x = 1.0;
-  marker.scale.y = 1.0;
-  marker.scale.z = 1.0;
-  marker.frame_locked = true;
-  _line_point_pub.publish(marker);
-}
- */
 }  // namespace waypoint_follower

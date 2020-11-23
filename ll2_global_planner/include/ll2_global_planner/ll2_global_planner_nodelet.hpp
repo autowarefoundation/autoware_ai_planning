@@ -16,10 +16,11 @@
 #include <tf2_ros/buffer.h>
 #include <lanelet2_core/LaneletMap.h>
 
-#include <autoware_msgs/LaneArray.h>
 #include <autoware_lanelet2_msgs/MapBin.h>
-#include <lanelet2_routing/RoutingGraph.h>
+#include <autoware_msgs/LaneArray.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <lanelet2_routing/RoutingGraph.h>
+#include <sensor_msgs/NavSatFix.h>
 
 
 namespace ll2_global_planner {
@@ -36,11 +37,12 @@ class Ll2GlobalPlannerNl : public nodelet::Nodelet {
   // Subscriber callbacks
   void laneletMapCb(const autoware_lanelet2_msgs::MapBin& map_msg);
   void poseGoalCb(const geometry_msgs::PoseStamped::ConstPtr& pose_msg);
+  void llhGoalCb(const sensor_msgs::NavSatFix::ConstPtr& llh_msg);
 
   // Utility functions
-  void planRoute(const geometry_msgs::Point& goal_point);
+  void planRoute(const lanelet::BasicPoint2d& goal_point);
   std::vector<autoware_msgs::Waypoint> generateAutowareWaypoints(
-    const lanelet::LaneletSequence& continuous_lane, const geometry_msgs::Point& goal_point);
+    const lanelet::LaneletSequence& continuous_lane, const lanelet::BasicPoint2d& goal_point);
   lanelet::Lanelet getNearestLanelet(const lanelet::BasicPoint2d& point);
 
   // Nodehandles, both public and private
@@ -52,6 +54,7 @@ class Ll2GlobalPlannerNl : public nodelet::Nodelet {
   // Subscribers
   ros::Subscriber lanelet_sub_;
   ros::Subscriber posegoal_sub_;
+  ros::Subscriber llh_sub_;
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 

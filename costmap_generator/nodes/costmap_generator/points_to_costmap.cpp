@@ -53,8 +53,8 @@ bool PointsToCostmap::isValidInd(const grid_map::Index& grid_ind)
   bool is_valid = false;
   int x_grid_ind = grid_ind.x();
   int y_grid_ind = grid_ind.y();
-  if (x_grid_ind >= 0 && x_grid_ind < std::ceil(grid_length_x_ * (1 / grid_resolution_)) && y_grid_ind >= 0 &&
-      y_grid_ind < std::ceil(grid_length_y_ * (1 / grid_resolution_)))
+  if (x_grid_ind >= 0 && x_grid_ind < static_cast<int>(std::round(grid_length_x_ * (1 / grid_resolution_))) && y_grid_ind >= 0 &&
+      y_grid_ind < static_cast<int>(std::round(grid_length_y_ * (1 / grid_resolution_))))
   {
     is_valid = true;
   }
@@ -70,8 +70,8 @@ grid_map::Index PointsToCostmap::fetchGridIndexFromPoint(const pcl::PointXYZ& po
   double mapped_x = (grid_length_x_ - origin_x_offset - point.x) / grid_resolution_;
   double mapped_y = (grid_length_y_ - origin_y_offset - point.y) / grid_resolution_;
 
-  int mapped_x_ind = std::ceil(mapped_x);
-  int mapped_y_ind = std::ceil(mapped_y);
+  int mapped_x_ind = static_cast<int>(mapped_x);
+  int mapped_y_ind = static_cast<int>(mapped_y);
   grid_map::Index index(mapped_x_ind, mapped_y_ind);
   return index;
 }
